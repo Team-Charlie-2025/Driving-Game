@@ -2,13 +2,14 @@ let buttons = [];
 let bgImage;
 
 function preload() {
+    //Background image will need changed to map of game when complete
     bgImage = loadImage("https://i.imgur.com/hnKdHwZ.jpeg");
 }
 
 function setup() {
     createCanvas(1920, 1080);
     textAlign(CENTER, CENTER);
-    textFont("Comic Sans MS");
+    textFont("Ariel");
 
     // creates buttons from button class /defined
     buttons.push(
@@ -39,9 +40,10 @@ function draw() {
 
     // title
     fill(255);
-    textSize(48);
-    textFont("Comic Sans MS");
-    text("Top D-Racer", width / 2, 150);
+    textSize(150);
+    textFont("Impact");
+    text("Drive to \nSurvive", width / 2, 250);
+
 
     // how to interact with buttons
     for (let button of buttons) {
