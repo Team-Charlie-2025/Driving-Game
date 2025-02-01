@@ -11,7 +11,7 @@ class Car {
       this.speed = 0;
       this.angle = 0;
       this.acceleration = 0.1;
-      this.maxSpeed = 5;
+      this.maxSpeed = 8;
       this.friction = 0.05; // how fast car decel
     }
   
