@@ -19,6 +19,8 @@ function setup() {
   createCanvas(1920, 1080);
   textAlign(CENTER, CENTER);
   textFont("Comic Sans MS");
+  //generateRandomMap(96,54);    //to generate a "random" map
+  generateMap(96,54);  // Generates the 
   car = new Car(width / 2, height / 2, 50, 30);
   // creates buttons from button class /defined
   buttons.push(
