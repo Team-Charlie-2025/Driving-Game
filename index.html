@@ -1,75 +1,11 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Top D-Racer</title>
-    <script>
-      let mins = .1;
-      let secs = mins * 60;
-      function countdown() {
-          setTimeout('Decrement()', 60);
-      }
-      function Decrement() {
-          if (document.getElementById) {
-              minutes = document.getElementById("minutes");
-              seconds = document.getElementById("seconds");
-              if (seconds < 59) {
-                  seconds.value = secs;
-              }
-              else {
-                  minutes.value = getminutes();
-                  seconds.value = getseconds();
-              }
-              if (mins < 1) {
-                  minutes.style.color = "red";
-                  seconds.style.color = "red";
-              }
-              if (mins < 0) {
-                  alert('time up');
-                  minutes.value = 0;
-                  seconds.value = 0;
-              }
-              else {
-                  secs--;
-                  setTimeout('Decrement()', 1000);
-              }
-          }
-      }
-  
-      function getminutes() {
-          mins = Math.floor(secs / 60);
-          return mins;
-      }
-  
-      function getseconds() {
-          return secs - Math.round(mins * 60);
-      }
-  </script>
-  
-  <body onload="countdown();">
-      <div style="display: flex; width:80%;
-                  justify-content:center; padding-top: 0%;">
-          Time Left ::
-      </div>
-      <div style="display: flex; width:80%; 
-                  justify-content:center; padding-top: 0%;">
-          <input id="minutes" 
-                 type="text" 
-                 style="width: 2%; border: none; font-size: 16px;
-                        font-weight: bold; color: black;">
-          <font size="5">
-              :
-          </font>
-          <input id="seconds" 
-                 type="text" 
-                 style="width: 2%; border: none; font-size: 16px;
-                        font-weight: bold; color: black;">
-      </div>
-    </body>
-  </html>
+  <head> 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.6.0/p5.min.js"></script>
     <script src="scripts/play.js"></script>
+     <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Top D-Racer</title> 
     <script src="scripts/garage.js"></script>
     <script src="scripts/leaderboard.js"></script>
     <script src="scripts/settings.js"></script>
