@@ -16,11 +16,8 @@ class Car {
     }
   
     update() {
-      // W
-      if (keyIsDown(87)) {
-        // W w
-        if (keyIsDown(70)) {
-          // F key for boost
+      if (keyIsDown(87)) {    // W Key (87)
+        if (keyIsDown(70)) {  // F key (70) for boost
           this.speed = constrain(
             this.speed + this.acceleration * 2,
             -this.maxSpeed * 2,
@@ -35,17 +32,16 @@ class Car {
         }
       }
       let turnSpeed = 0.05;
-      if (keyIsDown(65)) {
-        if (keyIsDown(16)) this.angle -= turnSpeed * 2;
+      if (keyIsDown(65)) { // A key (65)
+        if (keyIsDown(16)) this.angle -= turnSpeed * 2;  // L shift key (16)
         else this.angle -= turnSpeed;
       }
-      if (keyIsDown(68)) {
+      if (keyIsDown(68)) {  // D key (68)
         if (keyIsDown(16)) this.angle += turnSpeed * 2;
         else this.angle += turnSpeed;
       }
   
-      // S
-      if (!keyIsDown(87) && !keyIsDown(83)) {
+      if (!keyIsDown(87) && !keyIsDown(83)) {  // S key (83)
         this.speed *= 1 - this.friction;
         if (Math.abs(this.speed) < 0.01) this.speed = 0;
       }
@@ -68,6 +64,7 @@ class Car {
       translate(this.x, this.y); //moves car
       rotate(this.angle);
       rectMode(CENTER); // ensures rotation is from center of rect
+      fill("blue");
       rect(0, 0, this.width, this.height);
       pop();
     }
