@@ -44,9 +44,15 @@ class Car {
       this.currentColor = this.defaultColor; // Reset color if reversing
     }
 
-    let turnSpeed = 0.05;
-    if (keyIsDown(65)) this.angle -= turnSpeed;
-    if (keyIsDown(68)) this.angle += turnSpeed;
+    let turnSpeed = 0.05;      
+    if (keyIsDown(65)) {
+      if (keyIsDown(16)) this.angle -= turnSpeed * 2;
+      else this.angle -= turnSpeed;
+    }
+    if (keyIsDown(68)) {
+      if (keyIsDown(16)) this.angle += turnSpeed * 2;
+      else this.angle += turnSpeed;
+    }
 
     if (!keyIsDown(87) && !keyIsDown(83)) {
       this.speed *= 1 - this.friction;
