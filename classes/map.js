@@ -66,11 +66,6 @@ function generateMap(rows, cols) {
         for (let x = 0; x < cols; x++) {
             for(let z=0; z<roadWidth; z++) { 
               map[y+z][x] = new Road(x * gridSize, (y+z) * gridSize);
-          /*
-            map[y][x] = new Road(x * gridSize, y * gridSize);
-            map[y + 1][x] = new Road(x * gridSize, (y + 1) * gridSize);
-            map[y + 2][x] = new Road(x * gridSize, (y + 2) * gridSize);
-*/
             }
         }
     }
@@ -81,11 +76,6 @@ function generateMap(rows, cols) {
             for (let z = 0; z < roadWidth; z++) { 
                 map[y][x+z] = new Road((x+z) * gridSize, y * gridSize);
             }
-          /*
-            map[y][x] = new Road(x * gridSize, y * gridSize);
-            map[y][x + 1] = new Road((x + 1) * gridSize, y * gridSize);
-            map[y][x + 2] = new Road((x + 2) * gridSize, y * gridSize);
-            */
         }
     }
 }
