@@ -9,6 +9,8 @@ const Mode = {
   garage: 2,
   settings: 3,
   exit: 4,
+  login: 5,
+  signUp: 6,
 };
 
 function preload() {
@@ -19,6 +21,8 @@ function setup() {
   createCanvas(1920, 1080);
   textAlign(CENTER, CENTER);
   textFont("Comic Sans MS");
+  //generateRandomMap(96,54);    //to generate a "random" map
+  generateMap(96,54);  // Generates the 
   car = new Car(width / 2, height / 2, 50, 30);
   // creates buttons from button class /defined
   buttons.push(
@@ -37,6 +41,12 @@ function setup() {
   );
   buttons.push(
     new Button("Exit", width / 2, height / 2 + 480, () => exitGame())
+  );
+  buttons.push(
+    new Button("login", width - 150, 50, () => login())
+  );
+  buttons.push(
+    new Button("Sign Up", width - 150, 120, () => signUp()) // Below the Login button
   );
 }
 
@@ -58,7 +68,12 @@ function draw() {
     case 4:
       remove();
       break;
+    case 5:
+      drawLogin();
+      break;
     default:
+    case 6:
+      drawSignUp();
       break;
   }
 }
@@ -111,4 +126,13 @@ function showLeaderboard() {
 
 function exitGame() {
   console.log("Exit clicked");
+}
+function login() {
+  console.log("Login clicked");
+  mode = Mode.login;
+  console.log("mode is ", mode);
+}
+function signUp() {
+  mode = Mode.signUp;
+  console.log("Sign Up clicked");
 }
