@@ -23,14 +23,14 @@ class Road {
     constructor(x, y) {
         this.x = x;
         this.y = y;
-        this.color = 'grey';
+        this.color = 'white';
         this.width = gridSize;
         this.height = gridSize;
     }
 
     draw() {
         fill(this.color);
-        noStroke();
+        //noStroke();
         rect(this.x, this.y, this.width, this.height);
     }
 }
@@ -41,7 +41,7 @@ function generateRandomMap(rows, cols) {
     for (let y = 0; y < rows; y++) {
         map[y] = [];
         for (let x = 0; x < cols; x++) {
-            if (Math.random() > 0.2) { // 80% chance of road
+            if (Math.random() > 0.1) { // 90% chance of road
                 map[y][x] = new Road(x * gridSize, y * gridSize);
             } else {
                 map[y][x] = new Building(x * gridSize, y * gridSize);
@@ -60,19 +60,22 @@ function generateMap(rows, cols) {
         }
     }
 
-    // Add roads: horizontal roads (2 tiles wide)
-    for (let y = 2; y < rows; y += 4) { // Create horizontal roads every 4 rows, 2 tiles wide
+    let roadWidth = 4;
+    // Add roads: horizontal roads (3 tiles wide)
+    for (let y = roadWidth; y < rows; y += roadWidth*2) { // Create horizontal roads every 4 rows, 2 tiles wide
         for (let x = 0; x < cols; x++) {
-            map[y][x] = new Road(x * gridSize, y * gridSize);
-            map[y + 1][x] = new Road(x * gridSize, (y + 1) * gridSize);
+            for(let z=0; z<roadWidth; z++) { 
+              map[y+z][x] = new Road(x * gridSize, (y+z) * gridSize);
+            }
         }
     }
 
     // Add roads: vertical roads (2 tiles wide)
-    for (let x = 2; x < cols; x += 4) { // Create vertical roads every 4 columns, 2 tiles wide
+    for (let x = roadWidth; x < cols; x += roadWidth*2) { // Create vertical roads every 4 columns, 2 tiles wide
         for (let y = 0; y < rows; y++) {
-            map[y][x] = new Road(x * gridSize, y * gridSize);
-            map[y][x + 1] = new Road((x + 1) * gridSize, y * gridSize);
+            for (let z = 0; z < roadWidth; z++) { 
+                map[y][x+z] = new Road((x+z) * gridSize, y * gridSize);
+            }
         }
     }
 }
