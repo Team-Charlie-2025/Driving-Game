@@ -1,7 +1,8 @@
 let buttons = [];
 let bgImage;
 let mode = -1;
-let car;
+let newCanvas = false;
+let car = null;
 
 const Mode = {
   title: -1,
@@ -17,14 +18,82 @@ function preload() {
   bgImage = loadImage("https://i.imgur.com/hnKdHwZ.jpeg");
 }
 
+function windowResized() {
+  // needs work 
+  noLoop();
+  drawTitle();
+  loop();
+  redraw();
+}
+
 function setup() {
-  createCanvas(1920, 1080);
-  textAlign(CENTER, CENTER);
-  textFont("Comic Sans MS");
+
+  /////////////////////////
+
+  drawTitle();
+
+  /////////////////////////
+
   //generateRandomMap(96,54);    //to generate a "random" map
-  generateMap(1920/gridSize,1080/gridSize);  // Generates the 
-  car = new Car(width / 2, height / 2, 50, 30);
-  // creates buttons from button class /defined
+  
+}
+
+ 
+function draw() {
+    // ESC key exit to main menu available at all times
+    if (keyIsDown(27)) {
+      mode = Mode.title;
+    } 
+    // In the case of return to title, despawn car and reset newCanvas to false
+    if (mode == Mode.title) {
+      car = null;
+      newCanvas = false;
+    }
+
+  switch (mode) {
+    case -1:  // title
+      drawTitle();
+      break;
+    case 1:   // play game
+      drawPlay();
+      break;
+    case 2:
+      drawGarage();
+      break;
+    case 3:
+      drawSettings();
+      break;
+    case 4:
+      remove();
+      break;
+    case 5:
+      drawLogin();
+      break;
+    default:
+    case 6:
+      drawSignUp();
+      break;
+  }
+}
+
+
+
+function drawTitle() {
+  createCanvas(windowWidth, windowHeight);
+  textAlign(CENTER, CENTER);
+
+  if (bgImage) {
+    background(bgImage);
+  } else {
+    background(30, 30, 30);
+  }
+
+  // title
+  fill(255);
+  textSize(48);
+  textFont("Comic Sans MS");
+  text("Swiggle", width / 2, 150);
+
   buttons.push(
     new Button("Play Game", width / 2, height / 2 + 200, () => startGame())
   );
@@ -48,48 +117,6 @@ function setup() {
   buttons.push(
     new Button("Sign Up", width - 150, 120, () => signUp()) // Below the Login button
   );
-}
-
-function draw() {
-    if (keyIsDown(27)) mode = Mode.title;
-  switch (mode) {
-    case -1:
-      drawTitle();
-      break;
-    case 1:
-      drawPlay();
-      break;
-    case 2:
-      drawGarage();
-      break;
-    case 3:
-      drawSettings();
-      break;
-    case 4:
-      remove();
-      break;
-    case 5:
-      drawLogin();
-      break;
-    default:
-    case 6:
-      drawSignUp();
-      break;
-  }
-}
-
-function drawTitle() {
-  if (bgImage) {
-    background(bgImage);
-  } else {
-    background(30, 30, 30);
-  }
-
-  // title
-  fill(255);
-  textSize(48);
-  textFont("Comic Sans MS");
-  text("Drive to Survive", width / 2, 150);
 
   // how to interact with buttons
   for (let button of buttons) {
