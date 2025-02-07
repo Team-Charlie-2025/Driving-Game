@@ -3,20 +3,20 @@ function startGame() {
   
   console.log("Play Game clicked");
 
+  // map is currently busted
   
-  
-  mode = Mode.play;
-
-  if(!canvas) {
+  /**if(!canvas) {
     console.log("map");
     generateMap(windowWidth/gridSize,windowHeight/gridSize);
     canvas = true;
-  }
+  } **/
 
   if (!car){
     console.log("car");
     car = new Car(width / 2, height / 2, 50, 30);
   }
+
+  mode = Mode.play;
 
   console.log("mode is ", mode);
 
@@ -24,7 +24,6 @@ function startGame() {
 
 // game logic
 function drawPlay() { 
-  
   
     drawMap();
     car.update();

@@ -22,6 +22,8 @@ function preload() {
 /** 
 function windowResized() {
   // needs work 
+  // function automatically reacts to browser resizing
+  
   resizeCanvas(windowWidth, windowHeight);
   
   
@@ -32,9 +34,8 @@ function windowResized() {
 function setup() {
 
   /////////////////////////
-  createCanvas(windowWidth, windowHeight);
-  //textAlign(CENTER, CENTER);
 
+  createCanvas(windowWidth, windowHeight);
   drawTitle();
 
   /////////////////////////
@@ -82,43 +83,7 @@ function draw() {
   }
 }
 
-function drawGarage() {
-  return;
-}
-
-function drawSettings() {
-  return;
-}
-
-function startGame() {
-  console.log("Play Game clicked");
-  
-  mode = Mode.play;
-  console.log("mode is ", mode);
-}
-
-function showGarage() {
-  console.log("Garage clicked");
-  reset();
-}
-
-function showSettings() {
-  console.log("Settings clicked");
-}
-
-function showLeaderboard() {
-  console.log("Leaderboard clicked");
-}
-
 function exitGame() {
   console.log("Exit clicked");
 }
-function login() {
-  console.log("Login clicked");
-  mode = Mode.login;
-  console.log("mode is ", mode);
-}
-function signUp() {
-  mode = Mode.signUp;
-  console.log("Sign Up clicked");
-}
+
