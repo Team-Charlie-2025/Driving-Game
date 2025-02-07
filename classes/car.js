@@ -1,8 +1,3 @@
-function setup() {
-  createCanvas(windowWidth, windowHeight);
-  car = new Car(width / 2, height / 2, 50, 30);
-}
-
 class Car {
   constructor(x, y, w, h) {
     this.x = x;
@@ -105,9 +100,4 @@ class Car {
     pop();
   }
 }
-
-function draw() {
-  background(220);
-  car.update();
-  car.display();
-}
+  
