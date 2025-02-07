@@ -1,5 +1,6 @@
 let buttons = [];
 let bgImage;
+let titleImg ;
 let mode = -1;
 let car;
 
@@ -15,6 +16,8 @@ const Mode = {
 
 function preload() {
   bgImage = loadImage("https://i.imgur.com/hnKdHwZ.jpeg");
+  imgTitle = new Image();
+  imgTitle.src = "graphics/title.png";
 }
 
 function setup() {
@@ -84,17 +87,17 @@ function drawTitle() {
   } else {
     background(30, 30, 30);
   }
-
   // title
-  fill(255);
-  textSize(48);
-  textFont("Comic Sans MS");
-  text("Drive to Survive", width / 2, 150);
+  if (imgTitle){
+    drawingContext.drawImage(imgTitle, 280, 50, 1400, 350);
+  }
 
   // how to interact with buttons
   for (let button of buttons) {
     button.display();
   }
+
+  
 }
 
 function drawGarage() {
