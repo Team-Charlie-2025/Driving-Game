@@ -1,3 +1,11 @@
+var imgCar;
+
+function preload() {
+  imgCar = new Image();
+  imgCar.src = "graphics/redStripe.png";
+  
+}
+
 function setup() {
   createCanvas(windowWidth, windowHeight);
   car = new Car(width / 2, height / 2, 50, 30);
@@ -15,9 +23,10 @@ class Car {
     this.maxSpeed = 8;
     this.friction = 0.05;
     this.reverseSpeed = -4;
-    this.defaultColor = color(100, 100, 255); // Normal color (Blue)
-    this.boostColor = color(255, 50, 50); // Boosting color (Red)
-    this.currentColor = this.defaultColor;
+    this.currentImage = imgCar;
+    //this.defaultColor = color(100, 100, 255); // Normal color (Blue)
+   //this.boostColor = color(255, 50, 50); // Boosting color (Red)
+    //this.currentColor = this.defaultColor;
   }
 
   update() {
@@ -75,38 +84,21 @@ class Car {
     translate(this.x, this.y);
     rotate(this.angle);
 
-    // Car body
-    fill(this.currentColor);
-    stroke(0);
-    rectMode(CENTER);
-    rect(0, 0, this.width, this.height, 8);
-
-    // Wheels
-    fill(50);
-    let wheelOffsetX = this.width / 2 - 7;
-    let wheelOffsetY = this.height / 2 + 3;
-    ellipse(-wheelOffsetX, -wheelOffsetY, 12, 7);
-    ellipse(wheelOffsetX, -wheelOffsetY, 12, 7);
-    ellipse(-wheelOffsetX, wheelOffsetY, 12, 7);
-    ellipse(wheelOffsetX, wheelOffsetY, 12, 7);
-
-    // Headlights (yellow when moving forward)
-    if (this.speed > 0) fill(255, 255, 100);
-    else fill(200);
-    rect(this.width / 2, -this.height / 4, 8, 8);
-    rect(this.width / 2, this.height / 4, 8, 8);
-
-    // Brake lights (red when reversing)
-    if (this.speed < 0) fill(255, 0, 0);
-    else fill(50);
-    rect(-this.width / 2, -this.height / 4, 8, 8);
-    rect(-this.width / 2, this.height / 4, 8, 8);
+    if (this.currentImage) {
+      drawingContext.drawImage(this.currentImage, 0, 0, this.width*2, this.height*2);
+      //image(this.currentImage, 0, 0, this.width, this.height);
+    } else {
+      fill(0, 0, 0);
+      rect(0, 0, this.width, this.height); // Fallback in case image fails
+    }
+    
 
     pop();
   }
 }
 
 function draw() {
+  
   background(220);
   car.update();
   car.display();
