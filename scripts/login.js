@@ -5,6 +5,17 @@ let submitLoginBtn;
 
 let loginElementsCreated = false; // flag to check if login elements are created or not
 
+function login() {
+  console.log("Login clicked");
+  mode = Mode.login;
+  console.log("mode is ", mode);
+}
+
+function signUp() {
+  mode = Mode.signUp;
+  console.log("Sign Up clicked");
+}
+
 function drawLogin() {
   background(230);
 
