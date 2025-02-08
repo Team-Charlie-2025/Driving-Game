@@ -1,14 +1,16 @@
-var imgCar;
+/*var imgCar;
+var cars = [];
 
 function preload() {
   imgCar = new Image();
   imgCar.src = "graphics/redStripe.png";
+  cars[0] = imgCar;
   
-}
+}*/
 
 function setup() {
   createCanvas(windowWidth, windowHeight);
-  car = new Car(width / 2, height / 2, 50, 30);
+  cars = new Car(width / 2, height / 2, 50, 30);
 }
 
 class Car {
@@ -23,7 +25,7 @@ class Car {
     this.maxSpeed = 8;
     this.friction = 0.05;
     this.reverseSpeed = -4;
-    this.currentImage = imgCar;
+    this.currentImage = cars[1];
     //this.defaultColor = color(100, 100, 255); // Normal color (Blue)
    //this.boostColor = color(255, 50, 50); // Boosting color (Red)
     //this.currentColor = this.defaultColor;
@@ -37,20 +39,20 @@ class Car {
           this.reverseSpeed * 2,
           this.maxSpeed * 2
         );
-        this.currentColor = this.boostColor; // Change to boost color
+        //this.currentColor = this.boostColor; // Change to boost color
       } else {
         this.speed = constrain(
           this.speed + this.acceleration,
           this.reverseSpeed,
           this.maxSpeed
         );
-        this.currentColor = this.defaultColor; // Reset color when not boosting
+        //this.currentColor = this.defaultColor; // Reset color when not boosting
       }
     }
 
     if (keyIsDown(83)) {
       this.speed = constrain(this.speed - this.acceleration, this.reverseSpeed, this.maxSpeed);
-      this.currentColor = this.defaultColor; // Reset color if reversing
+      //this.currentColor = this.defaultColor; // Reset color if reversing
     }
 
     let turnSpeed = 0.05;      
@@ -66,7 +68,7 @@ class Car {
     if (!keyIsDown(87) && !keyIsDown(83)) {
       this.speed *= 1 - this.friction;
       if (Math.abs(this.speed) < 0.01) this.speed = 0;
-      this.currentColor = this.defaultColor; // Reset color if not moving
+      //this.currentColor = this.defaultColor; // Reset color if not moving
     }
 
     this.x += this.speed * cos(this.angle);
@@ -85,7 +87,7 @@ class Car {
     rotate(this.angle);
 
     if (this.currentImage) {
-      drawingContext.drawImage(this.currentImage, 0, 0, this.width*2, this.height*2);
+      drawingContext.drawImage(this.currentImage, 0, 0, this.width*2, this.height*2.5);
       //image(this.currentImage, 0, 0, this.width, this.height);
     } else {
       fill(0, 0, 0);
