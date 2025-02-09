@@ -1,4 +1,6 @@
-let buttons = [];
+let buttons = [
+
+];
 let bgImage;
 let titleImg ;
 let mode = -1;
@@ -32,47 +34,43 @@ function preload() {
   cars[2] = imgCar;
   //can continue to add options for preload if car images
 }
+function windowResized() {
+  //stops the infinite drawing of buttons on window resize
+  buttons = []; //prob memory leak
+
+  noLoop();
+  drawTitle();
+  loop();
+  redraw();
+}
 
 function setup() {
-  createCanvas(1920, 1080);
-  textAlign(CENTER, CENTER);
-  textFont("Comic Sans MS");
-  //generateRandomMap(96,54);    //to generate a "random" map
-  generateMap(1920/gridSize,1080/gridSize);  // Generates the 
-  car = new Car(width / 2, height / 2, 50, 30);
-  // creates buttons from button class /defined
-  buttons.push(
-    new Button("Play Game", width / 2, height / 2 + 200, () => startGame())
-  );
-  buttons.push(
-    new Button("Garage", width / 2, height / 2 + 270, () => showGarage())
-  );
-  buttons.push(
-    new Button("Leaderboard", width / 2, height / 2 + 410, () =>
-      showLeaderboard()
-    )
-  );
-  buttons.push(
-    new Button("Settings", width / 2, height / 2 + 340, () => showSettings())
-  );
-  buttons.push(
-    new Button("Exit", width / 2, height / 2 + 480, () => exitGame())
-  );
-  buttons.push(
-    new Button("login", width - 150, 50, () => login())
-  );
-  buttons.push(
-    new Button("Sign Up", width - 150, 120, () => signUp()) // Below the Login button
-  );
+    /////////////////////////
+
+    drawTitle();
+
+    /////////////////////////
+  
+    //generateRandomMap(96,54);    //to generate a "random" map
+    
 }
 
 function draw() {
-    if (keyIsDown(27)) mode = Mode.title;
+    // ESC key exit to main menu available at all times
+    if (keyIsDown(27)) {
+      mode = Mode.title;
+    } 
+    // In the case of return to title, despawn car and reset newCanvas to false
+    if (mode == Mode.title) {
+      car = null;
+      newCanvas = false;
+    }
+
   switch (mode) {
-    case -1:
+    case -1:  // title
       drawTitle();
       break;
-    case 1:
+    case 1:   // play game
       drawPlay();
       break;
     case 2:
@@ -95,6 +93,9 @@ function draw() {
 }
 
 function drawTitle() {
+  createCanvas(windowWidth, windowHeight);
+  textAlign(CENTER, CENTER);
+
   if (bgImage) {
     background(bgImage);
   } else {
@@ -102,8 +103,33 @@ function drawTitle() {
   }
   // title
   if (imgTitle){
-    drawingContext.drawImage(imgTitle, 280, 50, 1400, 350);
+    drawingContext.drawImage(imgTitle, windowWidth/6, windowHeight/11, windowWidth/1.5, windowHeight/2.4);
   }
+
+  buttons.push(
+    new Button("Play Game", width / 2, height -height* 0.45, () => startGame())
+  );
+  buttons.push(
+    new Button("Garage", width / 2, height -height* 0.38, () => showGarage())
+  );
+  buttons.push(
+    new Button("Leaderboard", width / 2, height -height* 0.31, () =>
+      showLeaderboard()
+    )
+  );
+  buttons.push(
+    new Button("Settings", width / 2, height -height* 0.24 , () => showSettings())
+  );
+  buttons.push(
+    new Button("Exit", width / 2, height -height* 0.17, () => exitGame())
+  );
+  buttons.push(
+    new Button("login", width /1.1, height -height* 0.95, () => login())
+  );
+  buttons.push(
+    new Button("Sign Up", width /1.1, height -height* 0.88, () => signUp()) // Below the Login button
+  );
+
 
   // how to interact with buttons
   for (let button of buttons) {

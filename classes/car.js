@@ -1,18 +1,3 @@
-/*var imgCar;
-var cars = [];
-
-function preload() {
-  imgCar = new Image();
-  imgCar.src = "graphics/redStripe.png";
-  cars[0] = imgCar;
-  
-}*/
-
-function setup() {
-  createCanvas(windowWidth, windowHeight);
-  cars = new Car(width / 2, height / 2, 50, 30);
-}
-
 class Car {
   constructor(x, y, w, h) {
     this.x = x;
@@ -87,21 +72,16 @@ class Car {
     rotate(this.angle);
 
     if (this.currentImage) {
-      drawingContext.drawImage(this.currentImage, 0, 0, this.width*2, this.height*2.5);
-      //image(this.currentImage, 0, 0, this.width, this.height);
+      // (-16, -32) rear wheel drive
+      // (-48, -32) front? wheel
+      drawingContext.drawImage(this.currentImage, -32, -32, this.width*2, this.height*2.5);
+      
     } else {
       fill(0, 0, 0);
       rect(0, 0, this.width, this.height); // Fallback in case image fails
     }
-    
 
     pop();
   }
 }
 
-function draw() {
-  
-  background(220);
-  car.update();
-  car.display();
-}
