@@ -103,7 +103,7 @@ function drawTitle() {
   }
   // title
   if (imgTitle){
-    drawingContext.drawImage(imgTitle, windowWidth/6, windowHeight/11, windowWidth/1.5, windowHeight/2.4);
+    drawingContext.drawImage(imgTitle, windowWidth/10, windowHeight/12, windowWidth/1.2, windowHeight/2.6);
   }
 
   buttons.push(
