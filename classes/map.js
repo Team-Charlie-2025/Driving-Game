@@ -118,7 +118,7 @@ function generateDevMap(rows,cols){
   drawAngle45(45,13,58,0,4);
   drawAngle45(45,25,58,8,4);
   drawAngledBuilding(19,10,0,16,4);
-  
+  drawAngledBuilding(19,24,0,29,4);
 
   
   /*  TEMPLATE 
