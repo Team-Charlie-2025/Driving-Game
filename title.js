@@ -76,8 +76,6 @@ function draw() {
   }
 }
 
-
-
 function drawTitle() {
   createCanvas(windowWidth, windowHeight);
   textAlign(CENTER, CENTER);
@@ -87,6 +85,8 @@ function drawTitle() {
   } else {
     background(30, 30, 30);
   }
+
+  buttons = [];
 
   // title
   fill(255);
@@ -124,10 +124,6 @@ function drawTitle() {
   }
 }
 
-function drawGarage() {
-  return;
-}
-
 function drawSettings() {
   return;
 }
@@ -140,7 +136,8 @@ function startGame() {
 
 function showGarage() {
   console.log("Garage clicked");
-  reset();
+  mode = Mode.garage;
+  console.log("mode is ", mode);
 }
 
 function showSettings() {
