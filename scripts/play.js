@@ -1,6 +1,8 @@
 // game logic
-function drawPlay() {
-
+function drawPlay() 
+{
+ 
+  
   if(!newCanvas) {
     createCanvas(windowWidth, windowHeight);
     generateMap(windowWidth/gridSize,windowHeight/gridSize);
@@ -13,8 +15,10 @@ function drawPlay() {
     
     console.log("test_3");
     //background(230);
-    drawMap();
+    drawMap(); 
+    
     car.update();
     car.display();
+    drawtimer();
   
 }
