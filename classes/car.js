@@ -1,18 +1,39 @@
 class Car {
-  constructor(x, y, w, h) {
+  constructor(x, y, w, h, a = Car.defaultAcceleration, ms = Car.defaultMaxSpeed) {
     this.x = x;
     this.y = y;
     this.width = w;
     this.height = h;
     this.speed = 0;
     this.angle = 0;
-    this.acceleration = 0.1;
-    this.maxSpeed = 8;
+    this.acceleration = a;
+    this.maxSpeed = ms;
     this.friction = 0.05;
     this.reverseSpeed = -4;
     this.defaultColor = color(100, 100, 255); // Normal color (Blue)
     this.boostColor = color(255, 50, 50); // Boosting color (Red)
     this.currentColor = this.defaultColor;
+  }
+
+  static upgradeDefaults(newAcceleration, newMaxSpeed) {
+    this.defaultAcceleration = newAcceleration;
+    this.defaultMaxSpeed = newMaxSpeed;
+  }
+
+  static get defaultAcceleration() {
+    return this._defaultAcceleration || 0.1;
+  }
+
+  static set defaultAcceleration(value) {
+    this._defaultAcceleration = value;
+  }
+
+  static get defaultMaxSpeed() {
+    return this._defaultMaxSpeed || 8;
+  }
+
+  static set defaultMaxSpeed(value) {
+    this._defaultMaxSpeed = value;
   }
 
   update() {
