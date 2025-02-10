@@ -1,6 +1,4 @@
-let buttons = [
-
-];
+let buttons = [];
 let bgImage;
 let titleImg ;
 let mode = -1;
@@ -46,7 +44,7 @@ function setup() {
     /////////////////////////
 
     drawTitle();
-    generateDevMap(canvasHeight/gridSize,canvasWidth/gridSize);
+    generateDevMap(windowWidth/gridSize,windowHeight/gridSize);
 
     /////////////////////////
   
