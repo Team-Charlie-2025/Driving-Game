@@ -8,7 +8,7 @@ function drawPlay() {
   }
 
   if (!car){
-    car = new Car(width / 2, height / 2, 50, 30);
+    car = new Car(width / 2, height / 2);
   }
     
   console.log("test_3");

@@ -1,9 +1,9 @@
 class Car {
-  constructor(x, y, w, h) {
+  constructor(x, y) {
     this.x = x;
     this.y = y;
-    this.width = w;
-    this.height = h;
+    //this.width = w;
+    //this.height = h;
     this.xTile = y/gridSize ; // THIS FUNCTION WILL NEED CHANGED WHEN MAP EXPANDS
     this.yTile = x/gridSize ; // Gives the approximate location on the 2d map array
     this.speed = 0;
