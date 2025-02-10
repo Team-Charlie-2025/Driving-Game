@@ -132,10 +132,15 @@ function drawSettings() {
   return;
 }
 
+function setup() {
+  return;
+}
+
 function startGame() {
   console.log("Play Game clicked");
   mode = Mode.play;
   console.log("mode is ", mode);
+  drawtimer();
 }
 
 function showGarage() {
