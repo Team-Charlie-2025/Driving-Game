@@ -44,8 +44,6 @@ function setup() {
     /////////////////////////
 
     drawTitle();
-    generateDevMap(windowWidth/gridSize,windowHeight/gridSize);
-
     /////////////////////////
   
     //generateRandomMap(96,54);    //to generate a "random" map

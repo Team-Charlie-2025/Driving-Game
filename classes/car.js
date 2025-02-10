@@ -93,7 +93,7 @@ class Car {
     if (this.currentImage) {
       // (-16, -32) rear wheel drive
       // (-48, -32) front? wheel
-      drawingContext.drawImage(this.currentImage, -32, -32, this.width*2, this.height*2.5);
+      drawingContext.drawImage(this.currentImage, -32, -64, 128, 128);
       
     } else {
       fill(0, 0, 0);
