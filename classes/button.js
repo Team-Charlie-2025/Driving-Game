@@ -19,6 +19,7 @@ class Button {
 
         fill(0);
         textSize(24);
+        textAlign(CENTER, CENTER)
         text(this.label, this.x, this.y);
     }
 
