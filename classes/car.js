@@ -10,59 +10,78 @@ class Car {
     this.maxSpeed = 8;
     this.friction = 0.05;
     this.reverseSpeed = -4;
-    this.defaultColor = color(100, 100, 255); // Normal color (Blue)
-    this.boostColor = color(255, 50, 50); // Boosting color (Red)
+    this.defaultColor = color(100, 100, 255);
+    this.boostColor = color(255, 50, 50);
     this.currentColor = this.defaultColor;
+
+    this.health = new Health(100); // Add health system
+    this.boost = new Boost(100); // Add boost system
+  }
+
+  takeDamage(amount) {
+    this.health.takeDamage(amount);
+    if (this.health.isDead()) {
+      console.log("Car Destroyed! Game Over.");
+      noLoop(); // Stop the game
+    }
   }
 
   update() {
-    if (keyIsDown(87)) {
-      if (keyIsDown(70)) {
-        this.speed = constrain(
-          this.speed + this.acceleration * 2,
-          this.reverseSpeed * 2,
-          this.maxSpeed * 2
-        );
-        this.currentColor = this.boostColor; // Change to boost color
+    let boosting = false;
+
+    if (keyIsDown(87)) { // Forward
+      if (keyIsDown(70)) { // Boost key (F)
+        if (this.boost.useBoost()) {
+          this.speed = constrain(
+            this.speed + this.acceleration * 2,
+            this.reverseSpeed * 2,
+            this.maxSpeed * 2
+          );
+          this.currentColor = this.boostColor;
+          boosting = true;
+        }
       } else {
         this.speed = constrain(
           this.speed + this.acceleration,
           this.reverseSpeed,
           this.maxSpeed
         );
-        this.currentColor = this.defaultColor; // Reset color when not boosting
+        this.currentColor = this.defaultColor;
       }
     }
 
-    if (keyIsDown(83)) {
-      this.speed = constrain(this.speed - this.acceleration, this.reverseSpeed, this.maxSpeed);
-      this.currentColor = this.defaultColor; // Reset color if reversing
+    if (!boosting) {
+      this.boost.rechargeBoost();
     }
 
-    let turnSpeed = 0.05;      
-    if (keyIsDown(65)) {
+    if (keyIsDown(83)) { // Reverse
+      this.speed = constrain(this.speed - this.acceleration, this.reverseSpeed, this.maxSpeed);
+      this.currentColor = this.defaultColor;
+    }
+
+    let turnSpeed = 0.05;
+    if (keyIsDown(65)) { // Left
       if (keyIsDown(16)) this.angle -= turnSpeed * 2;
       else this.angle -= turnSpeed;
     }
-    if (keyIsDown(68)) {
+    if (keyIsDown(68)) { // Right
       if (keyIsDown(16)) this.angle += turnSpeed * 2;
       else this.angle += turnSpeed;
     }
 
-    if (!keyIsDown(87) && !keyIsDown(83)) {
+    if (!keyIsDown(87) && !keyIsDown(83)) { // No movement
       this.speed *= 1 - this.friction;
       if (Math.abs(this.speed) < 0.01) this.speed = 0;
-      this.currentColor = this.defaultColor; // Reset color if not moving
+      this.currentColor = this.defaultColor;
     }
 
     this.x += this.speed * cos(this.angle);
     this.y += this.speed * sin(this.angle);
 
-    if (this.x < 0) this.x = width;
-    else if (this.x > width) this.x = 0;
-
-    if (this.y < 0) this.y = height;
-    else if (this.y > height) this.y = 0;
+    // Example collision detection
+    if (this.x < 0 || this.x > width || this.y < 0 || this.y > height) {
+      this.takeDamage(10); // Lose health when hitting boundaries
+    }
   }
 
   display() {
@@ -70,13 +89,11 @@ class Car {
     translate(this.x, this.y);
     rotate(this.angle);
 
-    // Car body
     fill(this.currentColor);
     stroke(0);
     rectMode(CENTER);
     rect(0, 0, this.width, this.height, 8);
 
-    // Wheels
     fill(50);
     let wheelOffsetX = this.width / 2 - 7;
     let wheelOffsetY = this.height / 2 + 3;
@@ -85,19 +102,21 @@ class Car {
     ellipse(-wheelOffsetX, wheelOffsetY, 12, 7);
     ellipse(wheelOffsetX, wheelOffsetY, 12, 7);
 
-    // Headlights (yellow when moving forward)
     if (this.speed > 0) fill(255, 255, 100);
     else fill(200);
     rect(this.width / 2, -this.height / 4, 8, 8);
     rect(this.width / 2, this.height / 4, 8, 8);
 
-    // Brake lights (red when reversing)
     if (this.speed < 0) fill(255, 0, 0);
     else fill(50);
     rect(-this.width / 2, -this.height / 4, 8, 8);
     rect(-this.width / 2, this.height / 4, 8, 8);
 
     pop();
+
+    // Display health bar
+    this.health.display(10, 10, 200, 20);
+    // Display boost meter below health bar
+    this.boost.display(10, 35, 200, 15);
   }
 }
-  
