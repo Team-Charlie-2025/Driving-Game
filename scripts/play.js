@@ -3,7 +3,7 @@ function drawPlay() {
 
   if(!newCanvas) {
     createCanvas(windowWidth, windowHeight);
-    generateMap(windowWidth/gridSize,windowHeight/gridSize);
+    generateDevMap(windowWidth/gridSize,windowHeight/gridSize);
     newCanvas = true;
   }
 
