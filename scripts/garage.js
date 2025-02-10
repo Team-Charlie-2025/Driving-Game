@@ -26,8 +26,9 @@ let playerUpgrades = [
       text(`${upgrade.name}: Level ${upgrade.level}/${upgrade.maxLevel}`, width / 2 - 120, 200 + i * 70);
   
       // Create "+ Upgrade" button
-      let btn = new Button("+", width / 2 + 100, 200 + i * 70, () => upgradeStat(i));
+      let btn = new Button("+", .75 * width, 230 + i * 70, () => upgradeStat(i));
       buttons.push(btn);
+      upgradeBars(width / 2 - 100, 230 + i * 70, upgrade.level);
     }
   
     // Back button to return to the main menu
@@ -37,17 +38,28 @@ let playerUpgrades = [
   
     buttons.push(backButton);
   
-    // Explicitly display buttons so they appear correctly
     for (let button of buttons) {
       if (button.label == "+")
       {
-        button.width = 50;
-        button.x = .75 * width;
+        button.width = 35;
+        button.height = 35;
       }
         button.display();
     }
   }
-  
+
+  function upgradeBars(x, y, j) {
+    for (let i = 0; i < 10; i++) {
+      if (i < j) {
+        fill(255, 0, 0);
+      } else {
+        fill(0, 0, 0);
+      }
+      rect(x + i * 55, y, 50, 10);
+    }
+    fill(255, 255, 255);
+  }
+
   function upgradeStat(index) {
     let upgrade = playerUpgrades[index];
     if (upgrade.level < upgrade.maxLevel) {
@@ -55,8 +67,11 @@ let playerUpgrades = [
       switch(upgrade.name) {
         case "Max Speed":
           Car.upgradeDefaults(Car.defaultAcceleration, Car.defaultMaxSpeed * upgrade.level);
-        case "Max Acceleration":
+          break;
+        case "Acceleration":
           Car.upgradeDefaults(Car.defaultAcceleration * upgrade.level, Car.defaultMaxSpeed);
+          break;
+        default:
       }
       console.log(`${upgrade.name} upgraded to level ${upgrade.level}`);
     } else {
@@ -69,4 +84,5 @@ let playerUpgrades = [
       button.checkClick();
     }
   }
+  
   

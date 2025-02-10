@@ -11,7 +11,7 @@ function drawPlay() {
     car = new Car(width / 2, height / 2, 50, 30);
   }
     
-    console.log("test_3");
+    console.log(`${car.acceleration}, ${car.maxSpeed}`);
     //background(230);
     drawMap();
     car.update();
