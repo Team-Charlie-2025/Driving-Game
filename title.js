@@ -14,8 +14,6 @@ const Mode = {
   garage: 2,
   settings: 3,
   exit: 4,
-  login: 5,
-  signUp: 6,
 };
 
 function preload() {
@@ -48,6 +46,7 @@ function setup() {
     /////////////////////////
 
     drawTitle();
+    generateDevMap(canvasHeight/gridSize,canvasWidth/gridSize);
 
     /////////////////////////
   
@@ -82,12 +81,7 @@ function draw() {
     case 4:
       remove();
       break;
-    case 5:
-      drawLogin();
-      break;
     default:
-    case 6:
-      drawSignUp();
       break;
   }
 }
@@ -168,13 +162,4 @@ function showLeaderboard() {
 
 function exitGame() {
   console.log("Exit clicked");
-}
-function login() {
-  console.log("Login clicked");
-  mode = Mode.login;
-  console.log("mode is ", mode);
-}
-function signUp() {
-  mode = Mode.signUp;
-  console.log("Sign Up clicked");
 }
