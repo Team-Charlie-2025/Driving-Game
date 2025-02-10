@@ -14,7 +14,7 @@ class Building {
 
   draw() {
     fill(this.color);
-    //noStroke();
+    noStroke();
     rect(this.x, this.y, this.width, this.height);
   }
 }
