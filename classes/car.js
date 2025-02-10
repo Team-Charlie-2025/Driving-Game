@@ -71,7 +71,6 @@ class Car {
         this.healthBar -= 10;
         console.log(this.healthBar);
         this.speed = this.speed / -2 ;
-        this.acceleration = 0.01 ;
     }
     else { 
         this.x += this.speed * cos(this.angle);
