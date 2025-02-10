@@ -9,6 +9,8 @@ class Car {
     this.y = y;
     this.width = w;
     this.height = h;
+    this.xTile = y/gridSize ; // THIS FUNCTION WILL NEED CHANGED WHEN MAP EXPANDS
+    this.yTile = x/gridSize ; // Gives the approximate location on the 2d map array
     this.speed = 0;
     this.angle = 0;
     this.acceleration = 0.1;
@@ -23,6 +25,9 @@ class Car {
   update() {
     if (keyIsDown(87)) {
       if (keyIsDown(70)) {
+        if(this.speed < 0) {
+            this.speed = .01;
+        }
         this.speed = constrain(
           this.speed + this.acceleration * 2,
           this.reverseSpeed * 2,
@@ -59,9 +64,23 @@ class Car {
       if (Math.abs(this.speed) < 0.01) this.speed = 0;
       this.currentColor = this.defaultColor; // Reset color if not moving
     }
+    
+    // Calculates what tile the car will be on 
+    this.xTile = Math.floor((this.x + this.speed * cos(this.angle)) / gridSize) ;
+    this.yTile = Math.ceil((this.y + this.speed * sin(this.angle)) / gridSize) ;
 
-    this.x += this.speed * cos(this.angle);
-    this.y += this.speed * sin(this.angle);
+    if(map[this.yTile][this.xTile] instanceof Building) {
+        //this.x -= (this.speed * cos(this.angle));
+        //this.y -= (this.speed * sin(this.angle));
+        this.healthBar -= 10;
+        console.log(this.healthBar);
+        this.speed = this.speed / -2 ;
+        this.acceleration = 0 ;
+    }
+    else { 
+        this.x += this.speed * cos(this.angle);
+        this.y += this.speed * sin(this.angle);
+    }
 
     if (this.x < 0) this.x = width;
     else if (this.x > width) this.x = 0;
