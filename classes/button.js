@@ -3,8 +3,9 @@ class Button {
         this.label = label;
         this.x = x;
         this.y = y;
-        this.width = 200;
-        this.height = 50;
+        //dynamic size for buttons on window resize
+        this.width = windowWidth/10;
+        this.height = windowHeight/20;
         this.action = action;
     }
 
@@ -18,7 +19,8 @@ class Button {
         rect(this.x, this.y, this.width, this.height, 10);
 
         fill(0);
-        textSize(24);
+        //dynamic text size on window resize
+        textSize(width/68);
         text(this.label, this.x, this.y);
     }
 

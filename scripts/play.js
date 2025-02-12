@@ -3,18 +3,17 @@ function drawPlay() {
 
   if(!newCanvas) {
     createCanvas(windowWidth, windowHeight);
-    generateMap(windowWidth/gridSize,windowHeight/gridSize);
+    generateDevMap(windowWidth/gridSize,windowHeight/gridSize);
     newCanvas = true;
   }
 
   if (!car){
-    car = new Car(width / 2, height / 2, 50, 30);
+    car = new Car(width / 2, height / 2);
   }
     
-    console.log("test_3");
-    //background(230);
-    drawMap();
-    car.update();
-    car.display();
+  console.log("test_3");
+  drawMap();
+  car.update();
+  car.display();
   
 }
