@@ -1,18 +1,47 @@
+// main.js
+let currentSketch = null;
 
-function preload() {
-  bgImage = loadImage("https://i.imgur.com/hnKdHwZ.jpeg");
-  imgTitle = new Image();
-  imgTitle.src = "graphics/title.png";
+const Mode = {
+  TITLE: 'title',
+  PLAY: 'play',
+  GARAGE: 'garage',
+  SETTINGS: 'settings',
+  LEADERBOARD: 'leaderboard',
+  LOGIN: 'login',
+  SIGNUP: 'signup'
+};
 
-  imgCar = new Image();
-  imgCar.src = "graphics/redStripe.png";
-  cars[0] = imgCar;
-  imgCar = new Image();
-  imgCar.src = "graphics/orangeStripe.png";
-  cars[1] = imgCar;
-  imgCar = new Image();
-  imgCar.src = "graphics/yellowStripe.png";
-  cars[2] = imgCar;
-  //can continue to add options for preload if car images
+function switchSketch(mode) {
+  if (currentSketch) {
+    currentSketch.remove();
+  }
+  switch (mode) {
+    case Mode.TITLE:
+      currentSketch = new p5(TitleSketch, 'main');
+      break;
+    case Mode.PLAY:
+      currentSketch = new p5(PlaySketch, 'main');
+      break;
+    case Mode.GARAGE:
+      currentSketch = new p5(GarageSketch, 'main');
+      break;
+    case Mode.SETTINGS:
+      currentSketch = new p5(SettingsSketch, 'main');
+      break;
+    case Mode.LEADERBOARD:
+      currentSketch = new p5(LeaderboardSketch, 'main');
+      break;
+    case Mode.LOGIN:
+      currentSketch = new p5(LoginSketch, 'main');
+      break;
+    case Mode.SIGNUP:
+      currentSketch = new p5(SignupSketch, 'main');
+      break;
+    default:
+      console.log("Unknown mode: " + mode);
+  }
 }
-drawTitle();
+
+window.onload = function () {
+  switchSketch(Mode.TITLE);
+};

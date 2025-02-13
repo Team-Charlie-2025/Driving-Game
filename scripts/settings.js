@@ -1,0 +1,21 @@
+function SettingsSketch(p) {
+    p.setup = function () {
+      p.createCanvas(p.windowWidth, p.windowHeight);
+      p.background(230);
+      p.textAlign(p.CENTER, p.CENTER);
+      p.textSize(48);
+      p.fill(50);
+      p.text("Settings", p.width / 2, p.height / 2);
+    };
+  
+    p.draw = function () {
+      // tbd
+    };
+  
+    p.keyPressed = function () {
+      if (p.keyCode === p.ESCAPE) {
+        switchSketch(Mode.TITLE);
+      }
+    };
+  }
+  
