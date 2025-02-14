@@ -1,145 +1,102 @@
-let buttons = [];
-let bgImage;
-let titleImg ;
-let mode = -1;
-let car;
-var imgCar;
-var cars = [];
+// scripts/title.js
+function TitleSketch(p) {
+  let buttons = [];
+  let bgImage;
+  let imgTitle;
 
-const Mode = {
-  title: -1,
-  play: 1,
-  garage: 2,
-  settings: 3,
-  exit: 4,
-};
-
-function windowResized() {
-  //stops the infinite drawing of buttons on window resize
-  buttons = []; //prob memory leak
-
-  noLoop();
-  drawTitle();
-  loop();
-  redraw();
-}
-
-function setup() {
-    /////////////////////////
-
-    drawTitle();
-    /////////////////////////
-  
-    //generateRandomMap(96,54);    //to generate a "random" map
+  p.preload = function() {
+    bgImage = p.loadImage("graphics/mainbg.png");
+    imgTitle = p.loadImage("graphics/title.png");
     
-}
+    window.cars = [];
+    window.cars.push(p.loadImage("graphics/cars/blueStripe.png"));
+    window.cars.push(p.loadImage("graphics/cars/greenStripe.png"));
+    window.cars.push(p.loadImage("graphics/cars/lightblueStripe.png"));
+    window.cars.push(p.loadImage("graphics/cars/lightgreenStripe.png"));
+    window.cars.push(p.loadImage("graphics/cars/lightpurpleStripe.png"));
+    window.cars.push(p.loadImage("graphics/cars/orangeStripe.png"));
+    window.cars.push(p.loadImage("graphics/cars/purpleStripe.png"));
+    window.cars.push(p.loadImage("graphics/cars/redStripe.png"));
+  };
 
-function draw() {
-    // ESC key exit to main menu available at all times
-    if (keyIsDown(27)) {
-      mode = Mode.title;
-    } 
-    // In the case of return to title, despawn car and reset newCanvas to false
-    if (mode == Mode.title) {
-      car = null;
-      newCanvas = false;
+  p.setup = function () {
+    p.createCanvas(p.windowWidth, p.windowHeight);
+    p.textAlign(p.CENTER, p.CENTER);
+    createButtons();
+  };
+
+  p.draw = function () {
+    if (bgImage) {
+      p.background(bgImage);
+    } else {
+      p.background(30, 30, 30);
     }
+    if (imgTitle) {
+      p.image(
+        imgTitle,
+        p.windowWidth / 10,
+        p.windowHeight / 12,
+        p.windowWidth / 1.2,
+        p.windowHeight / 2.6
+      );
+    }
+    for (let btn of buttons) {
+      btn.display(p);
+    }
+  };
 
-  switch (mode) {
-    case -1:  // title
-      drawTitle();
-      break;
-    case 1:   // play game
-      drawPlay();
-      break;
-    case 2:
-      drawGarage();
-      break;
-    case 3:
-      drawSettings();
-      break;
-    case 4:
-      remove();
-      break;
-    default:
-      break;
+  p.windowResized = function () {
+    p.resizeCanvas(p.windowWidth, p.windowHeight);
+    buttons = [];
+    createButtons();
+  };
+
+  p.mousePressed = function () {
+    for (let btn of buttons) {
+      if (btn.isMouseOver(p)) {
+        btn.callback();
+        break;
+      }
+    }
+  };
+
+  function createButtons() {
+    buttons.push(
+      new Button("Play Game", p.width / 2, p.height - p.height * 0.45, function () {
+        switchSketch(Mode.PLAY);
+      })
+    );
+    buttons.push(
+      new Button("Garage", p.width / 2, p.height - p.height * 0.38, function () {
+        switchSketch(Mode.GARAGE);
+      })
+    );
+    buttons.push(
+      new Button("Leaderboard", p.width / 2, p.height - p.height * 0.31, function () {
+        switchSketch(Mode.LEADERBOARD);
+      })
+    );
+    buttons.push(
+      new Button("Settings", p.width / 2, p.height - p.height * 0.24, function () {
+        switchSketch(Mode.SETTINGS);
+      })
+    );
+    buttons.push(
+      new Button("Exit", p.width / 2, p.height - p.height * 0.17, function () {
+        if (currentSketch) {
+          currentSketch.remove();
+        }
+      })
+    );
+    buttons.push(
+      new Button("Login", p.width / 1.1, p.height - p.height * 0.95, function () {
+        switchSketch(Mode.LOGIN);
+      })
+    );
+    buttons.push(
+      new Button("Sign Up", p.width / 1.1, p.height - p.height * 0.88, function () {
+        switchSketch(Mode.SIGNUP);
+      })
+    );
   }
-}
-
-function drawTitle() {
-  createCanvas(windowWidth, windowHeight);
-  textAlign(CENTER, CENTER);
-
-  if (bgImage) {
-    background(bgImage);
-  } else {
-    background(30, 30, 30);
-  }
-  // title
-  if (imgTitle){
-    drawingContext.drawImage(imgTitle, windowWidth/10, windowHeight/12, windowWidth/1.2, windowHeight/2.6);
-  }
-
-  buttons.push(
-    new Button("Play Game", width / 2, height -height* 0.45, () => startGame())
-  );
-  buttons.push(
-    new Button("Garage", width / 2, height -height* 0.38, () => showGarage())
-  );
-  buttons.push(
-    new Button("Leaderboard", width / 2, height -height* 0.31, () =>
-      showLeaderboard()
-    )
-  );
-  buttons.push(
-    new Button("Settings", width / 2, height -height* 0.24 , () => showSettings())
-  );
-  buttons.push(
-    new Button("Exit", width / 2, height -height* 0.17, () => exitGame())
-  );
-  buttons.push(
-    new Button("login", width /1.1, height -height* 0.95, () => login())
-  );
-  buttons.push(
-    new Button("Sign Up", width /1.1, height -height* 0.88, () => signUp()) // Below the Login button
-  );
-
-
-  // how to interact with buttons
-  for (let button of buttons) {
-    button.display();
-  }
-
-  
-}
-
-function drawGarage() {
-  return;
-}
-
-function drawSettings() {
-  return;
-}
-
-function startGame() {
-  console.log("Play Game clicked");
-  mode = Mode.play;
-  console.log("mode is ", mode);
-}
-
-function showGarage() {
-  console.log("Garage clicked");
-  reset();
-}
-
-function showSettings() {
-  console.log("Settings clicked");
-}
-
-function showLeaderboard() {
-  console.log("Leaderboard clicked");
-}
-
-function exitGame() {
-  console.log("Exit clicked");
 }
