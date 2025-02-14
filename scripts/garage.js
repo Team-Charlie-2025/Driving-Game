@@ -47,15 +47,6 @@ function GarageSketch(p) {
   
   p.preload = function() {
     bgImage = p.loadImage("graphics/garagebg.png");
-    window.engines = [];
-    window.engines.push(p.loadImage("graphics/engines/engineOne.png"));
-    window.engines.push(p.loadImage("graphics/engines/engineTwo.png"));
-    window.engines.push(p.loadImage("graphics/engines/engineThree.png"));
-
-    window.tires = [];
-    window.tires.push(p.loadImage("graphics/tires/tireDefault.png"));
-    window.tires.push(p.loadImage("graphics/tires/tireRacing.png"));
-    window.tires.push(p.loadImage("graphics/tires/tireSnow.png"));
   };
 
   // computes stats from default + any mods

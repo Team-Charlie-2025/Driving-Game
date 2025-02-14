@@ -7,16 +7,7 @@ function TitleSketch(p) {
   p.preload = function() {
     bgImage = p.loadImage("graphics/mainbg.png");
     imgTitle = p.loadImage("graphics/title.png");
-    
-    window.cars = [];
-    window.cars.push(p.loadImage("graphics/cars/blueStripe.png"));
-    window.cars.push(p.loadImage("graphics/cars/greenStripe.png"));
-    window.cars.push(p.loadImage("graphics/cars/lightblueStripe.png"));
-    window.cars.push(p.loadImage("graphics/cars/lightgreenStripe.png"));
-    window.cars.push(p.loadImage("graphics/cars/lightpurpleStripe.png"));
-    window.cars.push(p.loadImage("graphics/cars/orangeStripe.png"));
-    window.cars.push(p.loadImage("graphics/cars/purpleStripe.png"));
-    window.cars.push(p.loadImage("graphics/cars/redStripe.png"));
+    if(!globalsLoaded) loadGlobals(p);
   };
 
   p.setup = function () {
