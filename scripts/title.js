@@ -3,10 +3,12 @@ function TitleSketch(p) {
   let buttons = [];
   let bgImage;
   let imgTitle;
+  let titleSong;
 
   p.preload = function() {
     bgImage = p.loadImage("graphics/mainbg.png");
     imgTitle = p.loadImage("graphics/title.png");
+    //titleSong = p.loadSound("sound/titleTheme.mp3");
     
     window.cars = [];
     window.cars.push(p.loadImage("graphics/cars/blueStripe.png"));
@@ -23,6 +25,7 @@ function TitleSketch(p) {
     p.createCanvas(p.windowWidth, p.windowHeight);
     p.textAlign(p.CENTER, p.CENTER);
     createButtons();
+    //titleSong.play();
   };
 
   p.draw = function () {
