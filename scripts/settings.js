@@ -10,6 +10,7 @@ function SettingsSketch(p) {
   
     p.draw = function () {
       // tbd
+      //create a button/slider for a local storage variable that determines sound volume
     };
   
     p.keyPressed = function () {

@@ -2,8 +2,18 @@
 function PlaySketch(p) {
   let newCanvas = false;
   let car;
+  let bgMusic;
+
+  p.preload = function() {
+    if (!bgMusic) {
+      bgMusic = p.loadSound('sound/themeOption.mp3' );
+      bgMusic.setVolume(0.05); // Set volume to level (change to loacal storage var to adjust by user)
+      console.log("Music loaded");
+    }
+  };
 
   p.setup = function () {
+    bgMusic.loop();
     p.createCanvas(p.windowWidth, p.windowHeight);
     generateDevMap(p, Math.floor(p.windowWidth / gridSize), Math.floor(p.windowHeight / gridSize));
   };

@@ -220,13 +220,13 @@ function GarageSketch(p) {
     }
 
     // big car display in center
-    let centralX = p.width / 2 - 512;
-    let centralY = p.height / 2 - 400;
-    p.stroke(0);
-    p.fill(211);
-    p.rect(centralX, centralY, 1024, 1024);
+    let centralX = p.width / 2 - 340;
+    let centralY = p.height / 2 - 256;
+    //p.stroke(0);
+    //p.fill(211);
+    //p.rect(centralX, centralY, 1024, 1024);
     if (window.cars && window.cars[selectedCarIndex]) {
-      p.image(window.cars[selectedCarIndex], centralX, centralY, 256 * 4, 256 * 4);
+      p.image(window.cars[selectedCarIndex], centralX, centralY, 256 * 3, 256 * 3);
     }
 
     // calc/display stats in format

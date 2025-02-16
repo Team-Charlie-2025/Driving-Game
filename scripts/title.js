@@ -3,19 +3,24 @@ function TitleSketch(p) {
   let buttons = [];
   let bgImage;
   let imgTitle;
-  let titleSong;
+  let bgMusic;
 
   p.preload = function() {
+    if (!bgMusic) {
+      bgMusic = p.loadSound('sound/titleTheme.mp3', () => {bgMusic.loop();} );
+      bgMusic.setVolume(0.05); // Set volume to level (change to loacal storage var to adjust by user)
+    }
+    
     bgImage = p.loadImage("graphics/mainbg.png");
     imgTitle = p.loadImage("graphics/title.png");
     if(!globalsLoaded) loadGlobals(p);
   };
 
   p.setup = function () {
+    bgMusic.loop();
     p.createCanvas(p.windowWidth, p.windowHeight);
     p.textAlign(p.CENTER, p.CENTER);
     createButtons();
-    //titleSong.play();
   };
 
   p.draw = function () {
