@@ -16,12 +16,13 @@ class Car {
     this.width = 50;
     this.height = 30;
     this.healthBar = SAVED_STATS.health;
+    this.boost = SAVED_STATS.boost;
   }
 
   update() {
     let p = this.p;
     if (p.keyIsDown(87)) {
-      if (p.keyIsDown(70)) {
+      if (p.keyIsDown(70) && this.boost > 0) { // Only boost if boost > 0
         if (this.speed < 0) {
           this.speed = 0.01;
         }
