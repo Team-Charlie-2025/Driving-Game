@@ -2,25 +2,21 @@
 function PlaySketch(p) {
   let newCanvas = false;
   let car;
-  let bgMusic;
+  p.preload = function () {
+    loadSound(p);
+  }
 
-  p.preload = function() {
-    if (!bgMusic) {
-      bgMusic = p.loadSound('sound/themeOption.mp3' );
-      bgMusic.setVolume(0.05); // Set volume to level (change to loacal storage var to adjust by user)
-      console.log("Music loaded");
-    }
-  };
 
   p.setup = function () {
-    if(bgMusic){
-      bgMusic.loop();
-    }
     p.createCanvas(p.windowWidth, p.windowHeight);
     generateDevMap(p, Math.floor(p.windowWidth / gridSize), Math.floor(p.windowHeight / gridSize));
   };
 
   p.draw = function () {
+    if(!bgMusic.isPlaying()){
+      console.log
+      window.bgMusic.loop();
+    }
     if (!newCanvas) {
       p.createCanvas(p.windowWidth, p.windowHeight);
       newCanvas = true;
@@ -42,6 +38,8 @@ function PlaySketch(p) {
 
   p.keyPressed = function () {
     if (p.keyCode === p.ESCAPE) {
+      window.bgMusic.stop();
+      window.bgMusic.playMode('restart');
       switchSketch(Mode.TITLE);
     }
   };

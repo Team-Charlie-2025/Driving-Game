@@ -3,7 +3,6 @@ function GarageSketch(p) {
   let selectedCarIndex = 0;
   let selectedEngineIndex = 0;
   let selectedWheelIndex = 0;
-  let bgMusic;
 
   const DEFAULT_CAR_STATS = {
     health: 100,
@@ -46,11 +45,8 @@ function GarageSketch(p) {
   ];
 
   
-  p.preload = function() {
-    if (!bgMusic) {
-      bgMusic = p.loadSound('sound/titleTheme.mp3', () => {bgMusic.loop();} );
-      bgMusic.setVolume(0.05); // Set volume to level (change to loacal storage var to adjust by user)
-    }
+  p.preload = function() { 
+    loadSound(p);
     bgImage = p.loadImage("graphics/garagebg.png");
   };
 
@@ -159,7 +155,10 @@ function GarageSketch(p) {
     }
   }
 
-  p.draw = function() {    
+  p.draw = function() {  
+    if(!window.neverGonna.isPlaying()){
+      window.neverGonna.loop();
+    }
     if (bgImage) {
       p.background(bgImage);
     } else {
@@ -332,7 +331,19 @@ function GarageSketch(p) {
 
   p.keyPressed = function() {
     if (p.keyCode === p.ESCAPE) {
-      switchSketch(Mode.TITLE);
+      window.neverGonna.stop();
+      window.neverGonna.playMode('restart');
+      /*
+      if (window.carStart && window.carStart.isLoaded()){
+        window.carStart.play();
+        setTimeout(() => { //needs 
+          window.carStart.stop();
+          switchSketch(Mode.TITLE);
+        }, 5000);
+    }
+    else
+    */
+    switchSketch(Mode.TITLE);
     }
   };
 
@@ -354,4 +365,5 @@ function GarageSketch(p) {
     savePersistentData(config);
     console.log("Configuration saved:", config);
   }
+
 }

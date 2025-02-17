@@ -3,12 +3,12 @@ function TitleSketch(p) {
   let buttons = [];
   let bgImage;
   let imgTitle;
-  let bgMusic;
+  let bgMusic = null;
 
   p.preload = function() {
-    if (!bgMusic) {
+    if (bgMusic == null) {
       bgMusic = p.loadSound('sound/titleTheme.mp3', () => {bgMusic.loop();} );
-      bgMusic.setVolume(0.05); // Set volume to level (change to loacal storage var to adjust by user)
+      bgMusic.setVolume(0.15); // Set volume to level (change to loacal storage var to adjust by user)
     }
     
     bgImage = p.loadImage("graphics/mainbg.png");
@@ -17,13 +17,11 @@ function TitleSketch(p) {
   };
 
   p.setup = function () {
-    if(bgMusic){
-      bgMusic.loop();
-    }
     p.createCanvas(p.windowWidth, p.windowHeight);
     p.textAlign(p.CENTER, p.CENTER);
     createButtons();
   };
+
 
   p.draw = function () {
     if (bgImage) {
@@ -52,8 +50,10 @@ function TitleSketch(p) {
   };
 
   p.mousePressed = function () {
+    bgMusic.loop(); //for chrome non-auto play rules
     for (let btn of buttons) {
       if (btn.isMouseOver(p)) {
+        bgMusic.stop();
         btn.callback();
         break;
       }

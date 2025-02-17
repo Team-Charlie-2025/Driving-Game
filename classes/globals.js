@@ -4,10 +4,24 @@ function loadGlobals(p){
     loadCars(p);
     loadEngines(p);
     loadTires(p);
-
+    loadSound(p);
 
     
     globalsLoaded = true;
+}
+function loadSound(p){
+    window.bgMusic = p.loadSound('sound/themeOption.mp3');
+    window.bgMusic.setVolume(0.15);
+
+    window.neverGonna = p.loadSound('sound/Rick-Roll-Sound-Effect.mp3');
+    window.neverGonna.setVolume(0.50);
+
+    window.carStart = p.loadSound('sound/carStart.wav');
+    window.carStart.setVolume(1.5);
+
+    window.pageChange = p.loadSound('sound/newPage.wav');
+    window.pageChange.setVolume(0.15);
+    console.log("sounds loaded");
 }
 
 function loadCars(p){
