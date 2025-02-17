@@ -3,6 +3,7 @@ function GarageSketch(p) {
   let selectedCarIndex = 0;
   let selectedEngineIndex = 0;
   let selectedWheelIndex = 0;
+  let bgMusic;
 
   const DEFAULT_CAR_STATS = {
     health: 100,
@@ -46,6 +47,10 @@ function GarageSketch(p) {
 
   
   p.preload = function() {
+    if (!bgMusic) {
+      bgMusic = p.loadSound('sound/titleTheme.mp3', () => {bgMusic.loop();} );
+      bgMusic.setVolume(0.05); // Set volume to level (change to loacal storage var to adjust by user)
+    }
     bgImage = p.loadImage("graphics/garagebg.png");
   };
 
