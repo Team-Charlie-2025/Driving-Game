@@ -13,7 +13,9 @@ function PlaySketch(p) {
   };
 
   p.setup = function () {
-    bgMusic.loop();
+    if(bgMusic){
+      bgMusic.loop();
+    }
     p.createCanvas(p.windowWidth, p.windowHeight);
     generateDevMap(p, Math.floor(p.windowWidth / gridSize), Math.floor(p.windowHeight / gridSize));
   };

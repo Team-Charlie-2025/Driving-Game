@@ -17,7 +17,9 @@ function TitleSketch(p) {
   };
 
   p.setup = function () {
-    bgMusic.loop();
+    if(bgMusic){
+      bgMusic.loop();
+    }
     p.createCanvas(p.windowWidth, p.windowHeight);
     p.textAlign(p.CENTER, p.CENTER);
     createButtons();
