@@ -13,9 +13,6 @@ function loadSound(p){
     window.bgMusic = p.loadSound('sound/themeOption.mp3');
     window.bgMusic.setVolume(0.15);
 
-    window.neverGonna = p.loadSound('sound/Rick-Roll-Sound-Effect.mp3');
-    window.neverGonna.setVolume(0.50);
-
     window.carStart = p.loadSound('sound/carStart.wav');
     window.carStart.setVolume(1.5);
 

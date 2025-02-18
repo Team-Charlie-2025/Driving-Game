@@ -156,8 +156,8 @@ function GarageSketch(p) {
   }
 
   p.draw = function() {  
-    if(!window.neverGonna.isPlaying()){
-      window.neverGonna.loop();
+    if(!window.bgMusic.isPlaying()){
+      window.bgMusic.loop();
     }
     if (bgImage) {
       p.background(bgImage);
@@ -331,8 +331,8 @@ function GarageSketch(p) {
 
   p.keyPressed = function() {
     if (p.keyCode === p.ESCAPE) {
-      window.neverGonna.stop();
-      window.neverGonna.playMode('restart');
+      window.bgMusic.stop();
+      window.bgMusic.playMode('restart');
       /*
       if (window.carStart && window.carStart.isLoaded()){
         window.carStart.play();
