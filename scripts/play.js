@@ -22,7 +22,6 @@ function PlaySketch(p) {
       newCanvas = true;
     }
     p.background(255);
-    drawMap(p);
     if (!car) {
       // Load the stats from persistent storage before creating the car.
       const stats = loadPersistentData().stats;
