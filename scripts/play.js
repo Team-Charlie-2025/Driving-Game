@@ -9,7 +9,7 @@ function PlaySketch(p) {
 
   p.setup = function () {
     p.createCanvas(p.windowWidth, p.windowHeight);
-    generateDevMap(p, Math.floor(p.windowWidth / gridSize), Math.floor(p.windowHeight / gridSize));
+    generateGenMap(p, 500, 500);
   };
 
   p.draw = function () {
