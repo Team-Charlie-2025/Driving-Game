@@ -5,17 +5,32 @@ class Button { //regular rect button class
       this.label = label;
       this.x = x;
       this.y = y;
-      this.width = 200;
-      this.height = 50;
+      this.width;
+      this.height;
       this.callback = callback;
+      this.image = null;
     }
   
     display(p) {
       if(this.label == "Play" ){ //label depends on image
-        p.image(window.playButton, this.x - this.width / 2, this.y - this.height / 2, this.width, this.height);
+        this.width = this.x /1.6;
+        this.height = this.y / 4;
+        p.image(window.playButton, this.x - this.width / 2 +15, this.y - this.height / 2, this.width, this.height);
       }
       else if(this.label == "Garage" ){
-        p.image(window.garageButton, this.x - this.width / 2, this.y - this.height / 2, this.width, this.height);
+        this.width = this.x /1.6;
+        this.height = this.y / 5.1;
+        p.image(window.garageButton, this.x - this.width / 2 +15, this.y - this.height / 2, this.width, this.height);
+      }
+      else if(this.label == "Settings" ){
+        this.width = this.x / 1.2;
+        this.height = this.y / 2.2;
+        p.image(window.setButton, this.x - this.width / 2.2, this.y - this.height / 2, this.width, this.height);
+      }
+      else if(this.label == "Leaderboard" ){
+        this.width = this.x / 2.5;
+        this.height = this.y / 3.5;
+        p.image(window.leaderButton, this.x - this.width / 2, this.y - this.height / 2, this.width, this.height * 2);
       }
       else{
         p.fill(200);

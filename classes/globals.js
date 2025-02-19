@@ -53,5 +53,8 @@ function loadTires(p){
 function loadButtons(p){
     window.playButton = p.loadImage("graphics/titleScreen/playButton.png");
     window.garageButton = p.loadImage("graphics/titleScreen/garageButton.png");
+    window.leaderButton = p.loadImage("graphics/titleScreen/leaderboardButton.png");
+    window.setButton = p.loadImage("graphics/titleScreen/settingButton.png");
+
     console.log("buttons loaded");
 }
