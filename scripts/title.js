@@ -62,7 +62,7 @@ function TitleSketch(p) {
 
   function createButtons() {
     buttons.push(
-      new Button("Play Game", p.width / 2, p.height - p.height * 0.45, function () {
+      new Button("Play", p.width / 2, p.height - p.height * 0.45, function () {
         switchSketch(Mode.PLAY);
       })
     );

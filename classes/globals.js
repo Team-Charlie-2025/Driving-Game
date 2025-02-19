@@ -5,6 +5,7 @@ function loadGlobals(p){
     loadEngines(p);
     loadTires(p);
     loadSound(p);
+    loadButtons(p);
 
     
     globalsLoaded = true;
@@ -48,4 +49,9 @@ function loadTires(p){
     window.tires.push(p.loadImage("graphics/tires/tireRacing.png"));
     window.tires.push(p.loadImage("graphics/tires/tireSnow.png"));
     console.log("tires loaded");
+}
+function loadButtons(p){
+    window.playButton = p.loadImage("graphics/titleScreen/playButton.png");
+    window.garageButton = p.loadImage("graphics/titleScreen/garageButton.png");
+    console.log("buttons loaded");
 }
