@@ -27,6 +27,7 @@ function PlaySketch(p) {
       const stats = loadPersistentData().stats;
       car = new Car(p, p.width / 2, p.height / 2, stats);
     }
+    drawMap(p,car);
     car.update();
     car.display();
   };
