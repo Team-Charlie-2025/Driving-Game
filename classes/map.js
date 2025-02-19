@@ -284,12 +284,21 @@ function drawBezierRoad(p,x0, y0, x1, y1, x2, y2, width) {
 }
 
 
-function drawMap(p) {
+function drawMap(p, car) {
   p.background(255);
-  for (let row of map) {
-    for (let cell of row) {
-      cell.draw(p);
+  p.translate(p.width / 2 - car.x, p.height / 2 - car.y); // Center view on car
+
+  let colsVisible = Math.ceil(p.windowWidth / gridSize) + 2; // Gets canvas size 
+  let rowsVisible = Math.ceil(p.windowHeight / gridSize) + 2;
+
+  let startX = Math.floor(car.x / gridSize) - Math.floor(colsVisible / 2);
+  let startY = Math.floor(car.y / gridSize) - Math.floor(rowsVisible / 2);
+
+  for (let y = startY; y < startY + rowsVisible; y++) {
+    for (let x = startX; x < startX + colsVisible; x++) {
+      if (map[y] && map[y][x]) { // Check if tile exists
+        map[y][x].draw(p);
+      }
     }
   }
 }
-
