@@ -6,33 +6,65 @@
   different areas have different generation
   #########################################################################
 */
-function fillBuildingsDynamically(p) {
-    for (let yStart = 1; yStart < map.length - 1; yStart++) {
-      for (let xStart = 1; xStart < map[yStart].length - 1; xStart++) {
-        // Check if this tile is empty (grass) and is adjacent to a road
-        if (map[yStart][xStart] instanceof Grass && isAdjacentToRoad(p, xStart, yStart)) {
-          
-          // Randomize building size
-          let xEnd = xStart + Math.floor(Math.random() * 7) + 3; // Between 2 and 4 tiles wide
-          let yEnd = yStart + Math.floor(Math.random() * 5) + 3; // Between 2 and 4 tiles tall
-  
-          // Ensure space is free & includes gaps
-          if (canPlaceBuilding(p, xStart, yStart, xEnd, yEnd)) {
-            drawRectBuilding(p,xStart, yStart, xEnd, yEnd);
-            markBuildingArea(p, xStart, yStart, xEnd, yEnd); // Reserve the space
+function fillBuildingsDynamically(p, xPosStart, yPosStart, xPosEnd, yPosEnd) {
+    for (let yStart = yPosStart; yStart < yPosEnd; yStart++) {
+        for (let xStart = xPosStart; xStart < xPosEnd; xStart++) {
+            // Check if this tile is empty (grass) and is adjacent to a road
+            if (map[yStart][xStart] instanceof Grass && isAdjacentToRoad(p, xStart, yStart)) {
+
+                // Decide expansion direction
+                let expandLeft = Math.random() > 0.5 ? -1 : 1; 
+                let expandUp = Math.random() > 0.5 ? -1 : 1;
+
+                // Randomize building size
+                let xEnd = xStart + expandLeft * (Math.floor(Math.random() * 3) + 3); // 3-6 tiles wide
+                let yEnd = yStart + expandUp * (Math.floor(Math.random() * 3) + 3); // 3-6 tiles tall
+
+                // Ensure xEnd/yEnd are in the correct order
+                let finalXStart = Math.min(xStart, xEnd);
+                let finalXEnd = Math.max(xStart, xEnd);
+                let finalYStart = Math.min(yStart, yEnd);
+                let finalYEnd = Math.max(yStart, yEnd);
+
+                // Ensure space is free & includes gaps
+                if (canPlaceBuilding(p, finalXStart, finalYStart, finalXEnd, finalYEnd)) {
+                    drawRectBuilding(p, finalXStart, finalYStart, finalXEnd, finalYEnd);
+                    //markBuildingArea(p, finalXStart, finalYStart, finalXEnd, finalYEnd); // Reserve the space
+                }
+            }
+        }
+    }
+}
+
+
+function fillShopsDynamically(p,xPosStart,yPosStart,xPosEnd,yPosEnd){
+    for (let yStart = yPosStart; yStart < yPosEnd; yStart++) {
+        for (let xStart = xPosStart; xStart < xPosEnd; xStart++) {
+          // Check if this tile is empty (grass) and is adjacent to a road
+          if (map[yStart][xStart] instanceof Grass && isAdjacentToRoad(p, xStart, yStart)) {
+            
+            // Randomize building size
+            let xEnd = xStart + Math.floor(Math.random() * 7) + 3; // Between 2 and 4 tiles wide
+            let yEnd = yStart + Math.floor(Math.random() * 7) + 3; // Between 2 and 4 tiles tall
+    
+            // Ensure space is free & includes gaps
+            if (canPlaceBuilding(p, xStart, yStart, xEnd, yEnd)) {
+              drawRectBuilding(p,xStart, yStart, xEnd, yEnd);
+              //markBuildingArea(p, xStart, yStart, xEnd, yEnd); // Reserve the space
+            }
           }
         }
       }
-    }
-  }
+}
+
   
   // Check if a tile is adjacent to a road but maintains a 1-tile gap
   function isAdjacentToRoad(p, x, y) {
     return (
       (map[y - 2] && map[y - 2][x] instanceof Road) ||
       (map[y + 2] && map[y + 2][x] instanceof Road) ||
-      (map[y][x - 2] instanceof Road) ||
-      (map[y][x + 2] instanceof Road)
+      (map[y][x - 2] && map[y][x - 2] instanceof Road) ||
+      (map[y][x + 2] && map[y][x + 2]instanceof Road)
     );
   }
   
@@ -49,25 +81,16 @@ function fillBuildingsDynamically(p) {
     return true;
   }
   
-  // Mark the area as occupied to prevent overlapping buildings
-  function markBuildingArea(p, xStart, yStart, xEnd, yEnd) {
-    for (let y = yStart; y < yEnd; y++) {
-      for (let x = xStart; x < xEnd; x++) {
-        map[y][x] = new Building(x * gridSize, y * gridSize);
-      }
-    }
-  }
-  
   const bigBuildingChance = 0.3;
-  const bigBuildingSize = 10;
-  const requiredOpenSpace = 16; // Space needed to fit big buildings
-  const grassBuffer = 2; // Distance between parking lot and road
+  const bigBuildingSize = 30;
+  const requiredOpenSpace = bigBuildingSize + 6; // Space needed to fit big buildings
+  const grassBuffer = 5; // Distance between parking lot and road
   
-  function fillBigBuildings(p) {
-    for (let y = 1; y < 100 - requiredOpenSpace; y++) {  
-      for (let x = 1; x < 100 - requiredOpenSpace; x++) {  
+  function fillBigBuildings(p,xPosStart,yPosStart,xPosEnd,yPosEnd) {
+    for (let y = yPosStart; y < yPosEnd - requiredOpenSpace; y++) {  
+      for (let x = xPosStart; x < xPosEnd - requiredOpenSpace; x++) {  
         if (map[y][x] instanceof Grass && Math.random() < bigBuildingChance) {
-          let xEnd = x + bigBuildingSize;
+          let xEnd = x + bigBuildingSize/2;
           let yEnd = y + bigBuildingSize;
   
           if (canPlaceLargeBuilding(p, x, y, xEnd, yEnd)) {
