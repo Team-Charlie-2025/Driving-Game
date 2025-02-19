@@ -56,10 +56,12 @@ class Car {
     }
     this.x += this.speed * p.cos(this.angle);
     this.y += this.speed * p.sin(this.angle);
+    /*
     if (this.x < 0) this.x = p.width;
     else if (this.x > p.width) this.x = 0;
     if (this.y < 0) this.y = p.height;
     else if (this.y > p.height) this.y = 0;
+    */
   }
 
   display() {
