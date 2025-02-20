@@ -1,73 +1,85 @@
+// scripts/login.js
+function LoginSketch(p) {
+  let usernameID;
+  let passwordID;
+  let submitLoginBtn;
+  let loginElementsCreated = false;
 
-let usernameID;
-let passwordID;
-let submitLoginBtn;
+  p.setup = function () {
+    p.createCanvas(p.windowWidth, p.windowHeight);
+    p.textAlign(p.CENTER, p.CENTER);
+    if (!loginElementsCreated) {
+      createLoginElements();
+      loginElementsCreated = true;
+    }
+    // stop loading
+    window.LoadingScreen.hide();
+  };
 
-let loginElementsCreated = false; // flag to check if login elements are created or not
+  p.draw = function () {
+    p.background(230);
+    p.fill(50);
+    p.textSize(48);
+    p.textFont("Comic Sans MS");
+    p.text("Login", p.width / 2, 150);
+  };
 
-function drawLogin() {
-  background(230);
+  function createLoginElements() {
+    usernameID = p.createInput("");
+    usernameID.attribute("placeholder", "Username");
+    usernameID.position(p.width / 2 - 100, 300);
+    usernameID.size(200);
 
+    passwordID = p.createInput("", "password");
+    passwordID.attribute("placeholder", "Password");
+    passwordID.position(p.width / 2 - 100, 350);
+    passwordID.size(200);
 
-  fill(50);
-  textSize(48);
-  textFont("Comic Sans MS");
-  text("Login", width / 2, 150);
-
- 
-  if (!loginElementsCreated) {
-    createLoginElements();
-    loginElementsCreated = true;
+    submitLoginBtn = p.createButton("Login");
+    submitLoginBtn.position(p.width / 2 - 50, 400);
+    submitLoginBtn.mousePressed(handleLogin);
   }
-}
 
-
-function createLoginElements() {
-
-  usernameID = createInput("");
-  usernameID.attribute("placeholder", "Username");
-  usernameID.position(width / 2 - 100, 300);
-  usernameID.size(200);
-
-
-  passwordID = createInput("", "password");
-  passwordID.attribute("placeholder", "Password");
-  passwordID.position(width / 2 - 100, 350);
-  passwordID.size(200);
-
-
-  submitLoginBtn = createButton("Login");
-  submitLoginBtn.position(width / 2 - 50, 400);
-  submitLoginBtn.mousePressed(handleLogin);
-}
-
-
-function handleLogin() {
-  let username = usernameID.value();
-  let password = passwordID.value();
-  console.log("Login attempted with:", username, password);
-
-
-  mode = Mode.title;
-
-
-  removeLoginElements();
-}
-
-
-function removeLoginElements() {
-  if (usernameID) {
-    usernameID.remove();
-    usernameID = null;
+  function handleLogin() {
+    let username = usernameID.value();
+    let password = passwordID.value();
+    console.log("Login attempted with:", username, password);
+    switchSketch(Mode.TITLE);
+    removeLoginElements();
   }
-  if (passwordID) {
-    passwordID.remove();
-    passwordID = null;
-  }
-  if (submitLoginBtn) {
-    submitLoginBtn.remove();
-    submitLoginBtn = null;
-  }
-  loginElementsCreated = false;
-}
 
+  function removeLoginElements() {
+    if (usernameID) {
+      usernameID.remove();
+      usernameID = null;
+    }
+    if (passwordID) {
+      passwordID.remove();
+      passwordID = null;
+    }
+    if (submitLoginBtn) {
+      submitLoginBtn.remove();
+      submitLoginBtn = null;
+    }
+    loginElementsCreated = false;
+  }
+
+  p.windowResized = function () {
+    p.resizeCanvas(p.windowWidth, p.windowHeight);
+    if (usernameID) {
+      usernameID.position(p.width / 2 - 100, 300);
+    }
+    if (passwordID) {
+      passwordID.position(p.width / 2 - 100, 350);
+    }
+    if (submitLoginBtn) {
+      submitLoginBtn.position(p.width / 2 - 50, 400);
+    }
+  };
+
+  p.keyPressed = function () {
+    if (p.keyCode === p.ESCAPE) {
+      switchSketch(Mode.TITLE);
+    }
+  };
+}

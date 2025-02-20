@@ -1,24 +1,49 @@
 <!DOCTYPE html>
 <html lang="en">
   <head>
+    <!--pixelated font-->
+    <link href="graphics/pixelFont.ttf">
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Top D-Racer</title>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.6.0/p5.min.js"></script>
-    <script src="scripts/timer.js"></script>
+    <title>Swiggle</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.9.4/p5.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.9.4/addons/p5.dom.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.9.0/addons/p5.sound.min.js"></script>
+
+    <link rel="stylesheet" type="text/css" href="style.css">
+
+    <!-- Globals -->
+    <script src="classes/globals.js"></script>
+    <script src="classes/keybinds.js"></script>
+
+    <!-- Classes -->
+    <script src="classes/map.js"></script>
+    <script src="classes/car.js"></script>
+    <script src="classes/button.js"></script>
+
+    <!-- JSON Data Script -->
+    <script src="scripts/jsondata.js"></script>
+
+    <!-- Sketches -->
+    <script src="scripts/title.js"></script>
     <script src="scripts/play.js"></script>
     <script src="scripts/garage.js"></script>
     <script src="scripts/leaderboard.js"></script>
     <script src="scripts/settings.js"></script>
     <script src="scripts/login.js"></script>
     <script src="scripts/signup.js"></script>
-    <script src="classes/button.js"></script>
-    <script src="classes/car.js"></script>
-    <script src="classes/map.js"></script>
- 
+
+
+    <script src="scripts/loading.js"></script>
+    
+
+    <!-- Main Sketch Manager -->
+    <script src="main.js"></script>
   </head>
   <body>
-    <main></main>
-    <script src="title.js"></script>
+    <div id="loading-screen">
+      <h2>Loading...</h2>
+    </div>
+    <main id="main"></main>
   </body>
 </html>
