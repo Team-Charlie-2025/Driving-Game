@@ -33,7 +33,7 @@ function TitleSketch(p) {
       p.image(
         imgTitle,
         p.windowWidth / 10,
-        p.windowHeight / 12,
+        p.windowHeight / 13,
         p.windowWidth / 1.2,
         p.windowHeight / 2.6
       );
@@ -62,7 +62,7 @@ function TitleSketch(p) {
 
   function createButtons() {
     buttons.push(
-      new Button("Play Game", p.width / 2, p.height - p.height * 0.45, function () {
+      new Button("Play", p.width / 2, p.height - p.height * 0.50, function () {
         switchSketch(Mode.PLAY);
       })
     );
@@ -72,15 +72,16 @@ function TitleSketch(p) {
       })
     );
     buttons.push(
-      new Button("Leaderboard", p.width / 2, p.height - p.height * 0.31, function () {
+      new Button("Leaderboard", p.width / 1.2, p.height - p.height * 0.30, function () {
         switchSketch(Mode.LEADERBOARD);
       })
     );
     buttons.push(
-      new Button("Settings", p.width / 2, p.height - p.height * 0.24, function () {
+      new Button("Settings", p.width / 4.8, p.height - p.height * 0.20, function () {
         switchSketch(Mode.SETTINGS);
       })
     );
+    /*
     buttons.push(
       new Button("Exit", p.width / 2, p.height - p.height * 0.17, function () {
         if (currentSketch) {
@@ -97,6 +98,7 @@ function TitleSketch(p) {
       new Button("Sign Up", p.width / 1.1, p.height - p.height * 0.88, function () {
         switchSketch(Mode.SIGNUP);
       })
-    );
+      
+    );*/
   }
 }
