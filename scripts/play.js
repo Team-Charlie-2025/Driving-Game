@@ -1,5 +1,4 @@
 // scripts/play.js
-let mapSize = 500;
 function PlaySketch(p) {
   let newCanvas = false;
   let car;
