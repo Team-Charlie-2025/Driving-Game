@@ -78,8 +78,6 @@ class Car {
     p.rotate(this.angle);
 
     // Ensure both image and rectangle are drawn centered
-    p.imageMode(p.CENTER);
-    p.rectMode(p.CENTER);
     if (this.currentImage) {
       p.image(this.currentImage, 0, 0, carWidth*2, carHeight*3);
     } else {
