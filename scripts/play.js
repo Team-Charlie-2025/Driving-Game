@@ -1,4 +1,5 @@
 // scripts/play.js
+let mapSize = 500;
 function PlaySketch(p) {
   let newCanvas = false;
   let car;
@@ -9,7 +10,7 @@ function PlaySketch(p) {
 
   p.setup = function () {
     p.createCanvas(p.windowWidth, p.windowHeight);
-    generateGenMap(p, 500, 500);
+    generateGenMap(p, mapSize, mapSize);
   };
 
   p.draw = function () {
