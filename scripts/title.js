@@ -20,6 +20,9 @@ function TitleSketch(p) {
     p.createCanvas(p.windowWidth, p.windowHeight);
     p.textAlign(p.CENTER, p.CENTER);
     createButtons();
+
+    // stop loading
+    window.LoadingScreen.hide();
   };
 
 

@@ -98,6 +98,9 @@ function GarageSketch(p) {
     saveButton.style("font-size", "18px");
     saveButton.position(p.width / 2 - 50, p.height - 60);
     saveButton.mousePressed(saveConfiguration);
+
+    // stop loading
+    window.LoadingScreen.hide();
   };
 
   function setupLayout() {

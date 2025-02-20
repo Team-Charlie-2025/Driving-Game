@@ -12,6 +12,8 @@ function LoginSketch(p) {
       createLoginElements();
       loginElementsCreated = true;
     }
+    // stop loading
+    window.LoadingScreen.hide();
   };
 
   p.draw = function () {

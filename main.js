@@ -12,7 +12,11 @@ const Mode = {
 };
 
 function switchSketch(mode) {
-  if (currentSketch) {
+
+  window.LoadingScreen.show();
+  setTimeout(() => {
+  
+      if (currentSketch) {
     currentSketch.remove();
   }
   switch (mode) {
@@ -40,6 +44,8 @@ function switchSketch(mode) {
     default:
       console.log("Unknown mode: " + mode);
   }
+
+}, 800);
 }
 
 window.onload = function () {

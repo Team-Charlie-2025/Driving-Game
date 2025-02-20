@@ -38,8 +38,7 @@ class Button { //regular rect button class
         p.fill(0);
         p.noStroke();
         p.textAlign(p.CENTER, p.CENTER);
-        p.text(this.la
-          bel, this.x, this.y);
+        p.text(this.label, this.x, this.y);
       }*/
     }
   
