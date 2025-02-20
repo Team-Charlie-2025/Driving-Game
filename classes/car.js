@@ -64,7 +64,6 @@ class Car {
     console.log("y: ", this.y/gridSize);
     
 
-    handleCollisions(this);
     if (this.x <= 0) this.x = 0;
     else if (this.x > mapSize*gridSize) this.x = mapSize*gridSize;
     if (this.y < 0) this.y = 0;
@@ -92,65 +91,3 @@ class Car {
 }
 
 
-// Function that looks at car location and sees if it overlaps with an object 
-// we should change to integer with a switch statement on calling function with all objects but thats confuisng for now
-function checkCollision(car,object) {
-
-  // Gets the positions of corners
-  let corners = [
-    { x: car.x - carWidth *.8 , y: car.y - carHeight *.8 }, // Top-Left
-    { x: car.x + carWidth *.8, y: car.y - carHeight *.8}, // Top-Right
-    { x: car.x, y: car.y - carHeight *.9},                //Front Middle
-    { x: car.x - carWidth *1, y: car.y + carHeight *1}, // Bottom-Left
-    { x: car.x + carWidth *1, y: car.y + carHeight *1}  // Bottom-Right
-  ];
-
-  // Checks each corner for collision with a building
-  for (let corner of corners) {
-    let gridX = Math.floor(corner.x / gridSize);
-    let gridY = Math.floor(corner.y / gridSize);
-    
-    if (map[gridY] && map[gridY][gridX] instanceof object) {
-        return true; 
-    }
-  }
-  
-  return false;
-}
-
-// Simple check to see if cars are close enough to collide
-function checkCarCollision(car1, car2) {
-  let dx = car1.x - car2.x;
-  let dy = car1.y - car2.y;
-  let distance = Math.sqrt(dx * dx + dy * dy);
-
-  return distance < carWidth; // Returns if they are colliding or not
-}
-
-
-// Checks for and handles collision between car 
-function handleCollisions(car) {
-  // Collision with buildings
-  if (checkCollision(car, Building)) {
-    //car.x -= car.velX;
-    //car.y -= car.velY;
-    car.velX = 0;
-    car.velY = 0;
-    car.speed = car.speed /-2 ;
-    }
-
-  // Slows down the car on grass
-  if (checkCollision(car, Grass)) {
-    car.velX *= 0.7;
-    car.velY *= 0.7;
-  }
-
-  // Collision with enemy cars
-  /*
-  for (let enemy of enemyCars) {
-    if (checkCarCollision(car, enemy)) {
-        
-    }
-  }
-  */
-}
