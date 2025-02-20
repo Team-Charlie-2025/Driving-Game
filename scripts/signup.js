@@ -7,6 +7,9 @@ function SignupSketch(p) {
     p.textSize(48);
     p.fill(50);
     p.text("Sign Up", p.width / 2, 150);
+
+    // stop loading
+    window.LoadingScreen.hide();
   };
 
   p.draw = function () {

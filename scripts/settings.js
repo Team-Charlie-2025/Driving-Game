@@ -6,6 +6,9 @@ function SettingsSketch(p) {
       p.textSize(48);
       p.fill(50);
       p.text("Settings", p.width / 2, p.height / 2);
+
+      // stop loading
+      window.LoadingScreen.hide();
     };
   
     p.draw = function () {

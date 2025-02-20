@@ -5,6 +5,7 @@ function loadGlobals(p){
     loadEngines(p);
     loadTires(p);
     loadSound(p);
+    loadButtons(p);
 
     
     globalsLoaded = true;
@@ -13,14 +14,12 @@ function loadSound(p){
     window.bgMusic = p.loadSound('sound/themeOption.mp3');
     window.bgMusic.setVolume(0.15);
 
-    window.neverGonna = p.loadSound('sound/Rick-Roll-Sound-Effect.mp3');
-    window.neverGonna.setVolume(0.50);
-
     window.carStart = p.loadSound('sound/carStart.wav');
     window.carStart.setVolume(1.5);
 
-    window.pageChange = p.loadSound('sound/newPage.wav');
-    window.pageChange.setVolume(0.15);
+    //possibly change, is a bit annoying
+    window.pageChange = p.loadSound('sound/newPage.wav');  
+    window.pageChange.setVolume(0.02);
     console.log("sounds loaded");
 }
 
@@ -51,4 +50,12 @@ function loadTires(p){
     window.tires.push(p.loadImage("graphics/tires/tireRacing.png"));
     window.tires.push(p.loadImage("graphics/tires/tireSnow.png"));
     console.log("tires loaded");
+}
+function loadButtons(p){
+    window.playButton = p.loadImage("graphics/titleScreen/playButton.png");
+    window.garageButton = p.loadImage("graphics/titleScreen/garageButton.png");
+    window.leaderButton = p.loadImage("graphics/titleScreen/leaderboardButton.png");
+    window.setButton = p.loadImage("graphics/titleScreen/settingButton.png");
+
+    console.log("buttons loaded");
 }
