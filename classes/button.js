@@ -8,7 +8,6 @@ class Button { //regular rect button class
       this.width;
       this.height;
       this.callback = callback;
-      this.image = null;
     }
   
     display(p) {
@@ -32,15 +31,16 @@ class Button { //regular rect button class
         this.height = this.y / 3.5;
         p.image(window.leaderButton, this.x - this.width / 2, this.y - this.height / 2, this.width, this.height * 2);
       }
-      else{
+      /*else{ used for previous button version
         p.fill(200);
         p.stroke(0);
         p.rect(this.x - this.width / 2, this.y - this.height / 2, this.width, this.height, 10);
         p.fill(0);
         p.noStroke();
         p.textAlign(p.CENTER, p.CENTER);
-        p.text(this.label, this.x, this.y);
-      }
+        p.text(this.la
+          bel, this.x, this.y);
+      }*/
     }
   
     isMouseOver(p) {
