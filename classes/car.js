@@ -1,4 +1,7 @@
 // classes/car.js
+const carWidth = 50;
+const carHeight = 30;
+
 class Car {
   constructor(p, x, y, stats) {
     this.p = p;
@@ -13,8 +16,8 @@ class Car {
     this.friction = 0.05;
     this.reverseSpeed = -4;
     this.currentImage = (typeof cars !== 'undefined' && cars[0]) ? cars[0] : null;
-    this.width = 50;
-    this.height = 30;
+    this.width = carWidth;
+    this.height = carHeight;
     this.healthBar = SAVED_STATS.health;
   }
 
@@ -54,12 +57,18 @@ class Car {
       this.speed *= 1 - this.friction;
       if (Math.abs(this.speed) < 0.01) this.speed = 0;
     }
+    // Calculates what tile the car will be on 
     this.x += this.speed * p.cos(this.angle);
     this.y += this.speed * p.sin(this.angle);
-    if (this.x < 0) this.x = p.width;
-    else if (this.x > p.width) this.x = 0;
-    if (this.y < 0) this.y = p.height;
-    else if (this.y > p.height) this.y = 0;
+    console.log("x: ", this.x/gridSize);
+    console.log("y: ", this.y/gridSize);
+    
+
+    if (this.x <= 0) this.x = 0;
+    else if (this.x > mapSize*gridSize) this.x = mapSize*gridSize;
+    if (this.y < 0) this.y = 0;
+    else if (this.y >= mapSize*gridSize) this.y = mapSize*gridSize;
+    
   }
 
   display() {
@@ -67,8 +76,10 @@ class Car {
     p.push();
     p.translate(this.x, this.y);
     p.rotate(this.angle);
+
+    // Ensure both image and rectangle are drawn centered
     if (this.currentImage) {
-      p.image(this.currentImage, -32, -64, 128, 128);
+      p.image(this.currentImage, 0, 0, carWidth*2, carHeight*3);
     } else {
       p.fill(0, 0, 0);
       p.rect(0, 0, this.width, this.height);
@@ -76,3 +87,5 @@ class Car {
     p.pop();
   }
 }
+
+
