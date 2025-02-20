@@ -101,6 +101,9 @@ function GarageSketch(p) {
 
     // stop loading
     window.LoadingScreen.hide();
+    if(!window.bgMusic.isPlaying()){
+      window.bgMusic.loop();
+    }
   };
 
   function setupLayout() {
@@ -159,9 +162,7 @@ function GarageSketch(p) {
   }
 
   p.draw = function() {  
-    if(!window.bgMusic.isPlaying()){
-      window.bgMusic.loop();
-    }
+  
     if (bgImage) {
       p.background(bgImage);
     } else {
@@ -335,17 +336,7 @@ function GarageSketch(p) {
   p.keyPressed = function() {
     if (p.keyCode === p.ESCAPE) {
       window.bgMusic.stop();
-      window.bgMusic.playMode('restart');
-      /*
-      if (window.carStart && window.carStart.isLoaded()){
-        window.carStart.play();
-        setTimeout(() => { //needs 
-          window.carStart.stop();
-          switchSketch(Mode.TITLE);
-        }, 5000);
-    }
-    else
-    */
+      
     switchSketch(Mode.TITLE);
     }
   };

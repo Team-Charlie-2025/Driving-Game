@@ -13,13 +13,13 @@ function PlaySketch(p) {
     
     // stop loading
     window.LoadingScreen.hide();
+    if(!bgMusic.isPlaying()){
+      window.bgMusic.loop();
+    }
   };
 
   p.draw = function () {
-    if(!bgMusic.isPlaying()){
-      console.log
-      window.bgMusic.loop();
-    }
+    
     if (!newCanvas) {
       p.createCanvas(p.windowWidth, p.windowHeight);
       newCanvas = true;
@@ -41,8 +41,9 @@ function PlaySketch(p) {
 
   p.keyPressed = function () {
     if (p.keyCode === p.ESCAPE) {
+      //window.bgMusic.playMode('restart');
+      console.log("play music stop");
       window.bgMusic.stop();
-      window.bgMusic.playMode('restart');
       switchSketch(Mode.TITLE);
     }
   };

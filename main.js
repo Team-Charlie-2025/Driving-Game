@@ -1,5 +1,6 @@
 // main.js
 let currentSketch = null;
+let firstLoad = true;
 
 const Mode = {
   TITLE: 'title',
@@ -12,7 +13,8 @@ const Mode = {
 };
 
 function switchSketch(mode) {
-
+  if(!firstLoad)
+    window.pageChange.play();
   window.LoadingScreen.show();
   setTimeout(() => {
   
@@ -46,6 +48,7 @@ function switchSketch(mode) {
   }
 
 }, 800);
+firstLoad = false;
 }
 
 window.onload = function () {

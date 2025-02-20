@@ -1,9 +1,11 @@
 // consolidate loading screen functionality within js file
 // opened with main during sketch
 // closed/hidden at end of setup on new sketch
+let pageNew;
 window.LoadingScreen = { 
     show: function() {
-        //console.log("Showing loading screen..."); //debugging
+        //window.pageChange.play();
+        console.log("Showing loading screen..."); //debugging
         let loadingScreen = document.getElementById("loading-screen");
         if (loadingScreen) {
             loadingScreen.style.display = "flex";
