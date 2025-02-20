@@ -6,6 +6,8 @@ class Car {
     this.y = y;
     this.speed = 0;
     this.angle = 0;
+    this.xTile = x/gridSize;
+    this.yTile = y/gridSize;
     // creates stats as const to prevent modifications
     const SAVED_STATS = Object.freeze({ ...stats });
     this.acceleration = SAVED_STATS.acceleration;
@@ -54,14 +56,34 @@ class Car {
       this.speed *= 1 - this.friction;
       if (Math.abs(this.speed) < 0.01) this.speed = 0;
     }
+    // Calculates what tile the car will be on 
+    /*
+    //this.xTile = Math.floor((this.x + this.speed * p.cos(this.angle)) / gridSize) ;
+    //this.yTile = Math.ceil((this.y + this.speed * p.sin(this.angle)) / gridSize) ;
+    
+    if(p.map[this.yTile][this.xTile] instanceof Building && false) {
+        //this.x -= (this.speed * cos(this.angle));
+        //this.y -= (this.speed * sin(this.angle));
+        this.healthBar -= 10;
+        console.log(this.healthBar);
+        this.speed = this.speed / -2 ;
+    }
+    else { 
+        this.x += this.speed * p.cos(this.angle);
+        this.y += this.speed * p.sin(this.angle);
+    }
+    */
     this.x += this.speed * p.cos(this.angle);
     this.y += this.speed * p.sin(this.angle);
-    /*
-    if (this.x < 0) this.x = p.width;
-    else if (this.x > p.width) this.x = 0;
-    if (this.y < 0) this.y = p.height;
-    else if (this.y > p.height) this.y = 0;
-    */
+    console.log("x: ", this.x/gridSize);
+    console.log("y: ", this.y/gridSize);
+
+
+    if (this.x <= 0) this.x = 0;
+    else if (this.x > mapSize*gridSize) this.x = mapSize*gridSize;
+    if (this.y < 0) this.y = 0;
+    else if (this.y >= mapSize*gridSize) this.y = mapSize*gridSize;
+    
   }
 
   display() {
