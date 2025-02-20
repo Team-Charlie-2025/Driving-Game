@@ -28,3 +28,8 @@ function loadPersistentData() {
 function savePersistentData(data) {
   localStorage.setItem("persistentData", JSON.stringify(data));
 }
+
+function clearPersistentData(){
+  localStorage.removeItem("persistentData");
+  console.log("Deleted persistent data");
+}

@@ -8,7 +8,6 @@ class Building extends GameObject {
     this.currentImage = img;
     this.isStatic = true;
     this.collider = new Collider(this, "rectangle", { width: this.width, height: this.height, offsetX: -this.width/2, offsetY: -this.height/2 });
-    console.log(`Building: Created Building (id:${this.id}) at (${x}, ${y}) with image: ${this.currentImage ? 'Yes' : 'No'}.`);
   }
   
   update() {

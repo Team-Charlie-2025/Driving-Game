@@ -1,15 +1,15 @@
-// scripts/play.js
 function PlaySketch(p) {
   let newCanvas = false;
   let car;
   let physicsEngine;
   let mapRows, mapCols;
+  let debug = true;
+  let zoomFactor = 2.5;
 
   p.preload = function() {
     loadSound(p);
     p.carImg = p.loadImage("assets/car.png");
     p.buildingImg = p.loadImage("assets/building.png");
-    console.log("PlaySketch: Loaded assets (carImg and buildingImg).");
   };
 
   p.setup = function() {
@@ -19,8 +19,8 @@ function PlaySketch(p) {
     mapCols = Math.floor(p.windowWidth / gridSize);
     
     generateDevMap(p, mapRows, mapCols, p.buildingImg);
-    console.log(`PlaySketch: Generated map (${mapRows} rows x ${mapCols} cols).`);
     
+    // physics from building class
     for (let row of map) {
       for (let cell of row) {
         if (cell instanceof Building) {
@@ -28,22 +28,21 @@ function PlaySketch(p) {
         }
       }
     }
-    console.log("PlaySketch: Added all Building objects to PhysicsEngine.");
   };
 
   p.draw = function() {
     if (!bgMusic.isPlaying()) {
-      window.bgMusic.loop();
+      bgMusic.loop();
     }
     if (!newCanvas) {
       p.createCanvas(p.windowWidth, p.windowHeight);
       newCanvas = true;
     }
 
-    drawMap(p);
+    p.background(200); 
+
     if (!car) {
       const stats = loadPersistentData().stats;
-
       let startX = p.width - 500;
       let startY = p.height - 500;
       car = new Car(p, startX, startY, stats, p.carImg);
@@ -51,13 +50,26 @@ function PlaySketch(p) {
       console.log("PlaySketch: Created Car.");
     }
     car.update();
-    car.display();
     physicsEngine.update();
-    
+    p.push();
+    p.translate(p.width / 2, p.height / 2);
+    // zoom in
+    p.scale(zoomFactor);
+    p.translate(-car.position.x, -car.position.y);
+    drawMap(p);
+    car.display();
+    if (debug) {
+      for (let obj of physicsEngine.objects) {
+        if (obj.collider && typeof obj.collider.drawOutline === "function") {
+          obj.collider.drawOutline();
+        }
+      }
+    }
+    p.pop();
   };
 
   p.windowResized = function() {
-    p.resizeCanvas(p.windowWidth, p.windowHeight);
+    p.scale(p.windowWidth, p.windowHeight);
     console.log("PlaySketch: Window resized.");
   };
 
