@@ -1,6 +1,7 @@
 // classes/map.js
 let map = [];
 const gridSize = 32; // Size of each grid cell
+const mapSize = 500; // Size of the Tile map
 
 class Building {
   constructor(x, y) {
