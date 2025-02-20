@@ -27,22 +27,22 @@ function TitleSketch(p) {
 
 
   p.draw = function () {
-    if (bgImage) {
-      p.background(bgImage);
-    } else {
-      p.background(30, 30, 30);
+   // if (bgImage) { //until background is done, commented out
+      //p.background(bgImage); 
+    //} else {
+      p.background(225, 240, 255);
+    //}
+    for (let btn of buttons) {
+      btn.display(p);
     }
     if (imgTitle) {
       p.image(
         imgTitle,
         p.windowWidth / 10,
-        p.windowHeight / 13,
+        p.windowHeight / 6,
         p.windowWidth / 1.2,
         p.windowHeight / 2.6
       );
-    }
-    for (let btn of buttons) {
-      btn.display(p);
     }
   };
 
@@ -65,22 +65,22 @@ function TitleSketch(p) {
 
   function createButtons() {
     buttons.push(
-      new Button("Play", p.width / 2, p.height - p.height * 0.50, function () {
+      new Button("Play", p.width / 2, p.height - p.height * 0.40, function () {
         switchSketch(Mode.PLAY);
       })
     );
     buttons.push(
-      new Button("Garage", p.width / 2, p.height - p.height * 0.38, function () {
+      new Button("Garage", p.width / 2, p.height - p.height * 0.25, function () {
         switchSketch(Mode.GARAGE);
       })
     );
     buttons.push(
-      new Button("Leaderboard", p.width / 1.2, p.height - p.height * 0.30, function () {
+      new Button("Leaderboard", p.width / 1.2, p.height - p.height * 0.90, function () {
         switchSketch(Mode.LEADERBOARD);
       })
     );
     buttons.push(
-      new Button("Settings", p.width / 4.8, p.height - p.height * 0.20, function () {
+      new Button("Settings", p.width / 7, p.height - p.height * 0.15, function () {
         switchSketch(Mode.SETTINGS);
       })
     );
