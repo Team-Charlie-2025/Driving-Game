@@ -12,7 +12,7 @@ function TitleSketch(p) {
       bgMusic.setVolume(0.15); // Set volume to level (change to loacal storage var to adjust by user)
     }
     
-    bgImage = p.loadImage("graphics/mainbg.png");
+    bgImage = p.loadImage("graphics/BackGround.jpg");
     imgTitle = p.loadImage("graphics/title.png");
     if(!globalsLoaded) loadGlobals(p);
   };
@@ -28,11 +28,12 @@ function TitleSketch(p) {
 
 
   p.draw = function () {
-   // if (bgImage) { //until background is done, commented out
-      //p.background(bgImage); 
-    //} else {
+    if (bgImage) { //until background is done, commented out
+    p.background(bgImage); 
+    } else {
       p.background(225, 240, 255);
-    //}
+    };
+
     for (let btn of buttons) {
       btn.display(p);
     }
@@ -76,15 +77,16 @@ function TitleSketch(p) {
       })
     );
     buttons.push(
-      new Button("Leaderboard", p.width / 1.2, p.height - p.height * 0.90, function () {
-        switchSketch(Mode.LEADERBOARD);
-      })
-    );
-    buttons.push(
       new Button("Settings", p.width / 7, p.height - p.height * 0.15, function () {
-        switchSketch(Mode.SETTINGS);
+          switchSketch(Mode.SETTINGS);
       })
-    );
+  ); 
+ // buttons.push(
+   // new Button("Leaderboard", p.width * 6 / 7, p.height - p.height * 0.15, function(){
+        //  switchSketch(Mode.LEADERBOARD);
+   //   })
+  //);
+  
     /*
     buttons.push(
       new Button("Exit", p.width / 2, p.height - p.height * 0.17, function () {
