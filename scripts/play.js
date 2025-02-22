@@ -11,9 +11,8 @@ function PlaySketch(p) {
     p.createCanvas(p.windowWidth, p.windowHeight);
 
     generateGenMap(p, mapSize, mapSize);
-  };
-  // stop loading
-  window.LoadingScreen.hide();
+    // stop loading
+    window.LoadingScreen.hide();
 
     if(!bgMusic.isPlaying()){
       window.bgMusic.loop();
