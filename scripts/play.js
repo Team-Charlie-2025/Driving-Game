@@ -9,10 +9,12 @@ function PlaySketch(p) {
 
   p.setup = function () {
     p.createCanvas(p.windowWidth, p.windowHeight);
-    generateDevMap(p, Math.floor(p.windowWidth / gridSize), Math.floor(p.windowHeight / gridSize));
-    
-    // stop loading
-    window.LoadingScreen.hide();
+
+    generateGenMap(p, mapSize, mapSize);
+  };
+  // stop loading
+  window.LoadingScreen.hide();
+
     if(!bgMusic.isPlaying()){
       window.bgMusic.loop();
     }
@@ -25,12 +27,12 @@ function PlaySketch(p) {
       newCanvas = true;
     }
     p.background(255);
-    drawMap(p);
     if (!car) {
       // Load the stats from persistent storage before creating the car.
       const stats = loadPersistentData().stats;
       car = new Car(p, p.width / 2, p.height / 2, stats);
     }
+    drawMap(p,car);
     car.update();
     car.display();
   };
