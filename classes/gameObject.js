@@ -3,9 +3,9 @@ class GameObject {
     constructor(x, y) {
       this.position = new p5.Vector(x, y);
       this.collider = null;
-      this.id = GameObject.nextId++;
-      this.isColliding = false;
-      this.isStatic = false;
+      this.id = GameObject.nextId++;  // standard id incrementing for uniqueness/debug
+      this.isColliding = false;  // used for triggers or debugs
+      this.isStatic = false;  // object never moves
     }
     
     update() {}

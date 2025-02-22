@@ -40,6 +40,10 @@ class Collider {
     }
     
     intersects(other) {
+      // calculates intersections by:
+      // rectangles: overlap coordinate points
+      // polygons: calls function
+      // rect/poly and poly/rect convert rect to vectors and compare with poly funct
       if (this.shape === "rectangle" && other.shape === "rectangle") {
         return (
           this.x < other.x + other.options.width &&
@@ -70,6 +74,7 @@ class Collider {
     }
     
     drawOutline() {
+      // debugging
       const p = this.gameObject.p;
       p.push();
       p.noFill();
