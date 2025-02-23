@@ -33,7 +33,7 @@ function GarageSketch(p) {
     { name: "Red Stripe", maxSpeed: 0, boost: 0, health: 0, acceleration: 0, turn: 0, dmgRes: 0 }
   ];
   const dataEngine = [
-    { name: "V4", maxSpeed: 0, boost: 20, health: 10, acceleration: 0.1, turn: 0.02, dmgRes: 1 },
+    { name: "V4", maxSpeed: 0, boost:0, health: 0, acceleration: 0, turn: 0, dmgRes: 0 },
     { name: "V6", maxSpeed: 1, boost: 10, health: -10, acceleration: 0.2, turn: -0.01, dmgRes: -1 },
     { name: "V8", maxSpeed: 3, boost: 30, health: -30, acceleration: 0.3, turn: -0.02, dmgRes: -2 }
   ];
