@@ -1,7 +1,10 @@
-/* classes/mapGen.js */
-/*
-  Procedural Map Generation:
-  Generates a base map of Grass tiles, then overlays Roads and Buildings.
+/* 
+  #######################################################################
+  This file is for trying to generate the building map through logic and chance
+  
+  Currently I am trying to generate maps with the logic of "neighborhoods"
+  different areas have different generation
+  #########################################################################
 */
 function generateGenMap(p, rows, cols) {
   // Initialize the map with Grass.
@@ -103,8 +106,14 @@ function drawRectBuilding(p, xStart, yStart, xEnd, yEnd) {
   for (let y = yStart; y < yEnd; y++) {
     for (let x = xStart; x < xEnd; x++) {
       if (map[y] && map[y][x] !== undefined) {
-        // Buildings are already centered (note the gridSize/2 offset).
-        map[y][x] = new Building(p, x * gridSize + gridSize/2, y * gridSize + gridSize/2, gridSize, gridSize);
+        map[y][x] = new Building(
+          p,
+          x * gridSize + gridSize / 2,
+          y * gridSize + gridSize / 2,
+          gridSize,
+          gridSize,
+          buildingImg
+        );
       }
     }
   }
@@ -216,10 +225,10 @@ function createParkingLotEntrances(p, lotXStart, lotYStart, lotXEnd, lotYEnd) {
   if (isAdjacentToRoad(p, Math.floor((lotXStart + lotXEnd) / 2), lotYEnd + grassBuffer))
     possibleEntrances.push({ x: Math.floor((lotXStart + lotXEnd) / 2), y: lotYEnd });
 
+    // Pick two random entrance/exits
   if (possibleEntrances.length > 1) {
     let entrance = possibleEntrances.splice(Math.floor(Math.random() * possibleEntrances.length), 1)[0];
     let exit = possibleEntrances.splice(Math.floor(Math.random() * possibleEntrances.length), 1)[0];
-    // Center the road tiles in these positions.
     map[entrance.y][entrance.x] = new Road(p, entrance.x * gridSize + gridSize/2, entrance.y * gridSize + gridSize/2, gridSize, gridSize);
     map[exit.y][exit.x] = new Road(p, exit.x * gridSize + gridSize/2, exit.y * gridSize + gridSize/2, gridSize, gridSize);
   }

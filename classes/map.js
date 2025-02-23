@@ -1,12 +1,9 @@
 /* classes/map.js */
-const gridSize = 32;  // Size of each grid cell
-const mapSize = 500;  // Number of tiles per dimension
-let map = [];         // Global 2D array of map tiles
+const gridSize = 32;
+const mapSize = 500;
+let map = []; 
 
-// Only draw the tiles that fall in the visible region (based on center and zoomFactor).
-// This spatial culling avoids iterating over all 150k tiles.
 function drawMap(p, center, zoomFactor) {
-  // Compute visible boundaries in world coordinates.
   let halfWidth = p.width / (2 * zoomFactor);
   let halfHeight = p.height / (2 * zoomFactor);
   let startX = Math.floor((center.x - halfWidth) / gridSize);

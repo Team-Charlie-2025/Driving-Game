@@ -68,10 +68,8 @@ class Car extends GameObject {
       this.speed *= (1 - this.friction);
       if (Math.abs(this.speed) < 0.01) this.speed = 0;
     }
-    // Update position based on current speed and angle.
     this.position.x += this.speed * p.cos(this.angle);
     this.position.y += this.speed * p.sin(this.angle);
-    // Keep the car within bounds.
     if (this.position.x < 0) this.position.x = 0;
     else if (this.position.x > mapSize * gridSize) this.position.x = mapSize * gridSize;
     if (this.position.y < 0) this.position.y = 0;
@@ -93,7 +91,6 @@ class Car extends GameObject {
   }
 
   onCollisionEnter(other) {
-    // This function is no longer used for building collisions because we do them manually.
     super.onCollisionEnter(other);
   }
 }
