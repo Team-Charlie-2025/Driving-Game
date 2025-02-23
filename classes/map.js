@@ -1,11 +1,12 @@
 /* classes/map.js */
-const gridSize = 32; // Size of each grid cell
-const mapSize = 500; // Number of tiles per dimension
-let map = []; // Global 2D map array
+const gridSize = 32;  // Size of each grid cell
+const mapSize = 500;  // Number of tiles per dimension
+let map = [];         // Global 2D array of map tiles
 
-// Draws only the visible portion of the map given a center and zoom factor.
-// It does not perform any camera translation—the camera transform is done in PlaySketch.
+// Only draw the tiles that fall in the visible region (based on center and zoomFactor).
+// This spatial culling avoids iterating over all 150k tiles.
 function drawMap(p, center, zoomFactor) {
+  // Compute visible boundaries in world coordinates.
   let halfWidth = p.width / (2 * zoomFactor);
   let halfHeight = p.height / (2 * zoomFactor);
   let startX = Math.floor((center.x - halfWidth) / gridSize);

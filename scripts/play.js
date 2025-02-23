@@ -1,28 +1,22 @@
 /* scripts/play.js */
 function PlaySketch(p) {
-  let newCanvas = false;
   let car;
-  let physicsEngine;
+  let physicsEngine; // Will manage dynamic objects (like the car) only.
   let debug = true;
   let zoomFactor = 2.5;
 
   p.preload = function() {
     p.carImg = p.loadImage("assets/car.png");
     p.buildingImg = p.loadImage("assets/building.png");
+    // Other assets (e.g. bgMusic) assumed loaded globally.
   };
 
   p.setup = function () {
     p.createCanvas(p.windowWidth, p.windowHeight);
     physicsEngine = new PhysicsEngine();
+    // Generate the full map.
     generateGenMap(p, mapSize, mapSize);
-    // Add all Building objects to the physics engine for collision.
-    for (let row of map) {
-      for (let cell of row) {
-        if (cell instanceof Building) {
-          physicsEngine.add(cell);
-        }
-      }
-    }
+    // (Note: We no longer add all Building objects to the physics engine.)
     window.LoadingScreen.hide();
     if (!window.bgMusic.isPlaying()){
       window.bgMusic.loop();
@@ -31,16 +25,16 @@ function PlaySketch(p) {
 
   p.draw = function () {
     p.background(255);
+    // Create the car at the center initially.
     if (!car) {
       const stats = loadPersistentData().stats;
-      // Start the car roughly at the center of the world.
       let startX = p.width / 2;
       let startY = p.height / 2;
       car = new Car(p, startX, startY, stats);
       physicsEngine.add(car);
       console.log("PlaySketch: Created Car.");
     }
-    // Camera transformation: center on the car.
+    // Apply camera transforms so the car remains centered.
     p.push();
     p.translate(p.width / 2, p.height / 2);
     p.scale(zoomFactor);
@@ -56,8 +50,11 @@ function PlaySketch(p) {
       }
     }
     p.pop();
+    // Update only dynamic objects.
     physicsEngine.update();
     car.update();
+    // Perform manual collision check with nearby Building tiles.
+    checkBuildingCollisions(car);
   };
 
   p.windowResized = function() {
@@ -72,4 +69,31 @@ function PlaySketch(p) {
       switchSketch(Mode.TITLE);
     }
   };
+}
+
+function checkBuildingCollisions(car) {
+  // Determine which grid cells to check (e.g., a 3x3 neighborhood)
+  const tileX = Math.floor(car.position.x / gridSize);
+  const tileY = Math.floor(car.position.y / gridSize);
+
+  for (let j = tileY - 1; j <= tileY + 1; j++) {
+    for (let i = tileX - 1; i <= tileX + 1; i++) {
+      if (map[j] && map[j][i] instanceof Building) {
+        let building = map[j][i];
+        // Use the collider's intersection test
+        if (car.collider.intersects(building.collider)) {
+          // Handle collision response:
+          car.speed = -Math.abs(car.speed);
+          if (!car.controlDisabled) {
+            car.controlDisabled = true;
+            setTimeout(() => {
+              car.controlDisabled = false;
+            }, 250);
+          }
+          // Optionally, you might break after detecting a collision.
+          return;
+        }
+      }
+    }
+  }
 }

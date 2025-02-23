@@ -42,7 +42,8 @@ function drawRectRoad(p, xStart, yStart, xEnd, yEnd) {
   for (let y = yStart; y < yEnd; y++) {
     for (let x = xStart; x < xEnd; x++) {
       if (map[y] && map[y][x] !== undefined) {
-        map[y][x] = new Road(p, x * gridSize, y * gridSize, gridSize, gridSize);
+        // Adjust x and y to be centered on the tile.
+        map[y][x] = new Road(p, x * gridSize + gridSize / 2, y * gridSize + gridSize / 2, gridSize, gridSize);
       }
     }
   }
@@ -64,7 +65,7 @@ function drawAngledRoad(p, xStart, yStart, xEnd, yEnd, width) {
       let buildX = x + perpX;
       let buildY = y + perpY;
       if (map[buildY] && map[buildY][buildX] !== undefined) {
-        map[buildY][buildX] = new Road(p, buildX * gridSize, buildY * gridSize, gridSize, gridSize);
+        map[buildY][buildX] = new Road(p, buildX * gridSize + gridSize/2, buildY * gridSize + gridSize/2, gridSize, gridSize);
       }
     }
     let e2 = 2 * err;
@@ -90,7 +91,7 @@ function drawBezierRoad(p, x0, y0, x1, y1, x2, y2, width) {
       let buildX = Math.round(x + j * perpX);
       let buildY = Math.round(y + j * perpY);
       if (map[buildY] && map[buildY][buildX] !== undefined) {
-        map[buildY][buildX] = new Road(p, buildX * gridSize, buildY * gridSize, gridSize, gridSize);
+        map[buildY][buildX] = new Road(p, buildX * gridSize + gridSize/2, buildY * gridSize + gridSize/2, gridSize, gridSize);
       }
     }
     prevX = x;
@@ -102,7 +103,8 @@ function drawRectBuilding(p, xStart, yStart, xEnd, yEnd) {
   for (let y = yStart; y < yEnd; y++) {
     for (let x = xStart; x < xEnd; x++) {
       if (map[y] && map[y][x] !== undefined) {
-        map[y][x] = new Building(p, x * gridSize + gridSize / 2, y * gridSize + gridSize / 2, gridSize, gridSize);
+        // Buildings are already centered (note the gridSize/2 offset).
+        map[y][x] = new Building(p, x * gridSize + gridSize/2, y * gridSize + gridSize/2, gridSize, gridSize);
       }
     }
   }
@@ -217,8 +219,9 @@ function createParkingLotEntrances(p, lotXStart, lotYStart, lotXEnd, lotYEnd) {
   if (possibleEntrances.length > 1) {
     let entrance = possibleEntrances.splice(Math.floor(Math.random() * possibleEntrances.length), 1)[0];
     let exit = possibleEntrances.splice(Math.floor(Math.random() * possibleEntrances.length), 1)[0];
-    map[entrance.y][entrance.x] = new Road(p, entrance.x * gridSize, entrance.y * gridSize, gridSize, gridSize);
-    map[exit.y][exit.x] = new Road(p, exit.x * gridSize, exit.y * gridSize, gridSize, gridSize);
+    // Center the road tiles in these positions.
+    map[entrance.y][entrance.x] = new Road(p, entrance.x * gridSize + gridSize/2, entrance.y * gridSize + gridSize/2, gridSize, gridSize);
+    map[exit.y][exit.x] = new Road(p, exit.x * gridSize + gridSize/2, exit.y * gridSize + gridSize/2, gridSize, gridSize);
   }
 }
 
@@ -226,7 +229,7 @@ function drawParkingLot(p, xStart, yStart, xEnd, yEnd) {
   for (let y = yStart; y < yEnd; y++) {
     for (let x = xStart; x < xEnd; x++) {
       if (map[y] && map[y][x] instanceof Grass) {
-        map[y][x] = new Road(p, x * gridSize, y * gridSize, gridSize, gridSize);
+        map[y][x] = new Road(p, x * gridSize + gridSize/2, y * gridSize + gridSize/2, gridSize, gridSize);
       }
     }
   }
