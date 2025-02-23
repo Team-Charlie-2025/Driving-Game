@@ -82,7 +82,7 @@ class Car extends GameObject {
     p.translate(this.position.x, this.position.y);
     p.rotate(this.angle);
     if (this.currentImage) {
-      p.image(this.currentImage, -this.width / 2, -this.height / 2, this.width, this.height);
+      p.image(this.currentImage, -this.width / 4, -this.height / 2, this.width, this.height);
     } else {
       p.fill(0);
       p.rect(-this.width / 2, -this.height / 2, this.width, this.height);
