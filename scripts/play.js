@@ -1,26 +1,21 @@
+/* scripts/play.js */
 function PlaySketch(p) {
   let newCanvas = false;
   let car;
   let physicsEngine;
-  let mapRows, mapCols;
   let debug = true;
   let zoomFactor = 2.5;
 
   p.preload = function() {
-    loadSound(p);
     p.carImg = p.loadImage("assets/car.png");
     p.buildingImg = p.loadImage("assets/building.png");
   };
 
-  p.setup = function() {
+  p.setup = function () {
     p.createCanvas(p.windowWidth, p.windowHeight);
     physicsEngine = new PhysicsEngine();
-    mapRows = Math.floor(p.windowHeight / gridSize);
-    mapCols = Math.floor(p.windowWidth / gridSize);
-    
-    generateDevMap(p, mapRows, mapCols, p.buildingImg);
-    
-    // physics from building class
+    generateGenMap(p, mapSize, mapSize);
+    // Add all Building objects to the physics engine for collision.
     for (let row of map) {
       for (let cell of row) {
         if (cell instanceof Building) {
@@ -28,35 +23,30 @@ function PlaySketch(p) {
         }
       }
     }
+    window.LoadingScreen.hide();
+    if (!window.bgMusic.isPlaying()){
+      window.bgMusic.loop();
+    }
   };
 
-  p.draw = function() {
-    if (!bgMusic.isPlaying()) {
-      bgMusic.loop();
-    }
-    if (!newCanvas) {
-      p.createCanvas(p.windowWidth, p.windowHeight);
-      newCanvas = true;
-    }
-
-    p.background(200); 
-
+  p.draw = function () {
+    p.background(255);
     if (!car) {
       const stats = loadPersistentData().stats;
-      let startX = p.width - 500;
-      let startY = p.height - 500;
-      car = new Car(p, startX, startY, stats, p.carImg);
+      // Start the car roughly at the center of the world.
+      let startX = p.width / 2;
+      let startY = p.height / 2;
+      car = new Car(p, startX, startY, stats);
       physicsEngine.add(car);
       console.log("PlaySketch: Created Car.");
     }
-    car.update();
-    physicsEngine.update();
+    // Camera transformation: center on the car.
     p.push();
     p.translate(p.width / 2, p.height / 2);
-    // zoom in
     p.scale(zoomFactor);
     p.translate(-car.position.x, -car.position.y);
-    drawMap(p);
+    // Draw only the visible portion of the map.
+    drawMap(p, car.position, zoomFactor);
     car.display();
     if (debug) {
       for (let obj of physicsEngine.objects) {
@@ -66,17 +56,19 @@ function PlaySketch(p) {
       }
     }
     p.pop();
+    physicsEngine.update();
+    car.update();
   };
 
   p.windowResized = function() {
-    p.scale(p.windowWidth, p.windowHeight);
+    p.resizeCanvas(p.windowWidth, p.windowHeight);
     console.log("PlaySketch: Window resized.");
   };
 
   p.keyPressed = function() {
     if (p.keyCode === p.ESCAPE) {
+      console.log("play music stop");
       window.bgMusic.stop();
-      window.bgMusic.playMode("restart");
       switchSketch(Mode.TITLE);
     }
   };

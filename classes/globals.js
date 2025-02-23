@@ -17,8 +17,9 @@ function loadSound(p){
     window.carStart = p.loadSound('sound/carStart.wav');
     window.carStart.setVolume(1.5);
 
-    window.pageChange = p.loadSound('sound/newPage.wav');
-    window.pageChange.setVolume(0.15);
+    //possibly change, is a bit annoying
+    window.pageChange = p.loadSound('sound/newPage.wav');  
+    window.pageChange.setVolume(0.02);
     console.log("sounds loaded");
 }
 

@@ -1,5 +1,6 @@
 // main.js
 let currentSketch = null;
+let firstLoad = true;
 
 const Mode = {
   TITLE: 'title',
@@ -12,7 +13,12 @@ const Mode = {
 };
 
 function switchSketch(mode) {
-  if (currentSketch) {
+  if(!firstLoad)
+    window.pageChange.play();
+  window.LoadingScreen.show();
+  setTimeout(() => {
+  
+      if (currentSketch) {
     currentSketch.remove();
   }
   switch (mode) {
@@ -40,6 +46,9 @@ function switchSketch(mode) {
     default:
       console.log("Unknown mode: " + mode);
   }
+
+}, 800);
+firstLoad = false;
 }
 
 window.onload = function () {

@@ -22,13 +22,13 @@ class Button { //regular rect button class
         p.image(window.garageButton, this.x - this.width / 2 +15, this.y - this.height / 2, this.width, this.height);
       }
       else if(this.label == "Settings" ){
-        this.width = this.x / 1.2;
+        this.width = this.x / 0.6;
         this.height = this.y / 2.2;
         p.image(window.setButton, this.x - this.width / 2.2, this.y - this.height / 2, this.width, this.height);
       }
       else if(this.label == "Leaderboard" ){
-        this.width = this.x / 2.5;
-        this.height = this.y / 3.5;
+        this.width = this.x / 3.2;
+        this.height = this.y / 0.6;
         p.image(window.leaderButton, this.x - this.width / 2, this.y - this.height / 2, this.width, this.height * 2);
       }
       /*else{ used for previous button version
@@ -38,8 +38,7 @@ class Button { //regular rect button class
         p.fill(0);
         p.noStroke();
         p.textAlign(p.CENTER, p.CENTER);
-        p.text(this.la
-          bel, this.x, this.y);
+        p.text(this.label, this.x, this.y);
       }*/
     }
   
