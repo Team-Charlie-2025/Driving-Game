@@ -9,7 +9,7 @@ function TitleSketch(p) {
     if (bgMusic == null) {
       console.log("title music play");
       bgMusic = p.loadSound('sound/titleTheme.mp3', () => {bgMusic.loop();} );
-      bgMusic.setVolume(0.15); // Set volume to level (change to loacal storage var to adjust by user)
+      bgMusic.setVolume(0.15); 
     }
     
     bgImage = p.loadImage("graphics/mainbg.png");

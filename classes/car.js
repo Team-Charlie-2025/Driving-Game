@@ -1,4 +1,4 @@
-/* classes/car.js */
+// classes/car.js
 const carWidth = 50;
 const carHeight = 30;
 
@@ -8,24 +8,31 @@ class Car extends GameObject {
     this.p = p;
     this.speed = 0;
     this.angle = 0;
+
+    // Load saved stats
     const data = loadPersistentData();
     const SAVED_STATS = data.stats;
     const selectedCarIndex = data.selectedCar || 0;
+
     this.acceleration = SAVED_STATS.acceleration;
     this.maxSpeed = SAVED_STATS.maxSpeed;
     this.friction = 0.05;
     this.reverseSpeed = -4;
+    
     this.currentImage = window.cars[selectedCarIndex] || null;
+    
     if (this.currentImage) {
       this.width = 64;
       this.height = 64;
+
       this.collider = new Collider(
         this,
         "polygon",
-        { offsetX: -16, offsetY: -32 },
+        { offsetX: -32, offsetY: -32 },
         this.currentImage
       );
     } else {
+      // fallback rectangle
       this.width = carWidth;
       this.height = carHeight;
       this.collider = new Collider(this, "rectangle", {
@@ -35,6 +42,7 @@ class Car extends GameObject {
         offsetY: -this.height / 2,
       });
     }
+
     this.healthBar = SAVED_STATS.health;
     this.controlDisabled = false;
     this.time = 0.0;
@@ -42,34 +50,57 @@ class Car extends GameObject {
 
   update() {
     const p = this.p;
-    if (p.keyIsDown(87) && !this.controlDisabled) { // W key: forward
-      if (p.keyIsDown(70)) { // Boost if F held
+
+    // W
+    if (p.keyIsDown(87) && !this.controlDisabled) {
+      // F
+      if (p.keyIsDown(70)) {
         if (this.speed < 0) this.speed = 0.01;
-        this.speed = p.constrain(this.speed + this.acceleration * 2, this.reverseSpeed * 2, this.maxSpeed * 2);
+        this.speed = p.constrain(
+          this.speed + this.acceleration * 2,
+          this.reverseSpeed * 2,
+          this.maxSpeed * 2
+        );
       } else {
         if (this.speed > this.maxSpeed) {
           this.speed -= this.acceleration;
         } else {
-          this.speed = p.constrain(this.speed + this.acceleration, this.reverseSpeed, this.maxSpeed);
+          this.speed = p.constrain(
+            this.speed + this.acceleration,
+            this.reverseSpeed,
+            this.maxSpeed
+          );
         }
       }
     }
-    if (p.keyIsDown(83) && !this.controlDisabled) { // S key: brake/reverse
-      this.speed = p.constrain(this.speed - this.acceleration, this.reverseSpeed, this.maxSpeed);
+
+    // S key: brake/reverse
+    if (p.keyIsDown(83) && !this.controlDisabled) {
+      this.speed = p.constrain(
+        this.speed - this.acceleration,
+        this.reverseSpeed,
+        this.maxSpeed
+      );
     }
+
     let turnSpeed = 0.05;
-    if (p.keyIsDown(65) && !this.controlDisabled) { // A key: turn left
+    if (p.keyIsDown(65) && !this.controlDisabled) { // A key
       this.angle -= p.keyIsDown(16) ? turnSpeed * 2 : turnSpeed;
     }
-    if (p.keyIsDown(68) && !this.controlDisabled) { // D key: turn right
+    if (p.keyIsDown(68) && !this.controlDisabled) { // D key
       this.angle += p.keyIsDown(16) ? turnSpeed * 2 : turnSpeed;
     }
+
+    // friction
     if (!p.keyIsDown(87) && !p.keyIsDown(83)) {
       this.speed *= (1 - this.friction);
       if (Math.abs(this.speed) < 0.01) this.speed = 0;
     }
+
     this.position.x += this.speed * p.cos(this.angle);
     this.position.y += this.speed * p.sin(this.angle);
+
+    // Keep within map bounds
     if (this.position.x < 0) this.position.x = 0;
     else if (this.position.x > mapSize * gridSize) this.position.x = mapSize * gridSize;
     if (this.position.y < 0) this.position.y = 0;
@@ -81,12 +112,15 @@ class Car extends GameObject {
     p.push();
     p.translate(this.position.x, this.position.y);
     p.rotate(this.angle);
+
     if (this.currentImage) {
-      p.image(this.currentImage, -this.width / 4, -this.height / 2, this.width, this.height);
+      p.image(this.currentImage, -this.width / 2, -this.height / 2, this.width, this.height);
     } else {
+      // fallback rectangle
       p.fill(0);
       p.rect(-this.width / 2, -this.height / 2, this.width, this.height);
     }
+
     p.pop();
   }
 

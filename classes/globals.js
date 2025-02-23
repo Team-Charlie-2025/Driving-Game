@@ -7,7 +7,8 @@ function loadGlobals(p){
     loadSound(p);
     loadButtons(p);
 
-    
+    window.buildingImg = p.loadImage("assets/building.png");
+
     globalsLoaded = true;
 }
 function loadSound(p){
