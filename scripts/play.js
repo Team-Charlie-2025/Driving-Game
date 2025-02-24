@@ -49,7 +49,7 @@ function PlaySketch(p) {
 
   // Add spawn function
   function spawnEnemy(p) {
-    if (!car) return;
+    if (!car || window.isGameOver) return;
 
     const spawnDistance = 1000;
     const angle = p.random(p.TWO_PI);
@@ -66,9 +66,13 @@ function PlaySketch(p) {
 
     if (window.isGameOver) {
       p.push();
-      drawMap(p, car.position, zoomFactor); // Redraw game background
+      p.translate(p.width / 2, p.height / 2);
+      p.scale(zoomFactor);
+      p.translate(-car.position.x, -car.position.y);
+      drawMap(p, car.position, zoomFactor);
       car.display();
       enemies.forEach(enemy => enemy.display());
+      p.pop();
       p.fill(150, 0, 0, 180); // Semi-transparent red tint overlay
       p.rect(0, 0, p.width, p.height);
       p.pop();
