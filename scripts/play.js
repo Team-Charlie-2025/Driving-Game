@@ -99,7 +99,7 @@ function checkBuildingCollisions(car) {
         let building = map[j][i];
         // collided with building logic
         if (car.collider.intersects(building.collider)) {
-          car.speed = (-1)*(car.speed);
+          car.speed = (car.speed) / -2;
           if (!car.controlDisabled) {
             car.controlDisabled = true;
             setTimeout(() => {
