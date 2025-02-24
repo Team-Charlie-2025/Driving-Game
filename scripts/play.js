@@ -4,46 +4,79 @@ function PlaySketch(p) {
   let physicsEngine;
   let debug = true;
   let zoomFactor = 2.5;
+  let enemies = [];
+  const ENEMY_SPAWN_RATE = 10000; // 1000 = 1 seconds
+  let lastSpawn = 0;
 
   p.preload = function() {
     loadSound(p);
     p.carImg = p.loadImage("assets/car.png");
     p.buildingImg = p.loadImage("assets/building.png");
-    
+    p.enemyImg = p.loadImage("assets/police+car.png"); // Add enemy image
   };
 
   p.setup = function () {
     p.createCanvas(p.windowWidth, p.windowHeight);
     physicsEngine = new PhysicsEngine();
-    
     generateGenMap(p, mapSize, mapSize);
-    
+
     window.LoadingScreen.hide();
-    if (!window.bgMusic.isPlaying()){
+    if (!window.bgMusic.isPlaying()) {
       window.bgMusic.loop();
     }
+
+    // Start enemy spawner
+    window.enemySpawnInterval = setInterval(() => spawnEnemy(p), ENEMY_SPAWN_RATE);
   };
+
+  // Add spawn function
+  function spawnEnemy(p) {
+    if (!car) return;
+
+    const spawnDistance = 1000;
+    const angle = p.random(p.TWO_PI);
+    const x = car.position.x + spawnDistance * p.cos(angle);
+    const y = car.position.y + spawnDistance * p.sin(angle);
+
+    const enemy = new Enemy(p, x, y, car);
+    physicsEngine.add(enemy);
+    enemies.push(enemy);
+  }
 
   p.draw = function () {
     p.background(255);
-    
+
     if (!car) {
       const stats = loadPersistentData().stats;
-      let startX = p.width / 2;
-      let startY = p.height / 2;
-      car = new Car(p, startX, startY, stats);
+      car = new Car(p, p.width / 2, p.height / 2, stats);
       physicsEngine.add(car);
-      console.log("PlaySketch: Created Car.");
     }
-    
+
+    // Update enemies
+    enemies = enemies.filter(enemy => {
+      if (enemy.removeFromWorld || enemy.healthBar <= 0) {
+        physicsEngine.remove(enemy);
+        return false;
+      }
+      return true;
+    });
+
+    // Main rendering
     p.push();
     p.translate(p.width / 2, p.height / 2);
     p.scale(zoomFactor);
     p.translate(-car.position.x, -car.position.y);
-    
+
     drawMap(p, car.position, zoomFactor);
     car.display();
-    
+
+    // Draw enemies
+    enemies.forEach(enemy => {
+      enemy.update(); // Explicitly update enemies
+      enemy.display();
+      checkBuildingCollisions(enemy);
+    });
+
     if (debug) {
       for (let obj of physicsEngine.objects) {
         if (obj.collider && typeof obj.collider.drawOutline === "function") {
@@ -70,49 +103,112 @@ function PlaySketch(p) {
       }
     }
     p.pop();
-    // only updates objects that move
+
+    // Draw UI elements
+    p.push();
+    p.fill(255);
+    p.textSize(16);
+
+    // Health bar background
+    p.fill(50); // Dark gray background
+    p.rect(20, 20, 200, 25);
+
+    // Health bar foreground
+    p.fill(0, 255, 0); // Bright green for health
+    p.rect(20, 20, car.healthBar * 2, 25);
+
+    // Boost meter background
+    p.fill(50); // Dark gray background
+    p.rect(20, 60, 200, 25);
+
+    // Boost meter foreground
+    p.fill(255, 165, 0); // Bright orange for boost
+    p.rect(20, 60, car.boostMeter * 2, 25);
+
+    // Labels
+    p.fill(255); // White text
+    p.text("Health", 20, 18);
+    p.text("Boost", 20, 58);
+
+    p.pop();
+
     physicsEngine.update();
     car.update();
     checkBuildingCollisions(car);
+    checkCarCollisions(car, enemies);
   };
 
   p.windowResized = function() {
     p.resizeCanvas(p.windowWidth, p.windowHeight);
-    console.log("PlaySketch: Window resized.");
   };
 
   p.keyPressed = function() {
     if (p.keyCode === p.ESCAPE) {
-      console.log("play music stop");
       window.bgMusic.stop();
+      clearInterval(window.enemySpawnInterval);
       switchSketch(Mode.TITLE);
     }
   };
-}
 
-// checks nearby collision instead of all collisions every draw phase
-function checkBuildingCollisions(car) {
-  const tileX = Math.floor(car.position.x / gridSize);
-  const tileY = Math.floor(car.position.y / gridSize);
-  for (let j = tileY - 1; j <= tileY + 1; j++) {
-    for (let i = tileX - 1; i <= tileX + 1; i++) {
-      if (map[j] && map[j][i] instanceof Building) {
-        let building = map[j][i];
-        // collided with building logic
-        if (car.collider.intersects(building.collider)) {
-          car.speed = (-1)*(car.speed);
-          if (!car.controlDisabled) {
-            car.controlDisabled = true;
-            setTimeout(() => {
-              car.controlDisabled = false;
-            }, 250);
+  // Modified collision check
+  function checkBuildingCollisions(obj) {
+    const tileX = Math.floor(obj.position.x / gridSize);
+    const tileY = Math.floor(obj.position.y / gridSize);
+    for (let j = tileY - 1; j <= tileY + 1; j++) {
+      for (let i = tileX - 1; i <= tileX + 1; i++) {
+        if (map[j] && map[j][i] instanceof Building) {
+          let building = map[j][i];
+          if (obj.collider.intersects(building.collider)) {
+            if (obj.velocity) {  //reverse velocity (enemy & player)
+              obj.velocity.mult(-1);
           }
-          return;
+          if (obj.speed !== undefined) {  //reverse speed if it exists (player)
+              obj.speed = (-1) * obj.speed;
+          }
+          //apply small knockback to prevent enemies getting stuck
+          let knockbackForce = 5;  
+          let knockbackVector = p5.Vector.sub(obj.position, building.position);
+          knockbackVector.setMag(knockbackForce);
+          obj.position.add(knockbackVector);
+
+            if (!obj.controlDisabled) {
+              obj.controlDisabled = true;
+              setTimeout(() => {
+                obj.controlDisabled = false;
+              }, 250);
+            }
+            return;
+          }
         }
-        // car colliding with enemy for later
-        // if (car.collider.insersects(enemy.collider)){
-        //   // take damage, adjust movement
-        // }
+      }
+    }
+  }
+
+  //enemy collision check
+  function checkCarCollisions(car, enemies) {
+    for (let enemy of enemies) {
+      if (car.collider.intersects(enemy.collider)) {
+        //handle collision: deal damage, knockback, stop movement
+        car.healthBar = Math.max(0, car.healthBar - enemy.attackDamage);
+
+        //use relative velocity to scale knockback
+        let relativeVelocity = p5.Vector.sub(car.velocity, enemy.velocity).mag();
+        let knockbackForce = p.map(relativeVelocity, 0, 10, 5, 20); //adjust scaling
+  
+        //apply knockback in opposite directions
+        let knockbackVector = p5.Vector.sub(car.position, enemy.position);
+        knockbackVector.setMag(knockbackForce);
+  
+        car.position.add(knockbackVector);
+        enemy.position.sub(knockbackVector); //push enemy back slightly
+
+        //temp disable enemy movement to prevent rapid collisions
+        if (!enemy.controlDisabled) {
+          enemy.controlDisabled = true;
+          setTimeout(() => {
+              enemy.controlDisabled = false;
+          }, 750);
+        }
       }
     }
   }
