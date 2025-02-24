@@ -18,12 +18,12 @@ function PlaySketch(p) {
     p.createCanvas(p.windowWidth, p.windowHeight);
     physicsEngine = new PhysicsEngine();
     generateGenMap(p, mapSize, mapSize);
-    
+
     window.LoadingScreen.hide();
-    if (!window.bgMusic.isPlaying()){
+    if (!window.bgMusic.isPlaying()) {
       window.bgMusic.loop();
     }
-    
+
     // Start enemy spawner
     window.enemySpawnInterval = setInterval(() => spawnEnemy(p), ENEMY_SPAWN_RATE);
   };
@@ -44,13 +44,13 @@ function PlaySketch(p) {
 
   p.draw = function () {
     p.background(255);
-    
+
     if (!car) {
       const stats = loadPersistentData().stats;
-      car = new Car(p, p.width/2, p.height/2, stats);
+      car = new Car(p, p.width / 2, p.height / 2, stats);
       physicsEngine.add(car);
     }
-    
+
     // Update enemies
     enemies = enemies.filter(enemy => {
       if (enemy.removeFromWorld || enemy.healthBar <= 0) {
@@ -65,10 +65,10 @@ function PlaySketch(p) {
     p.translate(p.width / 2, p.height / 2);
     p.scale(zoomFactor);
     p.translate(-car.position.x, -car.position.y);
-    
+
     drawMap(p, car.position, zoomFactor);
     car.display();
-    
+
     // Draw enemies
     enemies.forEach(enemy => {
       enemy.update(); // Explicitly update enemies
@@ -100,6 +100,34 @@ function PlaySketch(p) {
         }
       }
     }
+    p.pop();
+
+    // Draw UI elements
+    p.push();
+    p.fill(255);
+    p.textSize(16);
+
+    // Health bar background
+    p.fill(50); // Dark gray background
+    p.rect(20, 20, 200, 25);
+
+    // Health bar foreground
+    p.fill(0, 255, 0); // Bright green for health
+    p.rect(20, 20, car.healthBar * 2, 25);
+
+    // Boost meter background
+    p.fill(50); // Dark gray background
+    p.rect(20, 60, 200, 25);
+
+    // Boost meter foreground
+    p.fill(255, 165, 0); // Bright orange for boost
+    p.rect(20, 60, car.boostMeter * 2, 25);
+
+    // Labels
+    p.fill(255); // White text
+    p.text("Health", 20, 18);
+    p.text("Boost", 20, 58);
+
     p.pop();
 
     physicsEngine.update();

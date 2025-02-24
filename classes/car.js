@@ -19,10 +19,10 @@ class Car extends GameObject {
     this.maxSpeed = SAVED_STATS.maxSpeed;
     this.friction = 0.05;
     this.reverseSpeed = -4;
-    
+
     this.currentImage = window.cars[selectedCarIndex] || null;
-    this.removeFromWorld = false; // Add this line
-    
+    this.removeFromWorld = false;
+
     if (this.currentImage) {
       this.width = 64;
       this.height = 64;
@@ -47,22 +47,35 @@ class Car extends GameObject {
     this.healthBar = SAVED_STATS.health;
     this.controlDisabled = false;
     this.time = 0.0;
+
+    // Boost properties
+    this.boostMeter = 100;
+    this.boostMax = 100;
+    this.boostRegenDelay = 2000; // 2 seconds delay before regen
+    this.boostRegenRate = 1.5;   // Regeneration speed
+    this.lastBoostTime = 0;
+    this.isBoosting = false;
   }
 
   update() {
     const p = this.p;
 
-    // W
+    // W key: accelerate
     if (p.keyIsDown(87) && !this.controlDisabled) {
-      // F
-      if (p.keyIsDown(70)) {
+      // F key: boost
+      if (p.keyIsDown(70) && this.boostMeter > 0) {
+        this.isBoosting = true;
+        this.boostMeter = Math.max(0, this.boostMeter - 2.5); // Drain boost
+        this.lastBoostTime = Date.now();
+
         if (this.speed < 0) this.speed = 0.01;
         this.speed = p.constrain(
-          this.speed + this.acceleration * 2,
+          this.speed + this.acceleration * 2.5, // Stronger boost
           this.reverseSpeed * 2,
-          this.maxSpeed * 2
+          this.maxSpeed * 3 // Higher top speed during boost
         );
       } else {
+        this.isBoosting = false;
         if (this.speed > this.maxSpeed) {
           this.speed -= this.acceleration;
         } else {
@@ -92,12 +105,13 @@ class Car extends GameObject {
       this.angle += p.keyIsDown(16) ? turnSpeed * 2 : turnSpeed;
     }
 
-    // friction
+    // Friction
     if (!p.keyIsDown(87) && !p.keyIsDown(83)) {
       this.speed *= (1 - this.friction);
       if (Math.abs(this.speed) < 0.01) this.speed = 0;
     }
 
+    // Update position
     this.position.x += this.speed * p.cos(this.angle);
     this.position.y += this.speed * p.sin(this.angle);
 
@@ -111,6 +125,11 @@ class Car extends GameObject {
     else if (this.position.x > mapSize * gridSize) this.position.x = mapSize * gridSize;
     if (this.position.y < 0) this.position.y = 0;
     else if (this.position.y > mapSize * gridSize) this.position.y = mapSize * gridSize;
+
+    // Boost regeneration
+    if (!this.isBoosting && Date.now() - this.lastBoostTime > this.boostRegenDelay) {
+      this.boostMeter = Math.min(this.boostMax, this.boostMeter + this.boostRegenRate);
+    }
   }
 
   display() {
