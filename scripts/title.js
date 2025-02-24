@@ -7,7 +7,6 @@ function TitleSketch(p) {
 
   p.preload = function() {
     if (bgMusic == null) {
-      console.log("title music play");
       bgMusic = p.loadSound('sound/titleTheme.mp3', () => {bgMusic.loop();} );
       bgMusic.setVolume(0.15); 
     }
