@@ -8,6 +8,7 @@ class Car extends GameObject {
     this.p = p;
     this.speed = 0;
     this.angle = 0;
+    this.velocity = new p5.Vector(0, 0);
 
     // Load saved stats
     const data = loadPersistentData();
@@ -20,11 +21,11 @@ class Car extends GameObject {
     this.reverseSpeed = -4;
     
     this.currentImage = window.cars[selectedCarIndex] || null;
+    this.removeFromWorld = false; // Add this line
     
     if (this.currentImage) {
       this.width = 64;
       this.height = 64;
-
       this.collider = new Collider(
         this,
         "polygon",
@@ -100,6 +101,11 @@ class Car extends GameObject {
     this.position.x += this.speed * p.cos(this.angle);
     this.position.y += this.speed * p.sin(this.angle);
 
+    this.velocity.set(
+      this.speed * this.p.cos(this.angle),
+      this.speed * this.p.sin(this.angle)
+    );
+
     // Keep within map bounds
     if (this.position.x < 0) this.position.x = 0;
     else if (this.position.x > mapSize * gridSize) this.position.x = mapSize * gridSize;
@@ -126,5 +132,9 @@ class Car extends GameObject {
 
   onCollisionEnter(other) {
     super.onCollisionEnter(other);
+    // Add damage effect
+    if (other instanceof Enemy) {
+      this.healthBar = Math.max(0, this.healthBar - 10);
+    }
   }
 }
