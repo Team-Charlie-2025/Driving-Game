@@ -73,6 +73,7 @@ function PlaySketch(p) {
     enemies.forEach(enemy => {
       enemy.update(); // Explicitly update enemies
       enemy.display();
+      checkBuildingCollisions(enemy);
     });
 
     if (debug) {
@@ -157,7 +158,18 @@ function PlaySketch(p) {
         if (map[j] && map[j][i] instanceof Building) {
           let building = map[j][i];
           if (obj.collider.intersects(building.collider)) {
-            obj.speed = (-1) * (obj.speed);
+            if (obj.velocity) {  //reverse velocity (enemy & player)
+              obj.velocity.mult(-1);
+          }
+          if (obj.speed !== undefined) {  //reverse speed if it exists (player)
+              obj.speed = (-1) * obj.speed;
+          }
+          //apply small knockback to prevent enemies getting stuck
+          let knockbackForce = 5;  
+          let knockbackVector = p5.Vector.sub(obj.position, building.position);
+          knockbackVector.setMag(knockbackForce);
+          obj.position.add(knockbackVector);
+
             if (!obj.controlDisabled) {
               obj.controlDisabled = true;
               setTimeout(() => {
