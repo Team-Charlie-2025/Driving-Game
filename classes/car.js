@@ -60,6 +60,13 @@ class Car extends GameObject {
   update() {
     const p = this.p;
 
+    if (this.healthBar <= 0) {
+      this.healthBar = 0; // Prevent negative values
+      window.isGameOver = true; 
+      console.log("Game Over Triggered!"); // Debugging log
+    }
+  
+
     // W key: accelerate
     if (p.keyIsDown(87) && !this.controlDisabled) {
       // F key: boost
