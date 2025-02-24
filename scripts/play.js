@@ -7,7 +7,7 @@ function PlaySketch(p) {
   let enemies = [];
   const ENEMY_SPAWN_RATE = 10000; // 1000 = 1 seconds
   let lastSpawn = 0;
-
+ 
   p.preload = function() {
     loadSound(p);
     p.carImg = p.loadImage("assets/car.png");
@@ -19,6 +19,7 @@ function PlaySketch(p) {
     p.createCanvas(p.windowWidth, p.windowHeight);
     physicsEngine = new PhysicsEngine();
     generateGenMap(p, mapSize, mapSize);
+    window.isGameOver = false;
 
     window.LoadingScreen.hide();
     if (!window.bgMusic.isPlaying()) {
@@ -27,11 +28,29 @@ function PlaySketch(p) {
 
     // Start enemy spawner
     window.enemySpawnInterval = setInterval(() => spawnEnemy(p), ENEMY_SPAWN_RATE);
+    
+
+    p.showGameOverScreen = function () {
+        p.push();
+        p.fill(150, 0, 0, 180); // Semi-transparent red overlay
+        p.rect(0, 0, p.width, p.height);
+        
+        p.fill(255);
+        p.textSize(50);
+        p.textAlign(p.CENTER, p.CENTER);
+        p.text("GAME OVER", p.width / 2, p.height / 3);
+
+        p.textSize(30);
+        p.fill(255);
+        p.text("Press R to Restart", p.width / 2, p.height / 2);
+        p.text("Press M for Main Menu", p.width / 2, p.height / 1.5);
+        p.pop();
+    };
   };
 
   // Add spawn function
   function spawnEnemy(p) {
-    if (!car) return;
+    if (!car || window.isGameOver) return;
 
     const spawnDistance = 1000;
     const angle = p.random(p.TWO_PI);
@@ -45,6 +64,24 @@ function PlaySketch(p) {
 
   p.draw = function () {
     p.background(255);
+
+    p.background(255);
+
+    if (window.isGameOver) {
+      p.push();
+      p.translate(p.width / 2, p.height / 2);
+      p.scale(zoomFactor);
+      p.translate(-car.position.x, -car.position.y);
+      drawMap(p, car.position, zoomFactor);
+      car.display();
+      enemies.forEach(enemy => enemy.display());
+      p.pop();
+      p.fill(150, 0, 0, 180); // Semi-transparent red tint overlay
+      p.rect(0, 0, p.width, p.height);
+      p.pop();
+      p.showGameOverScreen();
+      return;
+    }
 
     if (!car) {
       const stats = loadPersistentData().stats;
@@ -147,6 +184,38 @@ function PlaySketch(p) {
       window.bgMusic.stop();
       clearInterval(window.enemySpawnInterval);
       switchSketch(Mode.TITLE);
+    }
+    if (window.isGameOver) {
+      if (p.keyIsDown(82)) { // 'R' key
+        window.isGameOver = false;
+
+        // Delete car
+        if (car) {
+          physicsEngine.remove(car);
+          car = null;
+        }
+
+        // Delete enemies
+        enemies = [];
+
+        // Reset physics engine
+        physicsEngine = new PhysicsEngine();
+
+        // Create a new car
+        const stats = loadPersistentData().stats;
+        car = new Car(p, p.width / 2, p.height / 2, stats);
+        physicsEngine.add(car);
+      }
+      if (p.keyIsDown(77)) { // 'M' key
+        window.bgMusic.stop();
+        clearInterval(window.enemySpawnInterval);
+        switchSketch(Mode.TITLE); // Go back to main menu
+      }
+    }
+    if (p.keyCode === p.ESCAPE) {
+        window.bgMusic.stop();
+        clearInterval(window.enemySpawnInterval);
+        switchSketch(Mode.TITLE);
     }
   };
 
