@@ -1,4 +1,19 @@
-// scripts/jsonDATA.js
+// scripts/jsonDATA.
+
+window.defaultData = {
+  selectedCar: 0,
+  selectedEngine: 0,
+  selectedWheel: 0,
+  stats: { 
+    health: 100,
+    boost: 50,
+    maxSpeed: 8,
+    acceleration: 0.4,
+    turn: 0.08,
+    dmgRes: 10
+  }
+};
+
 function loadPersistentData() {
   let data = localStorage.getItem("persistentData");
   if (data) {
@@ -8,20 +23,8 @@ function loadPersistentData() {
       console.error("Error parsing persistentData:", e);
     }
   }
-  let defaultData = {
-    selectedCar: 0,
-    selectedEngine: 0,
-    selectedWheel: 0,
-    stats: {
-      health: 100,
-      boost: 50,
-      maxSpeed: 8,
-      acceleration: 0.1,
-      turn: 0.05,
-      dmgRes: 10
-    }
-  };
-  localStorage.setItem("persistentData", JSON.stringify(defaultData));
+
+  localStorage.setItem("persistentData", JSON.stringify(window.defaultData));
   return defaultData;
 }
 
