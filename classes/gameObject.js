@@ -13,12 +13,12 @@ class GameObject {
     
     onCollisionEnter(other) {
       this.isColliding = true;
-      // console.log(`${this.constructor.name} (id:${this.id}) onCollisionEnter with ${other.constructor.name} (id:${other.id}).`);
+       //console.log(`${this.constructor.name} (id:${this.id}) onCollisionEnter with ${other.constructor.name} (id:${other.id}).`);
     }
     
     onCollisionExit(other) {
       this.isColliding = false;
-      // console.log(`${this.constructor.name} (id:${this.id}) onCollisionExit with ${other.constructor.name} (id:${other.id}).`);
+       //console.log(`${this.constructor.name} (id:${this.id}) onCollisionExit with ${other.constructor.name} (id:${other.id}).`);
     }
   }
   GameObject.nextId = 0;
