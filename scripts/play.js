@@ -6,6 +6,7 @@ function PlaySketch(p) {
   let zoomFactor = 2.5;
 
   p.preload = function() {
+    loadSound(p);
     p.carImg = p.loadImage("assets/car.png");
     p.buildingImg = p.loadImage("assets/building.png");
     
