@@ -11,7 +11,7 @@ function PlaySketch(p) {
   p.preload = function() {
     p.carImg = p.loadImage("assets/car.png");
     p.buildingImg = p.loadImage("assets/building.png");
-    p.enemyImg = p.loadImage("assets/car.png"); // Add enemy image
+    p.enemyImg = p.loadImage("assets/police+car.png"); // Add enemy image
   };
 
   p.setup = function () {
@@ -133,6 +133,7 @@ function PlaySketch(p) {
     physicsEngine.update();
     car.update();
     checkBuildingCollisions(car);
+    checkCarCollisions(car, enemies);
   };
 
   p.windowResized = function() {
@@ -165,6 +166,35 @@ function PlaySketch(p) {
             }
             return;
           }
+        }
+      }
+    }
+  }
+
+  //enemy collision check
+  function checkCarCollisions(car, enemies) {
+    for (let enemy of enemies) {
+      if (car.collider.intersects(enemy.collider)) {
+        //handle collision: deal damage, knockback, stop movement
+        car.healthBar = Math.max(0, car.healthBar - enemy.attackDamage);
+
+        //use relative velocity to scale knockback
+        let relativeVelocity = p5.Vector.sub(car.velocity, enemy.velocity).mag();
+        let knockbackForce = p.map(relativeVelocity, 0, 10, 5, 20); //adjust scaling
+  
+        //apply knockback in opposite directions
+        let knockbackVector = p5.Vector.sub(car.position, enemy.position);
+        knockbackVector.setMag(knockbackForce);
+  
+        car.position.add(knockbackVector);
+        enemy.position.sub(knockbackVector); //push enemy back slightly
+
+        //temp disable enemy movement to prevent rapid collisions
+        if (!enemy.controlDisabled) {
+          enemy.controlDisabled = true;
+          setTimeout(() => {
+              enemy.controlDisabled = false;
+          }, 750);
         }
       }
     }
