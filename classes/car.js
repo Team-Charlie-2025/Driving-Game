@@ -1,7 +1,7 @@
 // classes/car.js
 const carWidth = 50;
 const carHeight = 30;
-
+ 
 class Car extends GameObject {
   constructor(p, x, y, stats) {
     super(x, y);
@@ -59,6 +59,12 @@ class Car extends GameObject {
 
   update() {
     const p = this.p;
+
+    if (this.healthBar <= 0) {
+      this.healthBar = 0; // Prevent negative values
+      window.isGameOver = true; 
+      console.log("Game Over Triggered!"); // Debugging log
+    }
 
     // W key: accelerate
     if (p.keyIsDown(87) && !this.controlDisabled) {
