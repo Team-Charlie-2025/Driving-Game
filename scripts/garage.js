@@ -4,16 +4,8 @@ function GarageSketch(p) {
   let selectedEngineIndex = 0;
   let selectedWheelIndex = 0;
 
-  const DEFAULT_CAR_STATS = {
-    health: 100,
-    boost: 50,
-    maxSpeed: 8,
-    acceleration: 0.1,
-    turn: 0.05,
-    dmgRes: 10
-  };
-
-  // savedStats holds the baseline stats from the last save.
+  // loads defaults / overwrites if found *later on
+  const DEFAULT_CAR_STATS = { ...window.defaultData.stats };
   let savedStats = { ...DEFAULT_CAR_STATS };
 
   let carBoxes = [];
@@ -54,8 +46,8 @@ function GarageSketch(p) {
   function computeCalcStats() {
     let engineMod = dataEngine[selectedEngineIndex];
     let wheelMod = dataTire[selectedWheelIndex];
-    let bodyMod = dataBody[selectedCarIndex] || { maxSpeed: 0, boost: 0, health: 0, acceleration: 0, turn: 0, dmgRes: 0 };
-
+    let bodyMod = dataBody[selectedCarIndex];
+    
     return {
       health: DEFAULT_CAR_STATS.health + engineMod.health + wheelMod.health + bodyMod.health,
       boost: DEFAULT_CAR_STATS.boost + engineMod.boost + wheelMod.boost + bodyMod.boost,

@@ -48,7 +48,7 @@ class Road extends GameObject {
     this.height = height;
     this.isStatic = true;
     this.collider = null;
-    console.log(`Road: Created Road (id:${this.id}) at (${x}, ${y}).`);
+    // console.log(`Road: Created Road (id:${this.id}) at (${x}, ${y}).`);
   }
 
   update() {

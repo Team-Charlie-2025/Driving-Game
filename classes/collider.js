@@ -9,11 +9,11 @@ class Collider {
         let vertices = poly.map(v => new p5.Vector(v.x + offsetX, v.y + offsetY));
         this.shape = "polygon";
         this.options = { vertices, offsetX, offsetY };
-        console.log(`Collider: Created polygon collider for ${gameObject.constructor.name} (id:${gameObject.id}) with ${vertices.length} vertices.`);
+        // console.log(`Collider: Created polygon collider for ${gameObject.constructor.name} (id:${gameObject.id}) with ${vertices.length} vertices.`);
       } else {
         this.shape = shape;
         this.options = options;
-        console.log(`Collider: Created ${shape} collider for ${gameObject.constructor.name} (id:${gameObject.id}).`);
+        // console.log(`Collider: Created ${shape} collider for ${gameObject.constructor.name} (id:${gameObject.id}).`);
       }
     }
     
