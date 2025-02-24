@@ -50,11 +50,12 @@ class Car extends GameObject {
 
   update() {
     const p = this.p;
-
+    const keybinds = loadKeybinds();
+   
     // W
-    if (p.keyIsDown(87) && !this.controlDisabled) {
+    if (p.keyIsDown(keybinds.forward) && !this.controlDisabled) {
       // F
-      if (p.keyIsDown(70)) {
+      if (p.keyIsDown(keybinds.boost)) {
         if (this.speed < 0) this.speed = 0.01;
         this.speed = p.constrain(
           this.speed + this.acceleration * 2,
@@ -75,7 +76,7 @@ class Car extends GameObject {
     }
 
     // S key: brake/reverse
-    if (p.keyIsDown(83) && !this.controlDisabled) {
+    if (p.keyIsDown(keybinds.backward) && !this.controlDisabled) {
       this.speed = p.constrain(
         this.speed - this.acceleration,
         this.reverseSpeed,
@@ -84,15 +85,15 @@ class Car extends GameObject {
     }
 
     let turnSpeed = 0.05;
-    if (p.keyIsDown(65) && !this.controlDisabled) { // A key
+    if (p.keyIsDown(keybinds.left) && !this.controlDisabled) { // A key
       this.angle -= p.keyIsDown(16) ? turnSpeed * 2 : turnSpeed;
     }
-    if (p.keyIsDown(68) && !this.controlDisabled) { // D key
+    if (p.keyIsDown(keybinds.right) && !this.controlDisabled) { // D key
       this.angle += p.keyIsDown(16) ? turnSpeed * 2 : turnSpeed;
     }
 
     // friction
-    if (!p.keyIsDown(87) && !p.keyIsDown(83)) {
+    if (!p.keyIsDown(keybinds.forward) && !p.keyIsDown(keybinds.backward)) {
       this.speed *= (1 - this.friction);
       if (Math.abs(this.speed) < 0.01) this.speed = 0;
     }
