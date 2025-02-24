@@ -2,11 +2,12 @@
 class Enemy extends Car {
     constructor(p, x, y, target) {
       const stats = {
-        acceleration: 0.4,  // Reduced from 0.7
-        maxSpeed: 3.5,       // Reduced from 5
+        acceleration: 0.4,
+        maxSpeed: 3.5,
         health: 100,
-        friction: 0.05       // Increased from 0.03
+        friction: 0.05 
       };
+      
       super(p, x, y, stats);
       this.target = target;
       this.attackDamage = 15;
@@ -17,13 +18,12 @@ class Enemy extends Car {
   
       // Movement properties
       this.velocity = p.createVector(0, 0);
-      this.maxForce = 0.3;    // Reduced from 0.5
+      this.maxForce = 0.3;
       this.desired = p.createVector(0, 0);
       this.steer = p.createVector(0, 0);
     }
   
     update() {
-      // Don't call super.update() - completely override parent movement
       if (!this.target || this.controlDisabled) return;
   
       // Calculate desired direction to target
@@ -33,11 +33,9 @@ class Enemy extends Car {
       // Calculate steering force
       this.steer = p5.Vector.sub(this.desired, this.velocity);
       this.steer.limit(this.maxForce);
-  
-      // Apply steering force
       this.velocity.add(this.steer);
       
-      // Apply friction independent of player controls
+      // Apply friction
       this.velocity.mult(1 - this.friction);
       
       // Limit final velocity

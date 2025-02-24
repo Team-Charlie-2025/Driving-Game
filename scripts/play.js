@@ -5,7 +5,7 @@ function PlaySketch(p) {
   let debug = true;
   let zoomFactor = 2.5;
   let enemies = [];
-  const ENEMY_SPAWN_RATE = 10000; // 4.5 seconds
+  const ENEMY_SPAWN_RATE = 10000; // 1000 = 1 seconds
   let lastSpawn = 0;
 
   p.preload = function() {
