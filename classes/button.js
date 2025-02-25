@@ -28,7 +28,7 @@ class Button { //regular rect button class
       }
       else if(this.label == "Leaderboard" ){
         this.width = this.x / 3.2;
-        this.height = this.y / 0.6;
+        this.height = this.y / 3.5;
         p.image(window.leaderButton, this.x - this.width / 2, this.y - this.height / 2, this.width, this.height * 2);
       }
       /*else{ used for previous button version
