@@ -5,7 +5,7 @@ let pageNew;
 window.LoadingScreen = { 
     show: function() {
         //window.pageChange.play();
-        console.log("Showing loading screen..."); //debugging
+        //console.log("Showing loading screen..."); //debugging
         let loadingScreen = document.getElementById("loading-screen");
         if (loadingScreen) {
             loadingScreen.style.display = "flex";

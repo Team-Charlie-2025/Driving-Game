@@ -1,78 +1,165 @@
 // classes/car.js
-class Car {
+const carWidth = 50;
+const carHeight = 30;
+ 
+class Car extends GameObject {
   constructor(p, x, y, stats) {
+    super(x, y);
     this.p = p;
-    this.x = x;
-    this.y = y;
     this.speed = 0;
     this.angle = 0;
-    // creates stats as const to prevent modifications
-    const SAVED_STATS = Object.freeze({ ...stats });
+    this.velocity = new p5.Vector(0, 0);
+
+    // Load saved stats
+    const data = loadPersistentData();
+    const SAVED_STATS = data.stats;
+    const selectedCarIndex = data.selectedCar || 0;
+
     this.acceleration = SAVED_STATS.acceleration;
     this.maxSpeed = SAVED_STATS.maxSpeed;
     this.friction = 0.05;
     this.reverseSpeed = -4;
-    this.currentImage = (typeof cars !== 'undefined' && cars[0]) ? cars[0] : null;
-    this.width = 50;
-    this.height = 30;
+
+    this.currentImage = window.cars[selectedCarIndex] || null;
+    this.removeFromWorld = false;
+
+    if (this.currentImage) {
+      this.width = 64;
+      this.height = 64;
+      this.collider = new Collider(
+        this,
+        "polygon",
+        { offsetX: -32, offsetY: -32 },
+        this.currentImage
+      );
+    } else {
+      // fallback rectangle
+      this.width = carWidth;
+      this.height = carHeight;
+      this.collider = new Collider(this, "rectangle", {
+        width: this.width,
+        height: this.height,
+        offsetX: -this.width / 2,
+        offsetY: -this.height / 2,
+      });
+    }
+
     this.healthBar = SAVED_STATS.health;
+    this.controlDisabled = false;
+    this.time = 0.0;
+
+    // Boost properties
+    this.boostMeter = 100;
+    this.boostMax = 100;
+    this.boostRegenDelay = 2000; // 2 seconds delay before regen
+    this.boostRegenRate = 1.5;   // Regeneration speed
+    this.lastBoostTime = 0;
+    this.isBoosting = false;
   }
 
   update() {
-    let p = this.p;
-    if (p.keyIsDown(87)) {
-      if (p.keyIsDown(70)) {
-        if (this.speed < 0) {
-          this.speed = 0.01;
-        }
+    const p = this.p;
+
+    if (this.healthBar <= 0) {
+      this.healthBar = 0; // Prevent negative values
+      window.isGameOver = true; 
+      console.log("Game Over Triggered!"); // Debugging log
+    }
+
+    // W key: accelerate
+    if (p.keyIsDown(87) && !this.controlDisabled) {
+      // F key: boost
+      if (p.keyIsDown(70) && this.boostMeter > 0) {
+        this.isBoosting = true;
+        this.boostMeter = Math.max(0, this.boostMeter - 2.5); // Drain boost
+        this.lastBoostTime = Date.now();
+
+        if (this.speed < 0) this.speed = 0.01;
         this.speed = p.constrain(
-          this.speed + this.acceleration * 2,
+          this.speed + this.acceleration * 2.5, // Stronger boost
           this.reverseSpeed * 2,
-          this.maxSpeed * 2
+          this.maxSpeed * 3 // Higher top speed during boost
         );
       } else {
-        this.speed = p.constrain(
-          this.speed + this.acceleration,
-          this.reverseSpeed,
-          this.maxSpeed
-        );
+        this.isBoosting = false;
+        if (this.speed > this.maxSpeed) {
+          this.speed -= this.acceleration;
+        } else {
+          this.speed = p.constrain(
+            this.speed + this.acceleration,
+            this.reverseSpeed,
+            this.maxSpeed
+          );
+        }
       }
     }
-    if (p.keyIsDown(83)) {
-      this.speed = p.constrain(this.speed - this.acceleration, this.reverseSpeed, this.maxSpeed);
+
+    // S key: brake/reverse
+    if (p.keyIsDown(83) && !this.controlDisabled) {
+      this.speed = p.constrain(
+        this.speed - this.acceleration,
+        this.reverseSpeed,
+        this.maxSpeed
+      );
     }
+
     let turnSpeed = 0.05;
-    if (p.keyIsDown(65)) {
-      if (p.keyIsDown(16)) this.angle -= turnSpeed * 2;
-      else this.angle -= turnSpeed;
+    if (p.keyIsDown(65) && !this.controlDisabled) { // A key
+      this.angle -= p.keyIsDown(16) ? turnSpeed * 2 : turnSpeed;
     }
-    if (p.keyIsDown(68)) {
-      if (p.keyIsDown(16)) this.angle += turnSpeed * 2;
-      else this.angle += turnSpeed;
+    if (p.keyIsDown(68) && !this.controlDisabled) { // D key
+      this.angle += p.keyIsDown(16) ? turnSpeed * 2 : turnSpeed;
     }
+
+    // Friction
     if (!p.keyIsDown(87) && !p.keyIsDown(83)) {
-      this.speed *= 1 - this.friction;
+      this.speed *= (1 - this.friction);
       if (Math.abs(this.speed) < 0.01) this.speed = 0;
     }
-    this.x += this.speed * p.cos(this.angle);
-    this.y += this.speed * p.sin(this.angle);
-    if (this.x < 0) this.x = p.width;
-    else if (this.x > p.width) this.x = 0;
-    if (this.y < 0) this.y = p.height;
-    else if (this.y > p.height) this.y = 0;
+
+    // Update position
+    this.position.x += this.speed * p.cos(this.angle);
+    this.position.y += this.speed * p.sin(this.angle);
+
+    this.velocity.set(
+      this.speed * this.p.cos(this.angle),
+      this.speed * this.p.sin(this.angle)
+    );
+
+    // Keep within map bounds
+    if (this.position.x < 0) this.position.x = 0;
+    else if (this.position.x > mapSize * gridSize) this.position.x = mapSize * gridSize;
+    if (this.position.y < 0) this.position.y = 0;
+    else if (this.position.y > mapSize * gridSize) this.position.y = mapSize * gridSize;
+
+    // Boost regeneration
+    if (!this.isBoosting && Date.now() - this.lastBoostTime > this.boostRegenDelay) {
+      this.boostMeter = Math.min(this.boostMax, this.boostMeter + this.boostRegenRate);
+    }
   }
 
   display() {
-    let p = this.p;
+    const p = this.p;
     p.push();
-    p.translate(this.x, this.y);
+    p.translate(this.position.x, this.position.y);
     p.rotate(this.angle);
+
     if (this.currentImage) {
-      p.image(this.currentImage, -32, -64, 128, 128);
+      p.image(this.currentImage, -this.width / 2, -this.height / 2, this.width, this.height);
     } else {
-      p.fill(0, 0, 0);
-      p.rect(0, 0, this.width, this.height);
+      // fallback rectangle
+      p.fill(0);
+      p.rect(-this.width / 2, -this.height / 2, this.width, this.height);
     }
+
     p.pop();
+  }
+
+  onCollisionEnter(other) {
+    super.onCollisionEnter(other);
+    // Add damage effect
+    if (other instanceof Enemy) {
+      this.healthBar = Math.max(0, this.healthBar - 10);
+    }
   }
 }
