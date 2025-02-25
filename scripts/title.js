@@ -81,11 +81,13 @@ function TitleSketch(p) {
           switchSketch(Mode.SETTINGS);
       })
   ); 
- // buttons.push(
-   // new Button("Leaderboard", p.width * 6 / 7, p.height - p.height * 0.15, function(){
-        //  switchSketch(Mode.LEADERBOARD);
-   //   })
-  //);
+  buttons.push(
+    new Button("Leaderboard", p.width * 6 / 7, p.height - p.height * 0.15, function(){
+        switchSketch(Mode.LEADERBOARD);
+    })
+    
+  );
+  
   
     /*
     buttons.push(
