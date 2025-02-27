@@ -31,15 +31,11 @@ class Button { //regular rect button class
         this.height = this.y / 0.6;
         p.image(window.leaderButton, this.x - this.width / 2, this.y - this.height / 2, this.width, this.height * 2);
       }
-      /*else{ used for previous button version
-        p.fill(200);
-        p.stroke(0);
-        p.rect(this.x - this.width / 2, this.y - this.height / 2, this.width, this.height, 10);
-        p.fill(0);
-        p.noStroke();
-        p.textAlign(p.CENTER, p.CENTER);
-        p.text(this.label, this.x, this.y);
-      }*/
+      else if(this.label == "ExitIcon" ){
+        this.width = 32;
+        this.height = 32;
+        p.image(window.ButtonIcons, this.x - this.width / 2, this.y - this.height / 2, this.width, this.height, 160, 160, 16, 16);
+      }
     }
   
     isMouseOver(p) {

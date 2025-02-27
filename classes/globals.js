@@ -57,6 +57,7 @@ function loadButtons(p){
     window.garageButton = p.loadImage("graphics/titleScreen/garageButton.png");
     window.leaderButton = p.loadImage("graphics/titleScreen/leaderboardButton.png");
     window.setButton = p.loadImage("graphics/titleScreen/settingButton.png");
+    window.ButtonIcons = p.loadImage("graphics/buttons.png");
 
     console.log("buttons loaded");
 }

@@ -8,6 +8,8 @@ function GarageSketch(p) {
   const DEFAULT_CAR_STATS = { ...window.defaultData.stats };
   let savedStats = { ...DEFAULT_CAR_STATS };
 
+  let exit;
+
   let carBoxes = [];
   let engineBoxes = [];
   let wheelBoxes = [];
@@ -67,6 +69,10 @@ function GarageSketch(p) {
   p.setup = function() {
     p.createCanvas(p.windowWidth, p.windowHeight);
     // loads data from persistence
+    ExitIcon = new Button("ExitIcon", p.width - p .width * 0.05, p.height - p.height * 0.95, function () { 
+      switchSketch(Mode.TITLE);
+    });
+
     let savedConfig = loadPersistentData();
     if (savedConfig) {
       if (typeof savedConfig.selectedCar === "number") {
@@ -160,6 +166,7 @@ function GarageSketch(p) {
     } else {
       p.background(30, 30, 30);
     }
+    ExitIcon.display(p);
 
     // car engine tire boxes draw
     for (let i = 0; i < carBoxes.length; i++) {
@@ -323,6 +330,12 @@ function GarageSketch(p) {
         return;
       }
     }
+    
+    if (ExitIcon.isMouseOver(p)) {
+      bgMusic.stop();
+      ExitIcon.callback();
+    }
+
   };
 
   p.keyPressed = function() {

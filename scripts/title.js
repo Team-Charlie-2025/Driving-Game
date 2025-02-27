@@ -53,7 +53,10 @@ function TitleSketch(p) {
   };
 
   p.mousePressed = function () {
-    bgMusic.loop(); //for chrome non-auto play rules
+    if(!bgMusic.isPlaying()){//for chrome non-auto play rules
+      console.log ("playing");
+      bgMusic.loop(); 
+    }
     for (let btn of buttons) {
       if (btn.isMouseOver(p)) {
         bgMusic.stop();
