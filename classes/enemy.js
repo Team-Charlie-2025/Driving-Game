@@ -1,4 +1,5 @@
 // classes/enemy.js
+
 class Enemy extends Car {
     constructor(p, x, y, target) {
       const stats = {

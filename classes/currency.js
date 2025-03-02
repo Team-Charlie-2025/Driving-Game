@@ -1,4 +1,5 @@
-// currency.js
+// classes/currency.js
+
 class CurrencyManager {
     static computeCoinsEarned(coinsCollected, difficultyModifier) {
       coinsCollected = Number(coinsCollected) || 0;

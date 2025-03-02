@@ -1,4 +1,4 @@
-// coin.js
+// classes/coin.js
 
 class Coin extends GameObject {
   constructor(p, x, y, size = 20) {
