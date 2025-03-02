@@ -80,7 +80,7 @@ function TitleSketch(p) {
   function createButtons() {
     buttons.push(
       new Button("Play", p.width / 2, p.height - p.height * 0.40, function () {
-        switchSketch(Mode.PLAY);
+        switchSketch(Mode.LEVELS); //CHANGE TO LEVELS
       })
     );
     buttons.push(

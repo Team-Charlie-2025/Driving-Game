@@ -42,6 +42,7 @@ function GarageSketch(p) {
   
   p.preload = function() { 
     loadSound(p);
+    coinBg = p.loadImage("graphics/coinBack.png");
     bgImage = p.loadImage("graphics/garagebg.png");
   };
 
@@ -277,14 +278,18 @@ function GarageSketch(p) {
     // debug display for now
     //////////////////////////////////////////////////////////////
     p.push();
-    p.fill(255, 255, 255, 200);
-    p.stroke(0);
-    p.strokeWeight(2);
-    p.rect(20, 20, 150, 50, 10); 
+
+    //p.fill(255, 255, 255, 200);
+    //p.stroke(0);
+    //p.strokeWeight(2);
+    //p.rect(20, 20, 150, 50, 10); 
+    p.image(coinBg, 20, 20, 128, 64)
+
     p.fill(0);
     p.textSize(16);
     p.textAlign(p.LEFT, p.TOP);
-    p.text("Coins: " + CurrencyManager.getTotalCoins(), 30, 30);
+    //p.textFont(PixelFont)
+    p.text(CurrencyManager.getTotalCoins(), 65, 45);
     p.pop();
     //////////////////////////////////////////////////////////////
 
