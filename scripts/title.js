@@ -1,9 +1,11 @@
 // scripts/title.js
+
 function TitleSketch(p) {
   let buttons = [];
   let bgImage;
   let imgTitle;
   let bgMusic = null;
+  let debugCheckbox; 
 
   p.preload = function() {
     if (bgMusic == null) {
@@ -20,7 +22,15 @@ function TitleSketch(p) {
     p.createCanvas(p.windowWidth, p.windowHeight);
     p.textAlign(p.CENTER, p.CENTER);
     createButtons();
-
+    if (window.debug === undefined) {
+      window.debug = false;
+    }
+    debugCheckbox = p.createCheckbox("Debug", window.debug);
+    debugCheckbox.position(10, 10);
+    debugCheckbox.changed(() => {
+      window.debug = debugCheckbox.checked();
+      console.log("Debug mode set to:", window.debug);
+    });
     // stop loading
     window.LoadingScreen.hide();
   };
@@ -50,6 +60,7 @@ function TitleSketch(p) {
     p.resizeCanvas(p.windowWidth, p.windowHeight);
     buttons = [];
     createButtons();
+    debugCheckbox.position(10, 10);
   };
 
   p.mousePressed = function () {

@@ -1,4 +1,5 @@
-/* main.js */
+// main.js
+
 let currentSketch = null;
 let firstLoad = true;
 

@@ -1,3 +1,5 @@
+// scripts/settings.js
+
 function SettingsSketch(p) {
     p.setup = function () {
       p.createCanvas(p.windowWidth, p.windowHeight);

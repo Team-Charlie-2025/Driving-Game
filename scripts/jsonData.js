@@ -1,4 +1,4 @@
-// scripts/jsonDATA.
+// scripts/jsonDATA.js
 
 window.defaultData = {
   selectedCar: 0,
