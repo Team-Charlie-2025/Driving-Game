@@ -1,4 +1,5 @@
 // scripts/signup.js
+
 function SignupSketch(p) {
   p.setup = function () {
     p.createCanvas(p.windowWidth, p.windowHeight);

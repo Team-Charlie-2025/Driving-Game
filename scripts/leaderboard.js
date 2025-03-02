@@ -1,4 +1,5 @@
 // scripts/leaderboard.js
+
 function LeaderboardSketch(p) {
     p.setup = function () {
       p.createCanvas(p.windowWidth, p.windowHeight);

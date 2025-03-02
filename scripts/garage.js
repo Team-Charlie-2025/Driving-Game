@@ -1,4 +1,5 @@
 // scripts/garage.js
+
 function GarageSketch(p) {
   let selectedCarIndex = 0;
   let selectedEngineIndex = 0;
@@ -272,6 +273,20 @@ function GarageSketch(p) {
       calcStats.turn,
       calcStats.dmgRes
     ];
+
+    // debug display for now
+    //////////////////////////////////////////////////////////////
+    p.push();
+    p.fill(255, 255, 255, 200);
+    p.stroke(0);
+    p.strokeWeight(2);
+    p.rect(20, 20, 150, 50, 10); 
+    p.fill(0);
+    p.textSize(16);
+    p.textAlign(p.LEFT, p.TOP);
+    p.text("Coins: " + CurrencyManager.getTotalCoins(), 30, 30);
+    p.pop();
+    //////////////////////////////////////////////////////////////
 
     for (let i = 0; i < statNames.length; i++) {
       let lineY = panelY + 35 + i * 20;

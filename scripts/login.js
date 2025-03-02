@@ -1,4 +1,5 @@
 // scripts/login.js
+
 function LoginSketch(p) {
   let usernameID;
   let passwordID;
