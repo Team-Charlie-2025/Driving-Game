@@ -1,3 +1,6 @@
+
+// scripts/loading.js
+
 // consolidate loading screen functionality within js file
 // opened with main during sketch
 // closed/hidden at end of setup on new sketch
@@ -18,7 +21,7 @@ window.LoadingScreen = {
         if (loadingScreen) {
             setTimeout(() => {
                 loadingScreen.style.display = "none";
-            }, 500); // Small delay to ensure smooth transition
+            }, 200); // Small delay to ensure smooth transition
         }
     }
 };

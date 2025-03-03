@@ -1,9 +1,11 @@
 // scripts/title.js
+
 function TitleSketch(p) {
   let buttons = [];
   let bgImage;
   let imgTitle;
   let bgMusic = null;
+  let debugCheckbox; 
 
   p.preload = function() {
     if (bgMusic == null) {
@@ -11,7 +13,7 @@ function TitleSketch(p) {
       bgMusic.setVolume(0.15); 
     }
     
-    bgImage = p.loadImage("graphics/mainbg.png");
+    bgImage = p.loadImage("graphics/titleBackground.png");
     imgTitle = p.loadImage("graphics/title.png");
     if(!globalsLoaded) loadGlobals(p);
   };
@@ -20,18 +22,26 @@ function TitleSketch(p) {
     p.createCanvas(p.windowWidth, p.windowHeight);
     p.textAlign(p.CENTER, p.CENTER);
     createButtons();
-
+    if (window.debug === undefined) {
+      window.debug = false;
+    }
+    debugCheckbox = p.createCheckbox("Debug", window.debug);
+    debugCheckbox.position(10, 10);
+    debugCheckbox.changed(() => {
+      window.debug = debugCheckbox.checked();
+      console.log("Debug mode set to:", window.debug);
+    });
     // stop loading
     window.LoadingScreen.hide();
   };
 
 
   p.draw = function () {
-   // if (bgImage) { //until background is done, commented out
-      //p.background(bgImage); 
-    //} else {
-      p.background(225, 240, 255);
-    //}
+   if (bgImage) { //until background is done, commented out
+      p.background(bgImage); 
+    } else {
+      p.background(222, 236, 250);
+    }
     for (let btn of buttons) {
       btn.display(p);
     }
@@ -50,10 +60,14 @@ function TitleSketch(p) {
     p.resizeCanvas(p.windowWidth, p.windowHeight);
     buttons = [];
     createButtons();
+    debugCheckbox.position(10, 10);
   };
 
   p.mousePressed = function () {
-    bgMusic.loop(); //for chrome non-auto play rules
+    if(!bgMusic.isPlaying()){//for chrome non-auto play rules
+      console.log ("playing");
+      bgMusic.loop(); 
+    }
     for (let btn of buttons) {
       if (btn.isMouseOver(p)) {
         bgMusic.stop();
@@ -66,7 +80,7 @@ function TitleSketch(p) {
   function createButtons() {
     buttons.push(
       new Button("Play", p.width / 2, p.height - p.height * 0.40, function () {
-        switchSketch(Mode.PLAY);
+        switchSketch(Mode.LEVELS); //will go to level/difficulty selection
       })
     );
     buttons.push(

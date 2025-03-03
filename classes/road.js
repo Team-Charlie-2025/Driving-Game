@@ -1,4 +1,5 @@
-//classes/road.js
+// classes/road.js
+
 class Road extends GameObject {
     constructor(p, x, y, width, height) {
       super(x, y);
