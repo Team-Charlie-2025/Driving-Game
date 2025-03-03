@@ -9,7 +9,6 @@ function loadGlobals(p) {
   loadSound(p);
   loadButtons(p);
   loadAnimations(p);
-  window.difficulty = 1.0;
   window.buildingImg = p.loadImage("assets/building.png");
   window.debug = false;
   globalsLoaded = true;

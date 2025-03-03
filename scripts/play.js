@@ -5,11 +5,11 @@ function PlaySketch(p) {
   let physicsEngine;
   let zoomFactor = 2.5;
   let enemies = [];
-  let ENEMY_SPAWN_RATE = 10000 / window.difficulty; // 1000 = 1 seconds
+  const ENEMY_SPAWN_RATE = 10000; // 1000 = 1 seconds
   let lastSpawn = 0;
   let coins = [];
   window.coinsCollected = 0;
-  
+  const difficultyModifier = 1.0;
   
   p.preload = function() {
     loadSound(p);
@@ -94,14 +94,13 @@ function PlaySketch(p) {
   
     // GAME OVER
     if (window.isGameOver) {
-      //////////////////////////////////////////////////////
       if (!window.runCoinsCalculated) {
         // calculate coins, scores
-        const runCoinReward = CurrencyManager.computeCoinsEarned(window.coinsCollected);
+        const runCoinReward = CurrencyManager.computeCoinsEarned(window.coinsCollected, difficultyModifier);
         CurrencyManager.updateTotalCoins(runCoinReward);
         const elapsedTime = (p.millis() - p.startTime) / 1000;
         const enemyDestroyed = window.enemyDestroyedCount || 0;
-        const computedScore = ScoreManager.computeScore(elapsedTime, enemyDestroyed, window.coinsCollected);
+        const computedScore = ScoreManager.computeScore(elapsedTime, enemyDestroyed, window.coinsCollected, difficultyModifier);
         
         if(window.debug){
         console.log("Game Over: Run coins reward calculated: " + runCoinReward);
@@ -109,11 +108,11 @@ function PlaySketch(p) {
                     " (Elapsed Time: " + elapsedTime +
                     ", Enemies Destroyed: " + enemyDestroyed +
                     ", Coins Collected: " + window.coinsCollected +
-                    ", Difficulty: " + window.difficulty + ")");
+                    ", Difficulty: " + difficultyModifier + ")");
         }
         window.runCoinsCalculated = true;
       }
-      ////////////////////////////////////////////////////////
+      
       p.push();
       p.translate(p.width / 2, p.height / 2);
       p.scale(zoomFactor);
@@ -134,7 +133,7 @@ function PlaySketch(p) {
     }
   
     // GAMEPLAY LOGIC
-    coins = checkCoinCollisions(coins, car, p);
+    coins = checkCoinCollisions(coins, car, p, difficultyModifier);
 
     if (!car) {
       const stats = loadPersistentData().stats;
