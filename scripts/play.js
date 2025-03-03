@@ -38,21 +38,26 @@ function PlaySketch(p) {
 
     // coin creation, positioning, building check, and logs
     ////////////////////////////////////////////////
-    const coinCount = 25;
-    const coinSpacing = 50;
-    const startX = p.width / 2 - 150; // shift left from player start
-    const startY = p.height / 2 - (coinCount * coinSpacing) / 2;
-    let j = 0;
-    for (let i = 0; i < coinCount + j; i++) {
-      let coinY = startY + i * coinSpacing;
-      let candidateCoin = new Coin(p, startX, coinY);
-      if (!isCoinCollidingWithBuilding(candidateCoin)) {
-        if(window.debug) console.log(`Creating coin ${(i + 1 - j)} at position: (${startX}, ${coinY})`);
-        coins.push(candidateCoin);
-      } else {
-        if(window.debug) console.log(`Coin ${i + 1} at (${startX}, ${coinY}) collides with a building, skipping spawn.`);
-        j++;
+    const totalCoins = 25;
+    let attempts = 0;
+    const maxAttempts = 10000; 
+    while (coins.length < totalCoins && attempts < maxAttempts) {
+      // random map index
+      let randX = Math.floor(p.random(0, map[0].length));
+      let randY = Math.floor(p.random(0, map.length));
+      
+      // checks tile, if road, puts coin in center
+      if (map[randY] && map[randY][randX] instanceof Road) {
+        let coinX = randX * gridSize + gridSize / 2;
+        let coinY = randY * gridSize + gridSize / 2;
+        console.log(`Spawning coin ${coins.length + 1} at tile (${randX}, ${randY}) with world coordinates (${coinX}, ${coinY})`);
+        coins.push(new Coin(p, coinX, coinY));
       }
+      attempts++;
+    }
+    
+    if (attempts >= maxAttempts && debug) {
+      console.log("Max attempts reached while spawning coins. Coins spawned: " + coins.length);
     }
     ////////////////////////////////////////////////
 

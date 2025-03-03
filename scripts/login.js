@@ -13,6 +13,9 @@ function LoginSketch(p) {
       createLoginElements();
       loginElementsCreated = true;
     }
+    ExitIcon = new Button("ExitIcon", p.width - p .width * 0.05, p.height - p.height * 0.95, function () { 
+      switchSketch(Mode.TITLE);
+    });
     // stop loading
     window.LoadingScreen.hide();
   };
@@ -23,6 +26,8 @@ function LoginSketch(p) {
     p.textSize(48);
     p.textFont("Comic Sans MS");
     p.text("Login", p.width / 2, 150);
+    
+    ExitIcon.display(p);
   };
 
   function createLoginElements() {
@@ -63,6 +68,12 @@ function LoginSketch(p) {
       submitLoginBtn = null;
     }
     loginElementsCreated = false;
+  }
+  p.mousePressed = function() {
+    if (ExitIcon.isMouseOver(p)) {
+      bgMusic.stop();
+      ExitIcon.callback();
+    }
   }
 
   p.windowResized = function () {

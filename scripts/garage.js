@@ -9,6 +9,8 @@ function GarageSketch(p) {
   const DEFAULT_CAR_STATS = { ...window.defaultData.stats };
   let savedStats = { ...DEFAULT_CAR_STATS };
 
+  let exit;
+
   let carBoxes = [];
   let engineBoxes = [];
   let wheelBoxes = [];
@@ -40,6 +42,7 @@ function GarageSketch(p) {
   
   p.preload = function() { 
     loadSound(p);
+    coinBg = p.loadImage("graphics/coinBack.png");
     bgImage = p.loadImage("graphics/garagebg.png");
   };
 
@@ -68,6 +71,10 @@ function GarageSketch(p) {
   p.setup = function() {
     p.createCanvas(p.windowWidth, p.windowHeight);
     // loads data from persistence
+    ExitIcon = new Button("ExitIcon", p.width - p .width * 0.05, p.height - p.height * 0.95, function () { 
+      switchSketch(Mode.TITLE);
+    });
+
     let savedConfig = loadPersistentData();
     if (savedConfig) {
       if (typeof savedConfig.selectedCar === "number") {
@@ -161,6 +168,7 @@ function GarageSketch(p) {
     } else {
       p.background(30, 30, 30);
     }
+    ExitIcon.display(p);
 
     // car engine tire boxes draw
     for (let i = 0; i < carBoxes.length; i++) {
@@ -270,14 +278,18 @@ function GarageSketch(p) {
     // debug display for now
     //////////////////////////////////////////////////////////////
     p.push();
-    p.fill(255, 255, 255, 200);
-    p.stroke(0);
-    p.strokeWeight(2);
-    p.rect(20, 20, 150, 50, 10); 
+
+    //p.fill(255, 255, 255, 200);
+    //p.stroke(0);
+    //p.strokeWeight(2);
+    //p.rect(20, 20, 150, 50, 10); 
+    p.image(coinBg, 20, 20, 128, 64)
+
     p.fill(0);
     p.textSize(16);
     p.textAlign(p.LEFT, p.TOP);
-    p.text("Coins: " + CurrencyManager.getTotalCoins(), 30, 30);
+    //p.textFont(PixelFont)
+    p.text(CurrencyManager.getTotalCoins(), 65, 45);
     p.pop();
     //////////////////////////////////////////////////////////////
 
@@ -338,6 +350,12 @@ function GarageSketch(p) {
         return;
       }
     }
+    
+    if (ExitIcon.isMouseOver(p)) {
+      bgMusic.stop();
+      ExitIcon.callback();
+    }
+
   };
 
   p.keyPressed = function() {

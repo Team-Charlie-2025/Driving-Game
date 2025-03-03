@@ -62,11 +62,24 @@ function loadTires(p) {
   console.log("tires loaded");
 }
 
-function loadButtons(p) {
-  window.playButton = p.loadImage("graphics/titleScreen/playButton.png");
-  window.garageButton = p.loadImage("graphics/titleScreen/garageButton.png");
-  window.leaderButton = p.loadImage("graphics/titleScreen/leaderboardButton.png");
-  window.setButton = p.loadImage("graphics/titleScreen/settingButton.png");
+function loadButtons(p){
+    //////////title screen//////////
+    window.playButton = p.loadImage("graphics/titleScreen/playButton.png");
+    window.garageButton = p.loadImage("graphics/titleScreen/garageButton.png");
+    window.leaderButton = p.loadImage("graphics/titleScreen/leaderboardButton.png");
+    window.setButton = p.loadImage("graphics/titleScreen/settingButton.png");
+
+    //////////generic buttons//////////
+    window.ButtonIcons = p.loadImage("graphics/buttons.png");
+    window.basicButton = [];
+    window.basicButton["blue"] = p.loadImage("graphics/basicButton/blueButton.png");
+    window.basicButton["green"] = p.loadImage("graphics/basicButton/greenButton.png");
+    window.basicButton["navy"] = p.loadImage("graphics/basicButton/navybutton.png");
+    window.basicButton["orange"] = p.loadImage("graphics/basicButton/oranButton.png");
+    window.basicButton["red"] = p.loadImage("graphics/basicButton/redButton.png");
+    window.basicButton["yellow"] = p.loadImage("graphics/basicButton/yellButton.png");
+
+    window.PixelFont = p.loadFont('graphics/pixelFont.ttf');
 
   console.log("buttons loaded");
 }
