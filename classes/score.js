@@ -2,19 +2,19 @@
 
 class ScoreManager {
 
-    static computeScore(time, enemyTypeDestroyed, coinsCollected, difficultyModifier) {
-      time = Number(time) || 0;
-      enemyTypeDestroyed = Number(enemyTypeDestroyed) || 0;
-      coinsCollected = Number(coinsCollected) || 0;
-      difficultyModifier = Number(difficultyModifier) || 1;
-      // remember that calc?? n(n+1)/2 = sum.
-      // equates 1 if nothing killed yet to avoid 0 scores
-      let enemySum = enemyTypeDestroyed < 1 ? 1 : (enemyTypeDestroyed * (enemyTypeDestroyed + 1)) / 2;
-  
-      const baseScore = Math.floor(difficultyModifier *
-                        (200 * coinsCollected) *
-                        enemySum *
-                        Math.log(1 + time / 25));
+  static computeScore(time, enemyTypeDestroyed, coinsCollected, difficultyModifier) {
+    time = Number(time) || 0;
+    enemyTypeDestroyed = Number(enemyTypeDestroyed) || 0;
+    coinsCollected = Number(coinsCollected) || 0;
+    difficultyModifier = Number(difficultyModifier) || 1;
+    // remember that calc?? n(n+1)/2 = sum.
+    // equates 1 if nothing killed yet to avoid 0 scores
+    let enemySum = enemyTypeDestroyed < 1 ? 1 : (enemyTypeDestroyed * (enemyTypeDestroyed + 1)) / 2;
+
+    const baseScore = Math.floor(difficultyModifier *
+                      (200 * coinsCollected) *
+                      enemySum *
+                      Math.log(1 + time / 25));
       return Math.min(baseScore, 99999);
     }
   

@@ -10,6 +10,7 @@ function loadGlobals(p) {
   loadButtons(p);
   loadAnimations(p);
   window.buildingImg = p.loadImage("assets/building.png");
+  window.difficulty = 1.0;
   window.debug = false;
   globalsLoaded = true;
 }
