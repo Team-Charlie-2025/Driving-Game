@@ -1,10 +1,10 @@
 // classes/currency.js
 
 class CurrencyManager {
-    static computeCoinsEarned(coinsCollected, difficultyModifier) {
+    static computeCoinsEarned(coinsCollected) {
       coinsCollected = Number(coinsCollected) || 0;
-      difficultyModifier = Number(difficultyModifier) || 1;
-      return difficultyModifier * ((5 / 4) * Math.pow(coinsCollected, 2));
+      window.difficulty = Number(window.difficulty) || 1;
+      return window.difficulty * ((5 / 4) * Math.pow(coinsCollected, 2));
     }
   
     // json setter +=

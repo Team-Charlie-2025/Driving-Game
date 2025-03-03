@@ -102,15 +102,15 @@ function getImagePolygon(img, alphaThreshold = 0) {
   return outline;
 }
 
-function checkCoinCollisions(coins, car, p, difficultyModifier) {
+function checkCoinCollisions(coins, car, p) {
   if (!car) return coins;
   for (let coin of coins) {
     if (!coin.collected && coin.collider && coin.collider.intersects(car.collider)) {
       coin.collected = true;
       const oldCount = window.coinsCollected;
       window.coinsCollected++;
-      const newTotal = CurrencyManager.computeCoinsEarned(window.coinsCollected, difficultyModifier);
-      const oldTotal = CurrencyManager.computeCoinsEarned(oldCount, difficultyModifier);
+      const newTotal = CurrencyManager.computeCoinsEarned(window.coinsCollected);
+      const oldTotal = CurrencyManager.computeCoinsEarned(oldCount);
       const incremental = newTotal - oldTotal;
       CurrencyManager.updateTotalCoins(incremental);
     }
