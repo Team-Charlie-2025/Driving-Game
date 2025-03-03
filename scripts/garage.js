@@ -1,64 +1,182 @@
-// scripts/garage.js
+
+class UpgradeButton extends Button {
+
+  display(p) {
+
+    this.width = 180;
+    this.height = 40;
+    // If you have an image asset for upgrade buttons, use it.
+    if (window.upgradeButton) {
+      p.image(window.upgradeButton, this.x - this.width / 2, this.y - this.height / 2, this.width, this.height);
+    } else {
+
+      p.fill(180);
+      p.stroke(0);
+      p.rect(this.x - this.width / 2, this.y - this.height / 2, this.width, this.height, 5);
+    }
+    p.textFont(window.PixelFont);
+    p.textSize(20);
+    p.textAlign(p.CENTER, p.CENTER);
+    p.fill(0);
+    p.text(this.label, this.x, this.y);
+  }
+}
 
 function GarageSketch(p) {
-  let selectedCarIndex = 0;
-  let selectedEngineIndex = 0;
-  let selectedWheelIndex = 0;
+  // Upgrade levels for each type.
+  let upgradeEngineLevel = 1;
+  let upgradeBodyLevel = 1;
+  let upgradeTransmissionLevel = 1;
+  let upgradeTiresLevel = 1;
+  let resetButton;
+  // Base price for upgrades.
+  const BASE_UPGRADE_PRICE = 10;
 
-  // loads defaults / overwrites if found *later on
+  // Base/default car stats.
   const DEFAULT_CAR_STATS = { ...window.defaultData.stats };
-  let savedStats = { ...DEFAULT_CAR_STATS };
 
-  let exit;
+  let upgrades = [];
 
-  let carBoxes = [];
-  let engineBoxes = [];
-  let wheelBoxes = [];
-
-  let saveButton;
-
-  const dataBody = [
-    { name: "Blue Stripe", maxSpeed: 0, boost: 0, health: 0, acceleration: 0, turn: 0, dmgRes: 0 },
-    { name: "Green Stripe", maxSpeed: 0, boost: 0, health: 0, acceleration: 0, turn: 0, dmgRes: 0 },
-    { name: "Light Blue Stripe", maxSpeed: 0, boost: 0, health: 0, acceleration: 0, turn: 0, dmgRes: 0 },
-    { name: "Light Green Stripe", maxSpeed: 0, boost: 0, health: 0, acceleration: 0, turn: 0, dmgRes: 0 },
-    { name: "Light Purple Stripe", maxSpeed: 0, boost: 0, health: 0, acceleration: 0, turn: 0, dmgRes: 0 },
-    { name: "Orange Stripe", maxSpeed: 0, boost: 0, health: 0, acceleration: 0, turn: 0, dmgRes: 0 },
-    { name: "Purple Stripe", maxSpeed: 0, boost: 0, health: 0, acceleration: 0, turn: 0, dmgRes: 0 },
-    { name: "Red Stripe", maxSpeed: 0, boost: 0, health: 0, acceleration: 0, turn: 0, dmgRes: 0 }
-  ];
-  const dataEngine = [
-    { name: "V4", maxSpeed: 0, boost:0, health: 0, acceleration: 0, turn: 0, dmgRes: 0 },
-    { name: "V6", maxSpeed: 1, boost: 10, health: -10, acceleration: 0.2, turn: -0.01, dmgRes: -1 },
-    { name: "V8", maxSpeed: 3, boost: 30, health: -30, acceleration: 0.3, turn: -0.02, dmgRes: -2 }
-  ];
-
-  const dataTire = [
-    { name: "Standard", maxSpeed: 0, boost: 0, health: 0, acceleration: 0, turn: 0, dmgRes: 0 },
-    { name: "Racing", maxSpeed: 1, boost: 0, health: -10, acceleration: 0.1, turn: -0.02, dmgRes: 0 },
-    { name: "Snow", maxSpeed: -1, boost: 0, health: 10, acceleration: -0.1, turn: 0.03, dmgRes: 0 }
-  ];
-
-  
-  p.preload = function() { 
+  p.preload = function() {
     loadSound(p);
     coinBg = p.loadImage("graphics/coinBack.png");
     bgImage = p.loadImage("graphics/garagebg.png");
   };
 
-  // computes stats from default + any mods
+  p.setup = function() {
+    p.createCanvas(p.windowWidth, p.windowHeight);
+    resetButton = new Button("Reset Upgrades", 300, 300, resetUpgrades, "blue");
+    // Load persistent upgrade levels if available.
+    let savedConfig = loadPersistentData();
+    if (savedConfig) {
+      if (typeof savedConfig.upgradeEngineLevel === "number")
+        upgradeEngineLevel = savedConfig.upgradeEngineLevel;
+      if (typeof savedConfig.upgradeBodyLevel === "number")
+        upgradeBodyLevel = savedConfig.upgradeBodyLevel;
+      if (typeof savedConfig.upgradeTransmissionLevel === "number")
+        upgradeTransmissionLevel = savedConfig.upgradeTransmissionLevel;
+      if (typeof savedConfig.upgradeTiresLevel === "number")
+        upgradeTiresLevel = savedConfig.upgradeTiresLevel;
+    }
+
+    setupUpgradeLayout();
+
+    window.LoadingScreen.hide();
+    if (!window.bgMusic.isPlaying()) {
+      window.bgMusic.loop();
+    }
+  };
+
+  // Create or update the layout for upgrade boxes and their buttons.
+  function setupUpgradeLayout() {
+    upgrades = [];
+    let upgradeBoxSize = 196;
+    let spacing = 100;
+    let totalWidth = 4 * upgradeBoxSize + 3 * spacing;
+    let startX = (p.width - totalWidth) / 2;
+    // Upgrade boxes sit 20 pixels above the bottom.
+    let boxY = p.height - upgradeBoxSize - 20;
+    // Buttons are positioned directly above the box (20 pixels above).
+    let buttonY = boxY - 20;
+
+    let types = [
+      { type: 'engine', label: 'Engine' },
+      { type: 'body', label: 'Body' },
+      { type: 'transmission', label: 'Transmission' },
+      { type: 'tires', label: 'Tires' }
+    ];
+
+    for (let i = 0; i < types.length; i++) {
+      let x = startX + i * (upgradeBoxSize + spacing);
+      let upgradeObj = {
+        type: types[i].type,
+        label: types[i].label,
+        box: { x: x, y: boxY, w: upgradeBoxSize, h: upgradeBoxSize },
+        button: null // will be created below.
+      };
+
+      // Calculate the center of the upgrade box (for the button).
+      let btnX = x + upgradeBoxSize / 2;
+      // Compute current level and price.
+      let level = getUpgradeLevel(upgradeObj.type);
+      let price = BASE_UPGRADE_PRICE * (level);
+      let btnLabel = price;
+      // Create an UpgradeButton.
+      let btn = new UpgradeButton(btnLabel, btnX, buttonY, function() {
+        purchaseUpgrade(upgradeObj.type);
+      }, "upgrade"); // Pass a color value if needed.
+      upgradeObj.button = btn;
+
+      upgrades.push(upgradeObj);
+    }
+  }
+
+  // Returns the current upgrade level for a given type.
+  function getUpgradeLevel(type) {
+    if (type === 'engine') return upgradeEngineLevel;
+    if (type === 'body') return upgradeBodyLevel;
+    if (type === 'transmission') return upgradeTransmissionLevel;
+    if (type === 'tires') return upgradeTiresLevel;
+    return 0;
+  }
+
+  // Sets the upgrade level for a given type.
+  function setUpgradeLevel(type, newLevel) {
+    if (type === 'engine') upgradeEngineLevel = newLevel;
+    else if (type === 'body') upgradeBodyLevel = newLevel;
+    else if (type === 'transmission') upgradeTransmissionLevel = newLevel;
+    else if (type === 'tires') upgradeTiresLevel = newLevel;
+  }
+
+  // Update the UpgradeButton's label text for a given upgrade.
+  function updateUpgradeButtonText(upgradeObj) {
+    let level = getUpgradeLevel(upgradeObj.type);
+    let price = BASE_UPGRADE_PRICE * (level);
+    upgradeObj.button.label = price;
+    if (level == 10) {
+      upgradeObj.button.label = "MAX";
+    }
+  }
+
+  // Attempt to purchase an upgrade of a given type.
+  function purchaseUpgrade(type) {
+    let level = getUpgradeLevel(type);
+    let price = BASE_UPGRADE_PRICE * (level);
+    let totalCoins = CurrencyManager.getTotalCoins();
+    if (totalCoins >= price && level < 10) {
+      if (typeof CurrencyManager.spendCoins === "function") {
+        CurrencyManager.spendCoins(price);
+      }
+      setUpgradeLevel(type, level + 1);
+      // Update the corresponding button's label.
+      upgrades.forEach(up => {
+        if (up.type === type) {
+          updateUpgradeButtonText(up);
+        }
+      });
+      saveConfiguration();
+    } else {
+      console.log("Not enough coins for " + type + " upgrade!");
+    }
+  }
+
+  // Compute current car stats based on upgrade levels.
+  //   Engine: +0.5 to maxSpeed per level.
+  //   Body: +5 to health per level.
+  //   Transmission: +0.1 to acceleration per level.
+  //   Tires: +0.05 to turn per level.
   function computeCalcStats() {
-    let engineMod = dataEngine[selectedEngineIndex];
-    let wheelMod = dataTire[selectedWheelIndex];
-    let bodyMod = dataBody[selectedCarIndex];
-    
+    let newHealth = DEFAULT_CAR_STATS.health + (upgradeBodyLevel - 1) * 5;
+    let newMaxSpeed = DEFAULT_CAR_STATS.maxSpeed + (upgradeEngineLevel - 1) * 0.5;
+    let newAcceleration = DEFAULT_CAR_STATS.acceleration + (upgradeTransmissionLevel - 1) * 0.1;
+    let newTurn = DEFAULT_CAR_STATS.turn + (upgradeTiresLevel - 1) * 0.05;
     return {
-      health: DEFAULT_CAR_STATS.health + engineMod.health + wheelMod.health + bodyMod.health,
-      boost: DEFAULT_CAR_STATS.boost + engineMod.boost + wheelMod.boost + bodyMod.boost,
-      maxSpeed: DEFAULT_CAR_STATS.maxSpeed + engineMod.maxSpeed + wheelMod.maxSpeed + bodyMod.maxSpeed,
-      acceleration: DEFAULT_CAR_STATS.acceleration + engineMod.acceleration + wheelMod.acceleration + bodyMod.acceleration,
-      turn: DEFAULT_CAR_STATS.turn + engineMod.turn + wheelMod.turn + bodyMod.turn,
-      dmgRes: DEFAULT_CAR_STATS.dmgRes + engineMod.dmgRes + wheelMod.dmgRes + bodyMod.dmgRes
+      health: newHealth,
+      boost: DEFAULT_CAR_STATS.boost,
+      maxSpeed: newMaxSpeed,
+      acceleration: newAcceleration,
+      turn: newTurn,
+      dmgRes: DEFAULT_CAR_STATS.dmgRes
     };
   }
 
@@ -68,187 +186,39 @@ function GarageSketch(p) {
     return fixed.indexOf('.') !== -1 ? fixed.replace(/\.?0+$/, '') : fixed;
   }
 
-  p.setup = function() {
-    p.createCanvas(p.windowWidth, p.windowHeight);
-    // loads data from persistence
-    ExitIcon = new Button("ExitIcon", p.width - p .width * 0.05, p.height - p.height * 0.95, function () { 
-      switchSketch(Mode.TITLE);
-    });
-
-    let savedConfig = loadPersistentData();
-    if (savedConfig) {
-      if (typeof savedConfig.selectedCar === "number") {
-        selectedCarIndex = savedConfig.selectedCar;
-      }
-      if (typeof savedConfig.selectedEngine === "number") {
-        selectedEngineIndex = savedConfig.selectedEngine;
-      }
-      if (typeof savedConfig.selectedWheel === "number") {
-        selectedWheelIndex = savedConfig.selectedWheel;
-      }
-      if (savedConfig.stats !== undefined) {
-        savedStats = { ...savedConfig.stats };
-      } else {
-        savedStats = { ...DEFAULT_CAR_STATS };
-      }
-    }
-
-    setupLayout();
-    saveButton = p.createButton("Save Configuration");
-    saveButton.style("font-size", "18px");
-    saveButton.position(p.width / 2 - 50, p.height - 60);
-    saveButton.mousePressed(saveConfiguration);
-
-    // stop loading
-    window.LoadingScreen.hide();
-    if(!window.bgMusic.isPlaying()){
-      window.bgMusic.loop();
-    }
-  };
-
-  function setupLayout() {
-    let margin = 20;
-    let carBoxSize = 128;
-    let carColCount = 4;
-    let carRowCount = 2;
-    let totalCarWidth = carColCount * carBoxSize;
-    let startX = (p.width - totalCarWidth) / 2;
-    let startY = margin;
-
-    // car body (4x2) top, engine (1x3) bot left, wheel (1x3) bot right
-    carBoxes = [];
-    for (let row = 0; row < carRowCount; row++) {
-      for (let col = 0; col < carColCount; col++) {
-        let box = {
-          x: startX + col * carBoxSize,
-          y: startY + row * carBoxSize,
-          w: carBoxSize,
-          h: carBoxSize,
-          index: row * carColCount + col
-        };
-        carBoxes.push(box);
-      }
-    }
-    let engineBoxCount = 3;
-    engineBoxes = [];
-    let engineX = margin;
-    let engineTotalHeight = engineBoxCount * carBoxSize + (engineBoxCount - 1) * 10;
-    let engineStartY = p.height - margin - engineTotalHeight;
-    for (let i = 0; i < engineBoxCount; i++) {
-      let box = {
-        x: engineX,
-        y: engineStartY + i * (carBoxSize + 10),
-        w: carBoxSize,
-        h: carBoxSize,
-        index: i
-      };
-      engineBoxes.push(box);
-    }
-    let wheelBoxCount = 3;
-    wheelBoxes = [];
-    let wheelX = p.width - margin - carBoxSize;
-    let wheelTotalHeight = wheelBoxCount * carBoxSize + (wheelBoxCount - 1) * 10;
-    let wheelStartY = p.height - margin - wheelTotalHeight;
-    for (let i = 0; i < wheelBoxCount; i++) {
-      let box = {
-        x: wheelX,
-        y: wheelStartY + i * (carBoxSize + 10),
-        w: carBoxSize,
-        h: carBoxSize,
-        index: i
-      };
-      wheelBoxes.push(box);
-    }
-  }
-
-  p.draw = function() {  
-  
+  p.draw = function() {
     if (bgImage) {
       p.background(bgImage);
     } else {
       p.background(30, 30, 30);
     }
-    ExitIcon.display(p);
 
-    // car engine tire boxes draw
-    for (let i = 0; i < carBoxes.length; i++) {
-      let box = carBoxes[i];
+    resetButton.display(p);
+
+    // Draw each upgrade box.
+    upgrades.forEach(up => {
       p.stroke(0);
       p.fill(211);
-      p.rect(box.x, box.y, box.w, box.h);
-      if (window.cars && window.cars[i]) {
-        p.image(window.cars[i], box.x, box.y, box.w, box.h);
-      }
-      if (i === selectedCarIndex) {
-        p.stroke(255, 0, 0);
-        p.strokeWeight(3);
-        p.noFill();
-        p.rect(box.x, box.y, box.w, box.h);
-        p.strokeWeight(1);
-      }
-    }
-    for (let i = 0; i < engineBoxes.length; i++) {
-      let box = engineBoxes[i];
-      p.stroke(0);
-      p.fill(211);
-      p.rect(box.x, box.y, box.w, box.h);
-      if (window.engines && window.engines[i]) {
-        p.image(window.engines[i], box.x, box.y, box.w, box.h);
-      } else {
-        p.fill(211);
-        p.rect(box.x, box.y, box.w, box.h);
-        p.noFill();
-      }
-      if (i === selectedEngineIndex) {
-        p.stroke(255, 0, 0);
-        p.strokeWeight(3);
-        p.noFill();
-        p.rect(box.x, box.y, box.w, box.h);
-        p.strokeWeight(1);
-      }
-    }
-    for (let i = 0; i < wheelBoxes.length; i++) {
-      let box = wheelBoxes[i];
-      p.stroke(0);
-      p.fill(211);
-      p.rect(box.x, box.y, box.w, box.h);
-      if (window.tires && window.tires[i]) {
-        p.image(window.tires[i], box.x, box.y, box.w, box.h);
-      } else {
-        p.fill(211);
-        p.rect(box.x, box.y, box.w, box.h);
-        p.noFill();
-      }
-      if (i === selectedWheelIndex) {
-        p.stroke(255, 0, 0);
-        p.strokeWeight(3);
-        p.noFill();
-        p.rect(box.x, box.y, box.w, box.h);
-        p.strokeWeight(1);
-      }
-    }
+      p.rect(up.box.x, up.box.y, up.box.w, up.box.h);
+      p.fill(0);
+      p.textSize(16);
+      p.textAlign(p.CENTER, p.CENTER);
+      p.text(up.label, up.box.x + up.box.w / 2, up.box.y + up.box.h / 2 - 10);
+      p.text("Lvl " + getUpgradeLevel(up.type), up.box.x + up.box.w / 2, up.box.y + up.box.h / 2 + 15);
+      // Display the connected upgrade button.
+      up.button.display(p);
+    });
 
-    // big car display in center
-    let centralX = p.width / 2 - 340;
-    let centralY = p.height / 2 - 256;
-    //p.stroke(0);
-    //p.fill(211);
-    //p.rect(centralX, centralY, 1024, 1024);
-    if (window.cars && window.cars[selectedCarIndex]) {
-      p.image(window.cars[selectedCarIndex], centralX, centralY, 256 * 3, 256 * 3);
-    }
-
-    // calc/display stats in format
+    // Draw stats panel on the right.
     let calcStats = computeCalcStats();
-    let panelWidth = 200;
+    let panelWidth = 300;
     let panelHeight = 200;
-    let panelX = p.width - 220;
+    let panelX = p.width - panelWidth - 20;
     let panelY = (p.height - panelHeight) / 2;
     p.fill(255, 255, 255, 204);
     p.noStroke();
     p.rect(panelX, panelY, panelWidth, panelHeight);
 
-    // "stats" underlined
     p.fill(0);
     p.textSize(16);
     p.textAlign(p.LEFT, p.TOP);
@@ -259,12 +229,12 @@ function GarageSketch(p) {
 
     let statNames = ["Health", "Boost", "Max Speed", "Acceleration", "Turn", "Dmg Res"];
     let baseValues = [
-      savedStats.health,
-      savedStats.boost,
-      savedStats.maxSpeed,
-      savedStats.acceleration,
-      savedStats.turn,
-      savedStats.dmgRes
+      DEFAULT_CAR_STATS.health,
+      DEFAULT_CAR_STATS.boost,
+      DEFAULT_CAR_STATS.maxSpeed,
+      DEFAULT_CAR_STATS.acceleration,
+      DEFAULT_CAR_STATS.turn,
+      DEFAULT_CAR_STATS.dmgRes
     ];
     let calcValues = [
       calcStats.health,
@@ -275,114 +245,102 @@ function GarageSketch(p) {
       calcStats.dmgRes
     ];
 
-    // debug display for now
-    //////////////////////////////////////////////////////////////
-    p.push();
-
-    //p.fill(255, 255, 255, 200);
-    //p.stroke(0);
-    //p.strokeWeight(2);
-    //p.rect(20, 20, 150, 50, 10); 
-    p.image(coinBg, 20, 20, 128, 64)
-
-    p.fill(0);
-    p.textSize(16);
-    p.textAlign(p.LEFT, p.TOP);
-    //p.textFont(PixelFont)
-    p.text(CurrencyManager.getTotalCoins(), 65, 45);
-    p.pop();
-    //////////////////////////////////////////////////////////////
-
     for (let i = 0; i < statNames.length; i++) {
       let lineY = panelY + 35 + i * 20;
       p.textAlign(p.LEFT, p.TOP);
       p.text(statNames[i], panelX + 10, lineY);
-
       p.textAlign(p.RIGHT, p.TOP);
       let diff = Math.abs(calcValues[i] - baseValues[i]);
       let formattedCalc = formatNumber(calcValues[i]);
       let formattedBase = formatNumber(baseValues[i]);
-      let displayText;
-      if (diff < 0.01) {
-        displayText = formattedCalc;
-      } else {
-        displayText = formattedCalc + " (" + formattedBase + ")";
-      }
+      let displayText = diff < 0.01 ? formattedCalc : formattedCalc + " (" + formattedBase + ")";
       p.text(displayText, panelX + panelWidth - 10, lineY);
     }
+
+    // Draw coin counter (upper left).
+    p.push();
+      p.image(coinBg, 20, 20, 128, 64);
+      p.fill(0);
+      p.textSize(16);
+      p.textAlign(p.LEFT, p.TOP);
+      p.text(CurrencyManager.getTotalCoins(), 65, 45);
+    p.pop();
   };
 
+  // Allow clicking on an upgrade box or its connected button.
   p.mousePressed = function() {
-    // check if { car, engine, wheel } clicked
-    for (let i = 0; i < carBoxes.length; i++) {
-      let box = carBoxes[i];
-      if (
-        p.mouseX >= box.x &&
-        p.mouseX <= box.x + box.w &&
-        p.mouseY >= box.y &&
-        p.mouseY <= box.y + box.h
-      ) {
-        selectedCarIndex = i;
+    // Check upgrade buttons first.
+    for (let i = 0; i < upgrades.length; i++) {
+      let up = upgrades[i];
+      if (up.button.isMouseOver(p)) {
+        purchaseUpgrade(up.type);
         return;
       }
     }
-    for (let i = 0; i < engineBoxes.length; i++) {
-      let box = engineBoxes[i];
-      if (
-        p.mouseX >= box.x &&
-        p.mouseX <= box.x + box.w &&
-        p.mouseY >= box.y &&
-        p.mouseY <= box.y + box.h
-      ) {
-        selectedEngineIndex = i;
-        return;
-      }
-    }
-    for (let i = 0; i < wheelBoxes.length; i++) {
-      let box = wheelBoxes[i];
-      if (
-        p.mouseX >= box.x &&
-        p.mouseX <= box.x + box.w &&
-        p.mouseY >= box.y &&
-        p.mouseY <= box.y + box.h
-      ) {
-        selectedWheelIndex = i;
-        return;
-      }
+    if (resetButton.isMouseOver(p)) {
+      resetButton.callback();
+      return;
     }
     
-    if (ExitIcon.isMouseOver(p)) {
-      bgMusic.stop();
+    // Also allow clicking on the upgrade boxes.
+    for (let i = 0; i < upgrades.length; i++) {
+      let up = upgrades[i];
+      if (
+        p.mouseX >= up.box.x &&
+        p.mouseX <= up.box.x + up.box.w &&
+        p.mouseY >= up.box.y &&
+        p.mouseY <= up.box.y + up.box.h
+      ) {
+        purchaseUpgrade(up.type);
+        return;
+      }
+    }
+    // Check for exit if an ExitIcon exists.
+    if (typeof ExitIcon !== "undefined" && ExitIcon.isMouseOver(p)) {
+      window.bgMusic.stop();
       ExitIcon.callback();
     }
-
   };
 
   p.keyPressed = function() {
     if (p.keyCode === p.ESCAPE) {
       window.bgMusic.stop();
-      
-    switchSketch(Mode.TITLE);
+      switchSketch(Mode.TITLE);
     }
   };
 
   p.windowResized = function() {
     p.resizeCanvas(p.windowWidth, p.windowHeight);
-    setupLayout();
-    saveButton.position(p.width / 2 - 50, p.height - 60);
+    setupUpgradeLayout();
   };
 
   function saveConfiguration() {
     let newStats = computeCalcStats();
     let config = {
-      selectedCar: selectedCarIndex,
-      selectedEngine: selectedEngineIndex,
-      selectedWheel: selectedWheelIndex,
+      upgradeEngineLevel,
+      upgradeBodyLevel,
+      upgradeTransmissionLevel,
+      upgradeTiresLevel,
       stats: { ...newStats }
     };
-    savedStats = { ...newStats };
     savePersistentData(config);
     console.log("Configuration saved:", config);
   }
-
+  function resetUpgrades() {
+    upgradeEngineLevel = 1;
+    upgradeBodyLevel = 1;
+    upgradeTransmissionLevel = 1;
+    upgradeTiresLevel = 1;
+    
+    // Update the labels on all upgrade buttons to reflect the reset cost/level
+    upgrades.forEach(up => updateUpgradeButtonText(up));
+    
+    // Save the reset configuration
+    saveConfiguration();
+    console.log("All upgrades have been reset.");
+  }
 }
+
+
+
+
