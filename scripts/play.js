@@ -257,7 +257,6 @@ function PlaySketch(p) {
   function checkCarCollisions(car, enemies) {
     for (let enemy of enemies) {
       if (car.collider.intersects(enemy.collider)) {
-        //handle collision: deal damage, knockback, stop movement
         car.healthBar = Math.max(0, car.healthBar - enemy.attackDamage);
 
         //use relative velocity to scale knockback
@@ -269,7 +268,7 @@ function PlaySketch(p) {
         knockbackVector.setMag(knockbackForce);
   
         car.position.add(knockbackVector);
-        enemy.position.sub(knockbackVector); //push enemy back slightly
+        enemy.position.sub(knockbackVector); //push enemy slightly
 
         //temp disable enemy movement to prevent rapid collisions
         if (!enemy.controlDisabled) {
@@ -281,4 +280,4 @@ function PlaySketch(p) {
       }
     }
   }
-}
+} 

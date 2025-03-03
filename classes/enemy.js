@@ -21,6 +21,27 @@ class Enemy extends Car {
       this.maxForce = 0.3;
       this.desired = p.createVector(0, 0);
       this.steer = p.createVector(0, 0);
+
+      if (this.currentImage) {
+        this.width = 64;
+        this.height = 64;
+        this.collider = new Collider(
+          this,
+          "polygon",
+          { offsetX: -32, offsetY: -32 },
+          this.currentImage
+        );
+      } else {
+        // fallback rectangle
+        this.width = carWidth;
+        this.height = carHeight;
+        this.collider = new Collider(this, "rectangle", {
+          width: this.width,
+          height: this.height,
+          offsetX: -this.width / 2,
+          offsetY: -this.height / 2,
+        });
+      }
     }
   
     update() {
@@ -67,6 +88,12 @@ class Enemy extends Car {
         const knockbackForce = 5;
         other.position.x += knockbackForce * this.p.cos(this.angle);
         other.position.y += knockbackForce * this.p.sin(this.angle);
+      }
+      //prevent enemy overlap
+      if (other instanceof Enemy) {
+        let separation = p5.Vector.sub(this.position, other.position);
+        separation.setMag(5);  //push apart
+        this.position.add(separation);
       }
     }
   }
