@@ -1,4 +1,5 @@
-/* classes/map.js */
+// classes/map.js
+
 const gridSize = 32;
 const mapSize = 500;
 let map = []; 

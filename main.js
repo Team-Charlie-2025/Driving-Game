@@ -1,4 +1,5 @@
-/* main.js */
+// main.js
+
 let currentSketch = null;
 let firstLoad = true;
 
@@ -9,7 +10,7 @@ const Mode = {
   SETTINGS: 'settings',
   LEADERBOARD: 'leaderboard',
   LOGIN: 'login',
-  SIGNUP: 'signup'
+  SIGNUP: 'signup',
 };
 
 function switchSketch(mode) {
@@ -40,6 +41,9 @@ function switchSketch(mode) {
         break;
       case Mode.SIGNUP:
         currentSketch = new p5(SignupSketch, 'main');
+        break;
+      case Mode.LEVELS:
+        currentSketch = new p5(LevelsSketch, 'main');
         break;
       default:
         console.log("Unknown mode: " + mode);

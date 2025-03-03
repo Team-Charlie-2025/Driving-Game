@@ -1,21 +1,22 @@
 // classes/enemy.js
+
 class Enemy extends Car {
-    constructor(p, x, y, target) {
-      const stats = {
-        acceleration: 0.4,
-        maxSpeed: 3.5,
-        health: 100,
-        friction: 0.05 
-      };
-      
-      super(p, x, y, stats);
-      this.target = target;
-      this.attackDamage = 15;
-      this.lastAttack = 0;
-      this.attackCooldown = 1500;
-      this.currentImage = p.enemyImg;
-      this.removeFromWorld = false;
-  
+  constructor(p, x, y, target) {
+    const stats = {
+      acceleration: 0.4 * window.difficulty,
+      maxSpeed: 4.5 * window.difficulty,
+      health: 100 * window.difficulty,
+      friction: 0.05 
+    };
+    
+    super(p, x, y, stats);
+    this.target = target;
+    this.attackDamage = 15 * window.difficulty;
+    this.lastAttack = 0;
+    this.attackCooldown = 1500 / window.difficulty;
+    this.currentImage = p.enemyImg;
+    this.removeFromWorld = false;
+
       // Movement properties
       this.velocity = p.createVector(0, 0);
       this.maxForce = 0.3;
@@ -85,7 +86,7 @@ class Enemy extends Car {
         this.lastAttack = Date.now();
   
         // Add knockback
-        const knockbackForce = 5;
+        const knockbackForce = 7 * window.difficulty;
         other.position.x += knockbackForce * this.p.cos(this.angle);
         other.position.y += knockbackForce * this.p.sin(this.angle);
       }

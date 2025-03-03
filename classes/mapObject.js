@@ -1,4 +1,5 @@
-/* classes/mapObject.js */
+// classes/mapObject.js
+
 class Building extends GameObject {
   constructor(p, x, y, width, height, img = null) {
     super(x, y);
