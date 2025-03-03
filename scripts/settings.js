@@ -1,24 +1,15 @@
-function SettingsSketch(p)
-
-{
+function SettingsSketch(p){
   let bgImage; 
   let isImageLoaded = false; 
   let volumeSlider; // Slider for sound volume
   let sound; // Sound object
   let backButton; // Back button
 
-  p.preload = function () 
-  {
-    bgImage = p.loadImage('graphics/BackGround.jpg', () =>
-       {
-      isImageLoaded = true; 
-    });
-
+  p.preload = function () {
     sound = p.loadSound('sound/titleTheme.mp3'); 
   };
 
-  p.setup = function ()
-   {
+  p.setup = function () {
     p.createCanvas(p.windowWidth, p.windowHeight);
     p.textAlign(p.CENTER, p.CENTER);
     p.textSize(48);
@@ -28,19 +19,9 @@ function SettingsSketch(p)
     volumeSlider.position(p.width / 2 - 75, p.height / 2 + 50);
     volumeSlider.style('width', '150px');
 
-    // Create a back button
-    backButton = p.createButton('Back');
-    backButton.position(p.width / 2 - 40, p.height / 2 + 150);
-    backButton.mousePressed(goBack); // Call goBack function when pressed
-
-    // Style the back button
-    backButton.style('padding', '10px');
-    backButton.style('background-color', '#4CAF50');
-    backButton.style('color', 'white');
-    backButton.style('border', 'none');
-    backButton.style('border-radius', '5px');
-    backButton.style('cursor', 'pointer');
-    backButton.style('font-size', '20px');
+    ExitIcon = new Button("ExitIcon", p.width - p .width * 0.05, p.height - p.height * 0.95, function () { 
+      switchSketch(Mode.TITLE);
+    }); // x button
 
     // Start playing sound 
     sound.loop();
@@ -51,11 +32,8 @@ function SettingsSketch(p)
   };
 
   p.draw = function () {
-    if (isImageLoaded) {
-      p.image(bgImage, 0, 0, p.width, p.height); // Draw background if loaded
-    } else {
-      p.background(230); // Fallback background while loading
-    }
+    p.background(100, 193, 232); //change background in future?
+    ExitIcon.display(p);
 
     // Draw text on top
     p.fill(50);
@@ -75,15 +53,18 @@ function SettingsSketch(p)
       switchSketch(Mode.TITLE);
     }
   };
+  p.mousePressed = function() {
+    if (ExitIcon.isMouseOver(p)) {
+      bgMusic.stop();
+      ExitIcon.callback();
+    }
+  }
 
   // Function to return the current volume level
   function getVolume() {
     return volumeSlider.value();
   }
 
-  function goBack() {
-    switchSketch(Mode.TITLE);  
-  }
 }
 
   

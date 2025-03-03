@@ -107,9 +107,9 @@ function TitleSketch(p) {
       })
   ); 
   buttons.push(
-    new Button("Leaderboard", p.width * 6 / 7, p.height - p.height * 0.15, function(){
-        switchSketch(Mode.LEADERBOARD);
-    })  
+    new Button("Leaderboard", p.width / 1.2, p.height - p.height * 0.90, function () {
+      switchSketch(Mode.LEADERBOARD);
+    })
   );
   buttons.push(
     new Button("ℹ️", p.width - 50, 30, function () {
