@@ -4,6 +4,7 @@ function TitleSketch(p) {
   let bgImage;
   let imgTitle;
   let bgMusic = null;
+  let showInfo = false;
 
   p.preload = function() {
     if (bgMusic == null) {
@@ -11,7 +12,7 @@ function TitleSketch(p) {
       bgMusic.setVolume(0.15); 
     }
     
-    bgImage = p.loadImage("graphics/mainbg.png");
+    bgImage = p.loadImage("graphics/BackGround.jpg");
     imgTitle = p.loadImage("graphics/title.png");
     if(!globalsLoaded) loadGlobals(p);
   };
@@ -27,11 +28,12 @@ function TitleSketch(p) {
 
 
   p.draw = function () {
-   // if (bgImage) { //until background is done, commented out
-      //p.background(bgImage); 
-    //} else {
+    if (bgImage) { //until background is done, commented out
+    p.background(bgImage); 
+    } else {
       p.background(225, 240, 255);
-    //}
+    };
+
     for (let btn of buttons) {
       btn.display(p);
     }
@@ -44,7 +46,18 @@ function TitleSketch(p) {
         p.windowHeight / 2.6
       );
     }
-  };
+
+  if (showInfo) {
+    p.fill(34, 139, 34, 200); // Dark green with transparency
+    p.noStroke();
+    p.rect(p.width / 2 - 150, p.height / 2 - 50, 300, 100, 15); // Centered info box
+
+    p.fill(255);
+    p.textSize(16);
+    p.textAlign(p.CENTER, p.CENTER);
+    p.text("Still to be modified", p.width / 2, p.height / 2);
+  }
+};
 
   p.windowResized = function () {
     p.resizeCanvas(p.windowWidth, p.windowHeight);
@@ -62,7 +75,9 @@ function TitleSketch(p) {
       }
     }
   };
-
+  function toggleInfo() {
+    showInfo = !showInfo;
+  }
   function createButtons() {
     buttons.push(
       new Button("Play", p.width / 2, p.height - p.height * 0.40, function () {
@@ -75,15 +90,23 @@ function TitleSketch(p) {
       })
     );
     buttons.push(
-      new Button("Leaderboard", p.width / 1.2, p.height - p.height * 0.90, function () {
-        switchSketch(Mode.LEADERBOARD);
-      })
-    );
-    buttons.push(
       new Button("Settings", p.width / 7, p.height - p.height * 0.15, function () {
-        switchSketch(Mode.SETTINGS);
+          switchSketch(Mode.SETTINGS);
       })
-    );
+  ); 
+  buttons.push(
+    new Button("Leaderboard", p.width * 6 / 7, p.height - p.height * 0.15, function(){
+        switchSketch(Mode.LEADERBOARD);
+    })  
+  );
+  buttons.push(
+    new Button("ℹ️", p.width - 50, 30, function () {
+      toggleInfo(); 
+    })
+  );
+
+
+  
     /*
     buttons.push(
       new Button("Exit", p.width / 2, p.height - p.height * 0.17, function () {
