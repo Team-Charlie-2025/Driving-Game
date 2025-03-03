@@ -37,7 +37,7 @@ function PlaySketch(p) {
 
     // coin creation, positioning, building check, and logs
     ////////////////////////////////////////////////
-    const totalCoins = 25;
+    const totalCoins = 750;
     let attempts = 0;
     const maxAttempts = 10000; 
     while (coins.length < totalCoins && attempts < maxAttempts) {
