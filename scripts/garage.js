@@ -71,7 +71,7 @@ function GarageSketch(p) {
   p.setup = function() {
     p.createCanvas(p.windowWidth, p.windowHeight);
     // loads data from persistence
-    ExitIcon = new Button("ExitIcon", p.width - p .width * 0.05, p.height - p.height * 0.95, function () { 
+    ExitIcon = new Button("ExitIcon", p.width - p .width * 0.05, p.height - p.height * 0.95, p.width, p.height, function () { 
       switchSketch(Mode.TITLE);
     });
 

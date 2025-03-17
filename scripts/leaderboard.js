@@ -9,7 +9,7 @@ function LeaderboardSketch(p) {
       p.fill(50);
       p.text("Leaderboard", p.width / 2, p.height / 2);
       
-      ExitIcon = new Button("ExitIcon", p.width - p .width * 0.05, p.height - p.height * 0.95, function () { 
+      ExitIcon = new Button("ExitIcon", p.width - p .width * 0.05, p.height - p.height * 0.95, p.width, p.height, function () { 
         switchSketch(Mode.TITLE);
       });
 
