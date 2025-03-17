@@ -4,15 +4,11 @@ function TitleSketch(p) {
   let buttons = [];
   let bgImage;
   let imgTitle;
-  let bgMusic = null;
   let debugCheckbox; 
   let showInfo = false;
 
   p.preload = function() {
-    if (bgMusic == null) {
-      bgMusic = p.loadSound('sound/titleTheme.mp3', () => {bgMusic.loop();} );
-      bgMusic.setVolume(0.15); 
-    }
+    loadSound(p);
     
     bgImage = p.loadImage("graphics/titleBackground.png");
     imgTitle = p.loadImage("graphics/title.png");
@@ -32,6 +28,7 @@ function TitleSketch(p) {
       window.debug = debugCheckbox.checked();
       console.log("Debug mode set to:", window.debug);
     });
+    window.titlebgMusic.loop(); //console.log("play");
     // stop loading
     window.LoadingScreen.hide();
   };
@@ -76,12 +73,12 @@ function TitleSketch(p) {
   };
 
   p.mousePressed = function () {
-    if(!bgMusic.isPlaying()){//for chrome non-auto play rules
-      bgMusic.loop(); 
+    if(!window.titlebgMusic.isPlaying()){//for chrome non-auto play rules
+      window.titlebgMusic.loop(); //console.log("play"); 
     }
     for (let btn of buttons) {
       if (btn.isMouseOver(p)) {
-        bgMusic.stop();
+        window.titlebgMusic.stop();
         btn.callback();
         break;
       }
@@ -90,31 +87,32 @@ function TitleSketch(p) {
   function toggleInfo() {
     showInfo = !showInfo;
   }
+
   function createButtons() {
     buttons.push(
-      new Button("Play", p.width / 2, p.height - p.height * 0.40, function () {
+      new Button("Play", p.width / 2, p.height - p.height * 0.38, p.width, p.height, function () {
         switchSketch(Mode.LEVELS); //will go to level/difficulty selection
-      })
+      }, "navy")
     );
     buttons.push(
-      new Button("Garage", p.width / 2, p.height - p.height * 0.25, function () {
+      new Button("Garage", p.width / 2, p.height - p.height * 0.20, p.width, p.height, function () {
         switchSketch(Mode.GARAGE);
-      })
+      }, "blue")
     );
     buttons.push(
-      new Button("Settings", p.width / 7, p.height - p.height * 0.15, function () {
+      new Button("Settings", p.width / 7, p.height - p.height * 0.15, p.width, p.height, function () {
           switchSketch(Mode.SETTINGS);
       })
   ); 
   buttons.push(
-    new Button("Leaderboard", p.width / 1.2, p.height - p.height * 0.90, function () {
+    new Button("Leaderboard", p.width / 1.2, p.height - p.height * 0.90, p.width, p.height, function () {
       switchSketch(Mode.LEADERBOARD);
     })
   );
   buttons.push(
-    new Button("ℹ️", p.width - 50, 30, function () {
+    new Button("HELP", p.width / 1.05, p.height - p.height * 0.97, p.width, p.height, function () {
       toggleInfo(); 
-    })
+    }, "blue")
   );
 
 

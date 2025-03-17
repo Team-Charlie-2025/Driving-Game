@@ -1,6 +1,7 @@
 // classes/globals.js
 
 let globalsLoaded = false;
+let currentVolume = 0.25;
 
 function loadGlobals(p) {
   loadCars(p);
@@ -17,15 +18,26 @@ function loadGlobals(p) {
 
 function loadSound(p) {
   window.bgMusic = p.loadSound('sound/themeOption.mp3');
-  window.bgMusic.setVolume(0.15);
+  window.bgMusic.setVolume(currentVolume);
+  window.titlebgMusic = p.loadSound('sound/titleTheme.mp3' );
+  window.titlebgMusic.setVolume(currentVolume); 
 
   window.carStart = p.loadSound('sound/carStart.wav');
-  window.carStart.setVolume(1.5);
+  window.carStart.setVolume(0.15);
 
-  // Possibly change; is a bit annoying
   window.pageChange = p.loadSound('sound/newPage.wav');
   window.pageChange.setVolume(0.02);
   console.log("sounds loaded");
+}
+function musicVolumeChange(p, newVol){
+  currentVolume = (newVol)/100.0;
+  console.log(currentVolume);
+  window.bgMusic.setVolume(newVol);
+  window.titlebgMusic.setVolume(newVol/10);
+  //add anyother backgroup music that would be effect by user volume change
+}
+function getSoundVolume(p){
+  return currentVolume *100.0;
 }
 
 function loadCars(p) {
