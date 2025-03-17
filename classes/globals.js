@@ -2,12 +2,15 @@
 
 let globalsLoaded = false;
 let currentVolume = 0.25;
+let musicVolume = 0.25;
+let effectsVolume = 0.50;
 
 function loadGlobals(p) {
   loadCars(p);
   loadEngines(p);
   loadTires(p);
-  loadSound(p);
+  loadMusic(p);
+  loadSoundEffects(p);
   loadButtons(p);
   loadAnimations(p);
   window.buildingImg = p.loadImage("assets/building.png");
@@ -16,28 +19,33 @@ function loadGlobals(p) {
   globalsLoaded = true;
 }
 
-function loadSound(p) {
-  window.bgMusic = p.loadSound('sound/themeOption.mp3');
-  window.bgMusic.setVolume(currentVolume);
-  window.titlebgMusic = p.loadSound('sound/titleTheme.mp3' );
-  window.titlebgMusic.setVolume(currentVolume); 
+function loadMusic(p) {
+  window.music = {};
+  switch (Mode) {
+    case Mode.TITLE:
+      window.music["title"] = [];
+      window.music["title"].push(p.loadSound("sound/titleTheme.mp3"));
+      break;
+    case Mode.PLAY:
+      window.music["bg"] = [];
+      window.music["bg"].push(p.loadSound("sound/themeOption.mp3"));
+      break;
 
-  window.carStart = p.loadSound('sound/carStart.wav');
-  window.carStart.setVolume(0.15);
+    default:
+      console.log("No music defined for mode: " + Mode);
+  }
+  for (let key in window.music) {
+    window.music[key].forEach(sound => sound.setVolume(currentMusicVolume));
+  }
+}
 
-  window.pageChange = p.loadSound('sound/newPage.wav');
-  window.pageChange.setVolume(0.02);
-  console.log("sounds loaded");
-}
-function musicVolumeChange(p, newVol){
-  currentVolume = (newVol)/100.0;
-  console.log(currentVolume);
-  window.bgMusic.setVolume(newVol);
-  window.titlebgMusic.setVolume(newVol/10);
-  //add anyother backgroup music that would be effect by user volume change
-}
-function getSoundVolume(p){
-  return currentVolume *100.0;
+function loadSoundEffects(p) {
+  window.soundEffects = {};
+  window.soundEffects["carStart"] = [];
+  window.soundEffects["carStart"].push(p.loadSound("sound/carStart.wav"));
+  
+  window.soundEffects["pageChange"] = [];
+  window.soundEffects["pageChange"].push(p.loadSound("sound/newPage.wav"));
 }
 
 function loadCars(p) {

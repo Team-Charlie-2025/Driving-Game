@@ -1,8 +1,10 @@
+// settings.js
+
 function SettingsSketch(p){
   let volumeSlider; // Slider for sound volume
 
   p.preload = function () {
-    loadSound(p); 
+    if(!globalsLoaded) loadGlobals(p);
   };
 
   p.setup = function () {
@@ -10,17 +12,27 @@ function SettingsSketch(p){
     p.textAlign(p.CENTER, p.CENTER);
     p.textSize(48);
     p.fill(50);
-    // Create a volume slider
-    volumeSlider = p.createSlider(0, 100, getSoundVolume(p));
-    volumeSlider.position(p.width / 2 - 75, p.height / 2 + 50);
-    volumeSlider.style('width', '150px');
 
-    ExitIcon = new Button("ExitIcon", p.width - p .width * 0.05, p.height - p.height * 0.95, p.width, p.height, function () { 
-      switchSketch(Mode.TITLE);
-    }); // x button
+    musicSlider = p.createSlider(0, 1, getMusicVolume(), 0.01);
+    musicSlider.position(p.width / 2 - 75, p.height / 2 + 50);
+    musicSlider.style('width', '150px');
 
-    window.titlebgMusic.loop();
-    // Stop loading screen once setup is done
+    effectsSlider = p.createSlider(0, 1, getEffectsVolume(), 0.01);
+    effectsSlider.position(p.width / 2 - 75, p.height / 2 + 100);
+    effectsSlider.style('width', '150px');
+
+    ExitIcon = new Button(
+      "ExitIcon",
+      p.width - p.width * 0.05,
+      p.height - p.height * 0.95,
+      p.width,
+      p.height,
+      function() {
+        switchSketch(Mode.TITLE);
+      }
+    );
+
+    music("title", p, 'loop');
     window.LoadingScreen.hide();
   };
 
@@ -37,23 +49,31 @@ function SettingsSketch(p){
     // Display current volume value
     p.textSize(24);
     p.textFont(window.PixelFont);
-    p.text("Music Volume: " + volumeSlider.value(), p.width / 2, p.height / 2 + 100);
+    p.text("Music Volume: " + musicSlider.value(), p.width / 2, p.height / 2 + 80);
+    p.text("Effects Volume: " + effectsSlider.value(), p.width / 2, p.height / 2 + 130);
 
-    musicVolumeChange(p, volumeSlider.value());
+    // updates with helper functions
+    setMusicVolume(musicSlider.value());
+    setEffectsVolume(effectsSlider.value());
   };
+
   
 
-  p.keyPressed = function () {
+  p.keyPressed = function() {
     if (p.keyCode === p.ESCAPE) {
-      window.titlebgMusic.stop();
+      // stops music from playing - should be done in all functions that cause sketch changes
+      if (window.music && window.music["title"] && window.music["title"][0].isPlaying()) {
+        window.music["title"][0].stop();
+      }
       switchSketch(Mode.TITLE);
     }
   };
   p.mousePressed = function() {
     if (ExitIcon.isMouseOver(p)) {
-      window.titlebgMusic.stop();
+      if (window.music && window.music["title"] && window.music["title"][0].isPlaying()) {
+        window.music["title"][0].stop();
+      }
       ExitIcon.callback();
     }
-  }
-
+  };
 }
