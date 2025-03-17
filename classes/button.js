@@ -51,6 +51,17 @@ class Button { //regular rect button class
         p.textAlign(p.CENTER, p.CENTER);
         p.text(this.label, this.x, this.y);
       }
+      else if (this.label == "ℹ️") { // Info button (text-based)
+        this.width = 40; // Fixed width for the info button
+        this.height = 40; // Fixed height for the info button
+        p.fill(34, 139, 34); // Green background
+        p.noStroke();
+        p.rect(this.x - this.width / 2, this.y - this.height / 2, this.width, this.height, 10); // Rounded rectangle
+        p.fill(255); // White text
+        p.textSize(24);
+        p.textAlign(p.CENTER, p.CENTER);
+        p.text(this.label, this.x, this.y); // Display the ℹ️ symbol
+      }
     }
   
     isMouseOver(p) {
