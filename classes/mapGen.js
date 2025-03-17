@@ -3,6 +3,10 @@
 const gridSize = 32;
 const mapSize = 500;
 let map = []; 
+let smallRoadWidth = 5;
+let normalRoadWidth =7;
+let bigRoadWidth = 9;
+
 
 function drawMap(p, center, zoomFactor) {
   p.background("grey");
@@ -307,9 +311,58 @@ function drawParkingLot(p, xStart, yStart, xEnd, yEnd) {
   }
 }
   
-  // ROAD GENERATION 
-  /*
+// ROAD GENERATION 
+/*
   
-       Whole lotta nothings
+  We are using a perlin noise generation map
+  This map has separate regions with varying level of noise
+  The noise level roughly correlates to how bendy a road is
   
-  */
+*/
+
+// Makes the perlin noise map, scale is how much "noise" (0-1)
+function generateNoise(rows, cols, scale) {
+  let noiseMap = [];
+  for (let y = 0; y < rows; y++) {
+    noiseMap[y] = [];
+    for (let x = 0; x < cols; x++) {
+      noiseMap[y][x] = noise(x * scale, y * scale); // Smooth procedural values
+    }
+  }
+  return noiseMap;
+}
+
+
+// Decides if we make city roads in that area based off threshold value (<.3)
+function generateCityRoads(p, noiseMap, threshold) {
+  for (let y = 0; y < noiseMap.length; y += normalRoadWidth) { 
+    for (let x = 0; x < noiseMap[y].length; x += 5) {
+      if (noiseMap[y][x] < threshold) { 
+        drawRectRoad(p, x, y, x + normalRoadWidth, y);
+        drawRectRoad(p, x, y, x, y + normalRoadWidth);
+      }
+    }
+  }
+}
+
+// Dictates if we make country roads in an area based off a threshold value (>.5)
+function generateCountryRoads(p, noiseMap, threshold) {
+  for (let y = 0; y < noiseMap.length - 1; y++) {
+    for (let x = 0; x < noiseMap[y].length - 1; x++) {
+      if (noiseMap[y][x] > threshold) { // Valley area
+        let nextX = x + (Math.random() > 0.5 ? 1 : -1);
+        let nextY = y + (Math.random() > 0.5 ? 1 : -1);
+        
+        drawBezierRoad(p, x, y, (x + nextX) / 2, (y + nextY) / 2, nextX, nextY, normalRoadWidth);
+      }
+    }
+  }
+}
+
+function generatePerlinMap(p, rows, cols) {
+  let noiseMap = generateNoise(rows, cols, 0.1);
+  
+  generateCityRoads(p, noiseMap, 0.3); 
+  generateCountryRoads(p, noiseMap, 0.5); 
+}
+

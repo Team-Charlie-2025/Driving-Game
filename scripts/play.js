@@ -21,7 +21,7 @@ function PlaySketch(p) {
     p.createCanvas(p.windowWidth, p.windowHeight);
     p.startTime = p.millis();
     physicsEngine = new PhysicsEngine();
-    generateGenMap(p, mapSize, mapSize);
+    generatePerlinMap(p, mapSize, mapSize);
 
     window.runCoinsCalculated = false;
     window.isGameOver = false;
