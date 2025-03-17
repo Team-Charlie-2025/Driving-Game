@@ -5,7 +5,6 @@ function LevelsSketch(p) {
     p.preload = function() {
         bgImage = p.loadImage("graphics/mainbg.png");
         imgTitle = p.loadImage("graphics/title.png");
-        //loadSound(p); // no music on page currently
     };
 
     p.setup = function () {
@@ -15,6 +14,7 @@ function LevelsSketch(p) {
         ExitIcon = new Button("ExitIcon", p.width - p .width * 0.05, p.height - p.height * 0.95, p.width, p.height, function () { 
             switchSketch(Mode.TITLE);
           }); // x button
+          bgMusic(Mode.LEVELS, p, "loop");
     
         // stop loading
         window.LoadingScreen.hide();
@@ -37,16 +37,19 @@ function LevelsSketch(p) {
     p.mousePressed = function () {
         for (let btn of buttons) {
           if (btn.isMouseOver(p)) {
+            bgMusic(Mode.LEVELS, p, "stop");
             btn.callback();
             break;
           }
         }
         if (ExitIcon.isMouseOver(p)) {
+            bgMusic(Mode.LEVELS, p, "stop");
             ExitIcon.callback();
           }
       };
       p.keyPressed = function () {
         if (p.keyCode === p.ESCAPE) {
+            bgMusic(Mode.LEVELS, p, "stop");
             switchSketch(Mode.TITLE);
         }
       };

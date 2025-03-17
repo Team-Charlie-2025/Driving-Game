@@ -23,6 +23,7 @@ function loadMusic(p) {
   window.music[Mode.GARAGE] = p.loadSound("sound/titleTheme.mp3");
   window.music[Mode.SETTINGS] = p.loadSound("sound/titleTheme.mp3");
   window.music[Mode.LEADERBOARD] = p.loadSound("sound/titleTheme.mp3");
+  window.music[Mode.LEVELS] = p.loadSound("sound/titleTheme.mp3");
   setMusicVolume(p);
     
 }

@@ -32,7 +32,7 @@ function SettingsSketch(p){
       }
     );
 
-    bgMusic(Mode.SETTINGS, p, "play");
+    bgMusic(Mode.SETTINGS, p, "loop");
     window.LoadingScreen.hide();
   };
 

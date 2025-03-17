@@ -26,7 +26,7 @@ function TitleSketch(p) {
       window.debug = debugCheckbox.checked();
       console.log("Debug mode set to:", window.debug);
     });
-    bgMusic(Mode.TITLE, p, "play"); //console.log("play");
+    bgMusic(Mode.TITLE, p, "loop"); //console.log("play");
     // stop loading
     window.LoadingScreen.hide();
   };

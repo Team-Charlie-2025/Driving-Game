@@ -27,7 +27,7 @@ function PlaySketch(p) {
 
     
     window.LoadingScreen.hide();
-    bgMusic(Mode.PLAY, p, "play");
+    bgMusic(Mode.PLAY, p, "loop");
 
     // Start enemy spawner
     window.enemySpawnInterval = setInterval(() => spawnEnemy(p), ENEMY_SPAWN_RATE);

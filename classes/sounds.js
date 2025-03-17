@@ -3,17 +3,20 @@
 
 let musicVolume; //initial volume
 let effectsVolume; //initial volume
-function bgMusic(mode, p, action){
+function bgMusic(mode, p, action = "stop"){
+    console.log(mode+ " " +action);
     if(!globalsLoaded)
         loadGlobals(p);
     switch(action){
         case "loop":
             if(!window.music[mode].isPlaying())
-                window.music[mode].loop();console.log("background music playing");
+                window.music[mode].loop();//console.log("background music playing");
             break;
+
         case "stop":
-            window.music[mode].stop();console.log("background music stopped");
+            window.music[mode].stop();//console.log("background music stopped");
             break;
+
         case "play":
             if(!window.music[mode].isPlaying())
                 window.music[mode].play();
