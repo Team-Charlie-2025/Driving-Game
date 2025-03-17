@@ -49,7 +49,7 @@ function PlaySketch(p) {
       if (map[randY] && map[randY][randX] instanceof Road) {
         let coinX = randX * gridSize + gridSize / 2;
         let coinY = randY * gridSize + gridSize / 2;
-        console.log(`Spawning coin ${coins.length + 1} at tile (${randX}, ${randY}) with world coordinates (${coinX}, ${coinY})`);
+        if (window.debug) console.log(`Spawning coin ${coins.length + 1} at tile (${randX}, ${randY}) with world coordinates (${coinX}, ${coinY})`);
         coins.push(new Coin(p, coinX, coinY));
       }
       attempts++;
@@ -314,7 +314,6 @@ function PlaySketch(p) {
   function checkCarCollisions(car, enemies) {
     for (let enemy of enemies) {
       if (car.collider.intersects(enemy.collider)) {
-        //handle collision: deal damage, knockback, stop movement
         car.healthBar = Math.max(0, car.healthBar - enemy.attackDamage);
 
         //use relative velocity to scale knockback
@@ -326,7 +325,7 @@ function PlaySketch(p) {
         knockbackVector.setMag(knockbackForce);
   
         car.position.add(knockbackVector);
-        enemy.position.sub(knockbackVector); //push enemy back slightly
+        enemy.position.sub(knockbackVector); //push enemy slightly
 
         //temp disable enemy movement to prevent rapid collisions
         if (!enemy.controlDisabled) {
@@ -338,4 +337,4 @@ function PlaySketch(p) {
       }
     }
   }
-}
+} 
