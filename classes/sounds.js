@@ -10,8 +10,6 @@ function bgMusic(mode, p, action = "stop"){
     }
     //console.log("AudioContext state:", p.getAudioContext().state);
     switch(action){
-        
-
         case "loop":
             if(!window.music[mode].isPlaying())
                 window.music[mode].loop();console.log(mode+ " " +action);
