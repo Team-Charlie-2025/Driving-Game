@@ -13,7 +13,7 @@ function LoginSketch(p) {
       createLoginElements();
       loginElementsCreated = true;
     }
-    ExitIcon = new Button("ExitIcon", p.width - p .width * 0.05, p.height - p.height * 0.95, function () { 
+    ExitIcon = new Button("ExitIcon", p.width - p .width * 0.05, p.height - p.height * 0.95, p.width, p.height, function () { 
       switchSketch(Mode.TITLE);
     });
     // stop loading

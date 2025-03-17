@@ -1,6 +1,10 @@
 // scripts/leaderboard.js
 
 function LeaderboardSketch(p) {
+  p.preload = function(){
+    loadMusic(p);
+    loadSoundEffects(p);
+  }
     p.setup = function () {
       p.createCanvas(p.windowWidth, p.windowHeight);
       p.background(230);
@@ -9,7 +13,7 @@ function LeaderboardSketch(p) {
       p.fill(50);
       p.text("Leaderboard", p.width / 2, p.height / 2);
       
-      ExitIcon = new Button("ExitIcon", p.width - p .width * 0.05, p.height - p.height * 0.95, function () { 
+      ExitIcon = new Button("ExitIcon", p.width - p .width * 0.05, p.height - p.height * 0.95, p.width, p.height, function () { 
         switchSketch(Mode.TITLE);
       });
 

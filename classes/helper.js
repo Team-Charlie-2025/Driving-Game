@@ -133,3 +133,49 @@ function isCoinCollidingWithBuilding(coin) {
   }
   return false;
 }
+
+/*
+//////////////////////////
+// FOR AUDIO
+//////////////////////////
+
+function setMusicVolume(newVol) {
+  currentMusicVolume = newVol;
+  if (window.music) {
+    for (let key in window.music) {
+      window.music[key].forEach(sound => sound.setVolume(newVol));
+    }
+  }
+}
+
+function getMusicVolume() {
+  return currentMusicVolume;
+}
+
+function music(key, p, mode = 'loop') {
+  if (window.music && window.music[key] && window.music[key].length > 0) {
+    let soundObj = window.music[key][0];
+    if (soundObj.isPlaying()) {
+      soundObj.stop();
+    }
+    if (mode === 'loop') {
+      soundObj.loop();
+    } else {
+      soundObj.play();
+    }
+    return soundObj;
+  } else {
+    console.error("No music found for key: " + key);
+  }
+}
+
+function soundEffect(key, p) {
+  if (window.soundEffects && window.soundEffects[key] && window.soundEffects[key].length > 0) {
+    let soundObj = window.soundEffects[key][0];
+    soundObj.play();
+    return soundObj;
+  } else {
+    console.error("No sound effect found for key: " + key);
+  }
+}
+*/

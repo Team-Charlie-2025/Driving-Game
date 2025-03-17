@@ -11,7 +11,8 @@ function PlaySketch(p) {
   window.coinsCollected = 0;
   
   p.preload = function() {
-    loadSound(p);
+    loadMusic(p);
+    loadSoundEffects(p);
     p.carImg = p.loadImage("assets/car.png");
     p.buildingImg = p.loadImage("assets/building.png");
     p.enemyImg = p.loadImage("assets/police+car.png"); // Add enemy image
@@ -28,9 +29,7 @@ function PlaySketch(p) {
 
     
     window.LoadingScreen.hide();
-    if (!window.bgMusic.isPlaying()) {
-      window.bgMusic.loop();
-    }
+    bgMusic(Mode.PLAY, p, "loop");
 
     // Start enemy spawner
     window.enemySpawnInterval = setInterval(() => spawnEnemy(p), ENEMY_SPAWN_RATE);
@@ -254,7 +253,7 @@ function PlaySketch(p) {
 
   p.keyPressed = function() {
     if (p.keyCode === p.ESCAPE) {
-      window.bgMusic.stop();
+      bgMusic(Mode.PLAY, p, "stop");
       clearInterval(window.enemySpawnInterval);
       switchSketch(Mode.TITLE);
     }
@@ -264,13 +263,13 @@ function PlaySketch(p) {
         switchSketch(Mode.PLAY);
       }
       if (p.keyIsDown(77)) { // 'M' key
-        window.bgMusic.stop();
+        bgMusic(Mode.PLAY, p, "stop");
         clearInterval(window.enemySpawnInterval);
         switchSketch(Mode.TITLE); // Go back to main menu
       }
     }
     if (p.keyCode === p.ESCAPE) {
-        window.bgMusic.stop();
+        bgMusic(Mode.PLAY, p, "stop");
         clearInterval(window.enemySpawnInterval);
         switchSketch(Mode.TITLE);
     }

@@ -41,7 +41,8 @@ function GarageSketch(p) {
 
   
   p.preload = function() { 
-    loadSound(p);
+    loadMusic(p);
+    loadSoundEffects(p);
     coinBg = p.loadImage("graphics/coinBack.png");
     bgImage = p.loadImage("graphics/garagebg.png");
   };
@@ -71,7 +72,7 @@ function GarageSketch(p) {
   p.setup = function() {
     p.createCanvas(p.windowWidth, p.windowHeight);
     // loads data from persistence
-    ExitIcon = new Button("ExitIcon", p.width - p .width * 0.05, p.height - p.height * 0.95, function () { 
+    ExitIcon = new Button("ExitIcon", p.width - p .width * 0.05, p.height - p.height * 0.95, p.width, p.height, function () { 
       switchSketch(Mode.TITLE);
     });
 
@@ -98,12 +99,10 @@ function GarageSketch(p) {
     saveButton.style("font-size", "18px");
     saveButton.position(p.width / 2 - 50, p.height - 60);
     saveButton.mousePressed(saveConfiguration);
+    bgMusic(Mode.GARAGE, p, "loop"); 
 
     // stop loading
     window.LoadingScreen.hide();
-    if(!window.bgMusic.isPlaying()){
-      window.bgMusic.loop();
-    }
   };
 
   function setupLayout() {
@@ -352,7 +351,7 @@ function GarageSketch(p) {
     }
     
     if (ExitIcon.isMouseOver(p)) {
-      bgMusic.stop();
+      bgMusic(Mode.GARAGE, p, "stop"); 
       ExitIcon.callback();
     }
 
@@ -360,8 +359,7 @@ function GarageSketch(p) {
 
   p.keyPressed = function() {
     if (p.keyCode === p.ESCAPE) {
-      window.bgMusic.stop();
-      
+      bgMusic(Mode.GARAGE, p, "stop"); 
     switchSketch(Mode.TITLE);
     }
   };
