@@ -7,9 +7,7 @@ function TitleSketch(p) {
   let debugCheckbox; 
   let showInfo = false;
 
-  p.preload = function() {
-    loadSound(p);
-    
+  p.preload = function() {    
     bgImage = p.loadImage("graphics/titleBackground.png");
     imgTitle = p.loadImage("graphics/title.png");
     if(!globalsLoaded) loadGlobals(p);
@@ -28,7 +26,7 @@ function TitleSketch(p) {
       window.debug = debugCheckbox.checked();
       console.log("Debug mode set to:", window.debug);
     });
-    window.titlebgMusic.loop(); //console.log("play");
+    bgMusic(Mode.TITLE, p, "play"); //console.log("play");
     // stop loading
     window.LoadingScreen.hide();
   };
@@ -73,12 +71,12 @@ function TitleSketch(p) {
   };
 
   p.mousePressed = function () {
-    if(!window.titlebgMusic.isPlaying()){//for chrome non-auto play rules
-      window.titlebgMusic.loop(); //console.log("play"); 
-    }
+    //if(!window.titlebgMusic.isPlaying()){//for chrome non-auto play rules
+      //window.titlebgMusic.loop(); //console.log("play"); 
+    //}
     for (let btn of buttons) {
       if (btn.isMouseOver(p)) {
-        window.titlebgMusic.stop();
+        bgMusic(Mode.TITLE, p, "stop");
         btn.callback();
         break;
       }

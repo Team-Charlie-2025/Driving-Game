@@ -134,7 +134,7 @@ function isCoinCollidingWithBuilding(coin) {
   return false;
 }
 
-
+/*
 //////////////////////////
 // FOR AUDIO
 //////////////////////////
@@ -178,3 +178,4 @@ function soundEffect(key, p) {
     console.error("No sound effect found for key: " + key);
   }
 }
+*/

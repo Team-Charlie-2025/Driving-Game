@@ -13,11 +13,11 @@ function SettingsSketch(p){
     p.textSize(48);
     p.fill(50);
 
-    musicSlider = p.createSlider(0, 1, getMusicVolume(), 0.01);
+    musicSlider = p.createSlider(0, 1, getMusicVolume(p), 0.01);
     musicSlider.position(p.width / 2 - 75, p.height / 2 + 50);
     musicSlider.style('width', '150px');
 
-    effectsSlider = p.createSlider(0, 1, getEffectsVolume(), 0.01);
+    effectsSlider = p.createSlider(0, 1, getEffectsVolume(p), 0.01);
     effectsSlider.position(p.width / 2 - 75, p.height / 2 + 100);
     effectsSlider.style('width', '150px');
 
@@ -32,7 +32,7 @@ function SettingsSketch(p){
       }
     );
 
-    music("title", p, 'loop');
+    bgMusic(Mode.SETTINGS, p, "play");
     window.LoadingScreen.hide();
   };
 
@@ -52,9 +52,9 @@ function SettingsSketch(p){
     p.text("Music Volume: " + musicSlider.value(), p.width / 2, p.height / 2 + 80);
     p.text("Effects Volume: " + effectsSlider.value(), p.width / 2, p.height / 2 + 130);
 
-    // updates with helper functions
-    setMusicVolume(musicSlider.value());
-    setEffectsVolume(effectsSlider.value());
+    // updates with sound functions
+    setMusicVolume(p, musicSlider.value());
+    setEffectsVolume(p, effectsSlider.value());
   };
 
   
@@ -62,17 +62,13 @@ function SettingsSketch(p){
   p.keyPressed = function() {
     if (p.keyCode === p.ESCAPE) {
       // stops music from playing - should be done in all functions that cause sketch changes
-      if (window.music && window.music["title"] && window.music["title"][0].isPlaying()) {
-        window.music["title"][0].stop();
-      }
+      bgMusic(Mode.SETTINGS, p, "stop");
       switchSketch(Mode.TITLE);
     }
   };
   p.mousePressed = function() {
     if (ExitIcon.isMouseOver(p)) {
-      if (window.music && window.music["title"] && window.music["title"][0].isPlaying()) {
-        window.music["title"][0].stop();
-      }
+      bgMusic(Mode.SETTINGS, p, "stop");
       ExitIcon.callback();
     }
   };

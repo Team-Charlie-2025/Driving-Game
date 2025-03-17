@@ -42,7 +42,7 @@ class Button { //regular rect button class
       else if(this.label == "ExitIcon" ){
         this.width = 32;
         this.height = 32;
-        p.image(window.ButtonIcons, this.x - this.width / 2, this.y - this.height / 2, this.width, this.height, 160, 160, 16, 16);
+        p.image(window.exitButton, this.x - this.width / 2, this.y - this.height / 2, this.width, this.height);
       }
       else if (this.label == "HELP") { // Info button
         this.width = this.x / 12; 

@@ -5,7 +5,7 @@ function LevelsSketch(p) {
     p.preload = function() {
         bgImage = p.loadImage("graphics/mainbg.png");
         imgTitle = p.loadImage("graphics/title.png");
-        loadSound(p); // no music on page currently
+        //loadSound(p); // no music on page currently
     };
 
     p.setup = function () {

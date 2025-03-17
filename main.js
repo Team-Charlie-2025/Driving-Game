@@ -2,7 +2,6 @@
 
 let currentSketch = null;
 let firstLoad = true;
-let musicPlaying = "title";
 
 const Mode = {
   TITLE: 'title',
@@ -16,10 +15,7 @@ const Mode = {
 };
 
 function switchSketch(mode) {
-  /*
-  if (!firstLoad) {
-    window.pageChange.play();
-  }*/
+  if (!firstLoad) window.soundEffects["pageChange"].play();
   window.LoadingScreen.show();
   setTimeout(() => {
     if (currentSketch) {
@@ -27,7 +23,6 @@ function switchSketch(mode) {
     }
     switch (mode) {
       case Mode.TITLE:
-        window.changeMusic("title");//music choice per sketch
         currentSketch = new p5(TitleSketch, 'main');
         break;
       case Mode.PLAY:
@@ -61,13 +56,3 @@ function switchSketch(mode) {
 window.onload = function () {
   switchSketch(Mode.TITLE);
 };
-
-window.changeMusic = function(newMusicKey){
-  if(musicPlaying != newMusicKey){ //only stop music if song in changeing
-    window.music[musicPlaying].stop();
-
-    window.pageChange.play(); //will probably need a timer
-    musicPlaying = newMusicKey;
-    window.music[musicPlaying].loop();
-  }
-}

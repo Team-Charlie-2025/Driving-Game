@@ -1,9 +1,6 @@
 // classes/globals.js
 
 let globalsLoaded = false;
-let currentVolume = 0.25;
-let musicVolume = 0.25;
-let effectsVolume = 0.50;
 
 function loadGlobals(p) {
   loadCars(p);
@@ -20,36 +17,21 @@ function loadGlobals(p) {
 }
 
 function loadMusic(p) {
-  window.music = {};
-  switch (Mode) {
-    case Mode.TITLE:
-    case Mode.SETTINGS:
-    case Mode.GARAGE: //MAYBE CHANGE
-    case Mode.LEADERBOARD: //MAYBE CHANGE
-      window.music["title"] = [];
-      window.music["title"].push(p.loadSound("sound/titleTheme.mp3"));
-      break;
+  window.music = {}; //each mode has a different song
+  window.music[Mode.TITLE] = p.loadSound("sound/titleTheme.mp3");
+  window.music[Mode.PLAY] = p.loadSound("sound/themeOption.mp3");
+  window.music[Mode.GARAGE] = p.loadSound("sound/titleTheme.mp3");
+  window.music[Mode.SETTINGS] = p.loadSound("sound/titleTheme.mp3");
+  window.music[Mode.LEADERBOARD] = p.loadSound("sound/titleTheme.mp3");
+  setMusicVolume(p);
     
-    case Mode.PLAY:
-      window.music["play"] = [];
-      window.music["play"].push(p.loadSound("sound/themeOption.mp3"));
-      break;
-
-    default:
-      console.log("No music defined for mode: " + Mode);
-  }
-  for (let key in window.music) { //set initial volume for all music
-    window.music[key].forEach(sound => sound.setVolume(currentMusicVolume));
-  }
 }
 
 function loadSoundEffects(p) {
   window.soundEffects = {};
-  window.soundEffects["carStart"] = [];
-  window.soundEffects["carStart"].push(p.loadSound("sound/carStart.wav"));
-  
-  window.soundEffects["pageChange"] = [];
-  window.soundEffects["pageChange"].push(p.loadSound("sound/newPage.wav"));
+  window.soundEffects["carStart"] = p.loadSound("sound/carStart.wav");
+  window.soundEffects["pageChange"] = p.loadSound("sound/newPage.wav");
+  setEffectsVolume(p);
 }
 
 function loadCars(p) {
@@ -95,7 +77,7 @@ function loadButtons(p){
     window.setButton = p.loadImage("graphics/titleScreen/settingButton.png");
 
     //////////generic buttons//////////
-    window.ButtonIcons = p.loadImage("graphics/buttons.png");
+    window.exitButton = p.loadImage("graphics/buttonsSliced/button130.png");
     window.basicButton = [];
     window.basicButton["blue"] = p.loadImage("graphics/basicButton/blueButton.png");
     window.basicButton["green"] = p.loadImage("graphics/basicButton/greenButton.png");
