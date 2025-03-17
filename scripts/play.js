@@ -11,6 +11,8 @@ function PlaySketch(p) {
   window.coinsCollected = 0;
   
   p.preload = function() {
+    loadMusic(p);
+    loadSoundEffects(p);
     p.carImg = p.loadImage("assets/car.png");
     p.buildingImg = p.loadImage("assets/building.png");
     p.enemyImg = p.loadImage("assets/police+car.png"); // Add enemy image
@@ -267,7 +269,7 @@ function PlaySketch(p) {
       }
     }
     if (p.keyCode === p.ESCAPE) {
-      bgMusic(Mode.PLAY, p, "stop");
+        bgMusic(Mode.PLAY, p, "stop");
         clearInterval(window.enemySpawnInterval);
         switchSketch(Mode.TITLE);
     }

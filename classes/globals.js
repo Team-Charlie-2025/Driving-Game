@@ -24,7 +24,9 @@ function loadMusic(p) {
   window.music[Mode.SETTINGS] = p.loadSound("sound/titleTheme.mp3");
   window.music[Mode.LEADERBOARD] = p.loadSound("sound/titleTheme.mp3");
   window.music[Mode.LEVELS] = p.loadSound("sound/titleTheme.mp3");
-  setMusicVolume(p);
+  for (let key in window.music) {
+    window.music[key].setVolume(musicVolume);
+}
     
 }
 
@@ -32,7 +34,9 @@ function loadSoundEffects(p) {
   window.soundEffects = {};
   window.soundEffects["carStart"] = p.loadSound("sound/carStart.wav");
   window.soundEffects["pageChange"] = p.loadSound("sound/newPage.wav");
-  setEffectsVolume(p);
+  for (let key in window.soundEffects) {
+    window.soundEffects[key].setVolume(effectsVolume);
+}
 }
 
 function loadCars(p) {

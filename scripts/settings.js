@@ -4,6 +4,8 @@ function SettingsSketch(p){
   let volumeSlider; // Slider for sound volume
 
   p.preload = function () {
+    loadMusic(p);
+    loadSoundEffects(p);
     if(!globalsLoaded) loadGlobals(p);
   };
 

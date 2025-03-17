@@ -8,6 +8,8 @@ function TitleSketch(p) {
   let showInfo = false;
 
   p.preload = function() {    
+    loadMusic(p);
+    loadSoundEffects(p);
     bgImage = p.loadImage("graphics/titleBackground.png");
     imgTitle = p.loadImage("graphics/title.png");
     if(!globalsLoaded) loadGlobals(p);

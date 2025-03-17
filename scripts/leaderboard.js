@@ -1,6 +1,10 @@
 // scripts/leaderboard.js
 
 function LeaderboardSketch(p) {
+  p.preload = function(){
+    loadMusic(p);
+    loadSoundEffects(p);
+  }
     p.setup = function () {
       p.createCanvas(p.windowWidth, p.windowHeight);
       p.background(230);

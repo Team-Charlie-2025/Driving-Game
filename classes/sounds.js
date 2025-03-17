@@ -3,23 +3,28 @@
 
 let musicVolume; //initial volume
 let effectsVolume; //initial volume
+
 function bgMusic(mode, p, action = "stop"){
-    console.log(mode+ " " +action);
-    if(!globalsLoaded)
-        loadGlobals(p);
+    if(!window.music[mode].isLoaded()){
+        console.log("sound not loaded"); 
+    }
+    //console.log("AudioContext state:", p.getAudioContext().state);
     switch(action){
+        
+
         case "loop":
             if(!window.music[mode].isPlaying())
-                window.music[mode].loop();//console.log("background music playing");
+                window.music[mode].loop();console.log(mode+ " " +action);
             break;
 
         case "stop":
-            window.music[mode].stop();//console.log("background music stopped");
+            if(window.music[mode].isPlaying())
+                window.music[mode].stop();console.log(mode+ " " +action);
             break;
 
         case "play":
             if(!window.music[mode].isPlaying())
-                window.music[mode].play();
+                window.music[mode].play();console.log(mode+ " " +action);
             break;
     }
     

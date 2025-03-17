@@ -3,6 +3,8 @@ function LevelsSketch(p) {
     let buttons = [];
 
     p.preload = function() {
+        loadMusic(p);
+        loadSoundEffects(p);
         bgImage = p.loadImage("graphics/mainbg.png");
         imgTitle = p.loadImage("graphics/title.png");
     };

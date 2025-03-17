@@ -11,7 +11,7 @@ const Mode = {
   LEADERBOARD: 'leaderboard',
   LOGIN: 'login',
   SIGNUP: 'signup',
-  LEVELS: 'level'
+  LEVELS: 'levels',
 };
 
 function switchSketch(mode) {
