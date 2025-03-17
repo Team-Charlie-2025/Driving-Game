@@ -23,18 +23,22 @@ function loadMusic(p) {
   window.music = {};
   switch (Mode) {
     case Mode.TITLE:
+    case Mode.SETTINGS:
+    case Mode.GARAGE: //MAYBE CHANGE
+    case Mode.LEADERBOARD: //MAYBE CHANGE
       window.music["title"] = [];
       window.music["title"].push(p.loadSound("sound/titleTheme.mp3"));
       break;
+    
     case Mode.PLAY:
-      window.music["bg"] = [];
-      window.music["bg"].push(p.loadSound("sound/themeOption.mp3"));
+      window.music["play"] = [];
+      window.music["play"].push(p.loadSound("sound/themeOption.mp3"));
       break;
 
     default:
       console.log("No music defined for mode: " + Mode);
   }
-  for (let key in window.music) {
+  for (let key in window.music) { //set initial volume for all music
     window.music[key].forEach(sound => sound.setVolume(currentMusicVolume));
   }
 }
