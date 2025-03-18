@@ -69,13 +69,10 @@ function TitleSketch(p) {
     p.resizeCanvas(p.windowWidth, p.windowHeight);
     buttons = [];
     createButtons();
-    debugCheckbox.position(10, 10);
+    //debugCheckbox.position(10, 10);
   };
 
   p.mousePressed = function () {
-    //if(!window.titlebgMusic.isPlaying()){//for chrome non-auto play rules
-      //window.titlebgMusic.loop(); //console.log("play"); 
-    //}
     for (let btn of buttons) {
       if (btn.isMouseOver(p)) {
         bgMusic(Mode.TITLE, p, "stop");

@@ -86,7 +86,7 @@ function loadButtons(p){
     window.basicButton = [];
     window.basicButton["blue"] = p.loadImage("graphics/basicButton/blueButton.png");
     window.basicButton["green"] = p.loadImage("graphics/basicButton/greenButton.png");
-    window.basicButton["navy"] = p.loadImage("graphics/basicButton/navybutton.png");
+    window.basicButton["navy"] = p.loadImage("graphics/basicButton/navyButton.png");
     window.basicButton["orange"] = p.loadImage("graphics/basicButton/oranButton.png");
     window.basicButton["red"] = p.loadImage("graphics/basicButton/redButton.png");
     window.basicButton["yellow"] = p.loadImage("graphics/basicButton/yellButton.png");
