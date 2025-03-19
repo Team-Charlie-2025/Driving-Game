@@ -11,10 +11,11 @@ const Mode = {
   LEADERBOARD: 'leaderboard',
   LOGIN: 'login',
   SIGNUP: 'signup',
+  LEVELS: 'levels',
 };
 
 function switchSketch(mode) {
-  if (!firstLoad) window.pageChange.play();
+  if (!firstLoad) window.soundEffects["pageChange"].play();
   window.LoadingScreen.show();
   setTimeout(() => {
     if (currentSketch) {

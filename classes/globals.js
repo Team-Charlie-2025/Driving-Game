@@ -6,7 +6,8 @@ function loadGlobals(p) {
   loadCars(p);
   loadEngines(p);
   loadTires(p);
-  loadSound(p);
+  loadMusic(p);
+  loadSoundEffects(p);
   loadButtons(p);
   loadAnimations(p);
   window.buildingImg = p.loadImage("assets/building.png");
@@ -15,17 +16,27 @@ function loadGlobals(p) {
   globalsLoaded = true;
 }
 
-function loadSound(p) {
-  window.bgMusic = p.loadSound('sound/themeOption.mp3');
-  window.bgMusic.setVolume(0.15);
+function loadMusic(p) {
+  window.music = {}; //each mode has a different song
+  window.music[Mode.TITLE] = p.loadSound("sound/titleTheme.mp3");
+  window.music[Mode.PLAY] = p.loadSound("sound/themeOption.mp3");
+  window.music[Mode.GARAGE] = p.loadSound("sound/titleTheme.mp3");
+  window.music[Mode.SETTINGS] = p.loadSound("sound/titleTheme.mp3");
+  window.music[Mode.LEADERBOARD] = p.loadSound("sound/titleTheme.mp3");
+  window.music[Mode.LEVELS] = p.loadSound("sound/titleTheme.mp3");
+  for (let key in window.music) {
+    window.music[key].setVolume(musicVolume);
+}
+    
+}
 
-  window.carStart = p.loadSound('sound/carStart.wav');
-  window.carStart.setVolume(1.5);
-
-  // Possibly change; is a bit annoying
-  window.pageChange = p.loadSound('sound/newPage.wav');
-  window.pageChange.setVolume(0.02);
-  console.log("sounds loaded");
+function loadSoundEffects(p) {
+  window.soundEffects = {};
+  window.soundEffects["carStart"] = p.loadSound("sound/carStart.wav");
+  window.soundEffects["pageChange"] = p.loadSound("sound/newPage.wav");
+  for (let key in window.soundEffects) {
+    window.soundEffects[key].setVolume(effectsVolume);
+}
 }
 
 function loadCars(p) {
@@ -71,11 +82,11 @@ function loadButtons(p){
     window.setButton = p.loadImage("graphics/titleScreen/settingButton.png");
 
     //////////generic buttons//////////
-    window.ButtonIcons = p.loadImage("graphics/buttons.png");
+    window.exitButton = p.loadImage("graphics/buttonsSliced/button130.png");
     window.basicButton = [];
     window.basicButton["blue"] = p.loadImage("graphics/basicButton/blueButton.png");
     window.basicButton["green"] = p.loadImage("graphics/basicButton/greenButton.png");
-    window.basicButton["navy"] = p.loadImage("graphics/basicButton/navybutton.png");
+    window.basicButton["navy"] = p.loadImage("graphics/basicButton/navyButton.png");
     window.basicButton["orange"] = p.loadImage("graphics/basicButton/oranButton.png");
     window.basicButton["red"] = p.loadImage("graphics/basicButton/redButton.png");
     window.basicButton["yellow"] = p.loadImage("graphics/basicButton/yellButton.png");
