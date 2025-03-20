@@ -12,6 +12,7 @@ const Mode = {
   LOGIN: 'login',
   SIGNUP: 'signup',
   LEVELS: 'levels',
+  MAP_EDITOR: 'map_editor',
 };
 
 function switchSketch(mode) {
@@ -45,6 +46,9 @@ function switchSketch(mode) {
         break;
       case Mode.LEVELS:
         currentSketch = new p5(LevelsSketch, 'main');
+        break;    
+      case Mode.MAP_EDITOR:
+        currentSketch = new p5(MapEditorSketch, 'main');
         break;
       default:
         console.log("Unknown mode: " + mode);
