@@ -2,6 +2,17 @@
 
 const gridSize = 32;
 const mapSize = 500;
+
+// This is a horrible use of variables but i dont want to use array for sake of readability
+const tinyRoadWidth = 5;
+let smallRoadWidth = 7;
+const normalRoadWidth = 9;
+const bigRoadWidth = 11;
+const mainRoadWidth = 13;
+
+//
+const smallHouseSize = 2;
+const largeHouseSize = 4;
 let map = []; 
 
 function drawMap(p, center, zoomFactor) {
@@ -40,20 +51,20 @@ function generateGenMap(p, rows, cols) {
     }
   }
 
-  drawRectRoad(p,12,1,25,420);
-  drawAngledRoad(p,20,15,420,42,11);
-  drawBezierRoad(p,50,18,70,50,18,50,9);
-  drawAngledRoad(p,40,47,120,119,9);
-  drawRectRoad(p,119,22,130,252);
+  drawRectRoad(p,12,1,12+bigRoadWidth,420);
+  drawAngledRoad(p,20,15,420,42,bigRoadWidth);
+  drawBezierRoad(p,50,18,70,50,18,50,normalRoadWidth);
+  drawAngledRoad(p,40,47,120,119,normalRoadWidth);
+  drawRectRoad(p,119,22,119+bigRoadWidth,252);
   let blockSize = 50;
   for(let i=1; i<5; ++i){
-    drawRectRoad(p,119+(i*blockSize),5,128+(i*blockSize),252);   // Vertical roads
-    drawRectRoad(p,119,22+(i*blockSize),380,31+(i*blockSize));    // Horizontal Roads
+    drawRectRoad(p,119+(i*blockSize),5,119+normalRoadWidth+(i*blockSize),252);   // Vertical roads
+    drawRectRoad(p,119,22+(i*blockSize),380,22+normalRoadWidth+(i*blockSize));    // Horizontal Roads
   }
 
-  drawBezierRoad(p,15,160,150,225,15,260,9);
-  drawAngledRoad(p,61,245,75,400,9);
-  drawAngledRoad(p,86,218,119,226,8);
+  drawBezierRoad(p,15,160,150,225,15,260,normalRoadWidth);
+  drawAngledRoad(p,61,245,75,400,normalRoadWidth);
+  drawAngledRoad(p,86,218,119,226,normalRoadWidth);
   //drawBezierRoad(10,10,30,30,40,5,6);
 
   //drawRectBuilding(27,25,47,39);
@@ -62,7 +73,7 @@ function generateGenMap(p, rows, cols) {
   fillBigBuildings(p,1,200,130,400);
   fillShopsDynamically(p,1,1,100,180);
   fillBuildingsDynamically(p,120,1,400,250);
-  drawBezierRoad(p,20,105,80,100,75,75,9)
+  drawBezierRoad(p,20,105,80,100,75,75,normalRoadWidth)
 }
 
 function drawRectRoad(p, xStart, yStart, xEnd, yEnd) {
