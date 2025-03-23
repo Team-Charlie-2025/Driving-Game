@@ -312,6 +312,10 @@ function PlaySketch(p) {
         if (map[j] && map[j][i] instanceof Building) {
           let building = map[j][i];
           if (obj.collider.intersects(building.collider)) {
+
+              if( ! (obj instanceof Enemy) ){
+                obj.buildingCollision(); //user car gets damage
+              }
             if (obj.velocity) {  //reverse velocity (enemy & player)
               obj.velocity.mult(-1);
           }
