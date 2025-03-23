@@ -70,11 +70,14 @@ class Collider {
       return false;
     }
     
-    drawOutline() {
+    drawOutline(shieldDisplay = false) {
       const p = this.gameObject.p;
       p.push();
       p.noFill();
-      p.stroke(255, 0, 0); // collision display
+      if(shieldDisplay)
+        p.stroke(0, 0, 245); // shield display
+      else
+        p.stroke(255, 0, 0); // collision display
       p.strokeWeight(2);
       
       if (this.shape === "rectangle") {

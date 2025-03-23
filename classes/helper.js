@@ -118,6 +118,20 @@ function checkCoinCollisions(coins, car, p) {
   return coins.filter(coin => !coin.collected);
 }
 
+function checkShieldCollisions(shields, car, p) {
+  if (!car) return shields;
+  for (let shield of shields) {
+    if (!shield.collected && shield.collider && shield.collider.intersects(car.collider)) {
+      if(!ItemsManager.ifShieldFull()){ //only collect if theres something to gain
+        shield.collected = true;
+        ItemsManager.shieldCollected();
+      }
+    }
+  }
+  return shields.filter(shield => !shield.collected);
+}
+
+/*
 function isCoinCollidingWithBuilding(coin) {
   const tileX = Math.floor(coin.position.x / gridSize);
   const tileY = Math.floor(coin.position.y / gridSize);
@@ -132,50 +146,5 @@ function isCoinCollidingWithBuilding(coin) {
     }
   }
   return false;
-}
-
-/*
-//////////////////////////
-// FOR AUDIO
-//////////////////////////
-
-function setMusicVolume(newVol) {
-  currentMusicVolume = newVol;
-  if (window.music) {
-    for (let key in window.music) {
-      window.music[key].forEach(sound => sound.setVolume(newVol));
-    }
-  }
-}
-
-function getMusicVolume() {
-  return currentMusicVolume;
-}
-
-function music(key, p, mode = 'loop') {
-  if (window.music && window.music[key] && window.music[key].length > 0) {
-    let soundObj = window.music[key][0];
-    if (soundObj.isPlaying()) {
-      soundObj.stop();
-    }
-    if (mode === 'loop') {
-      soundObj.loop();
-    } else {
-      soundObj.play();
-    }
-    return soundObj;
-  } else {
-    console.error("No music found for key: " + key);
-  }
-}
-
-function soundEffect(key, p) {
-  if (window.soundEffects && window.soundEffects[key] && window.soundEffects[key].length > 0) {
-    let soundObj = window.soundEffects[key][0];
-    soundObj.play();
-    return soundObj;
-  } else {
-    console.error("No sound effect found for key: " + key);
-  }
 }
 */

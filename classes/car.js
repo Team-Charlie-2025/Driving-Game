@@ -156,10 +156,13 @@ class Car extends GameObject {
   }
 
   onCollisionEnter(other) {
-    super.onCollisionEnter(other);
+    //super.onCollisionEnter(other);
+    let damage;
     // Add damage effect
-    if (other instanceof Enemy) {
-      this.healthBar = Math.max(0, this.healthBar - 10);
+    if (other instanceof Enemy) { //upon ememy collision
+      damage = 10;
+      damage = ItemsManager.shieldDamage(damage);
+      this.healthBar = Math.max(0, this.healthBar - damage);
     }
   }
 }
