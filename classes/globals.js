@@ -34,6 +34,7 @@ function loadSoundEffects(p) {
   window.soundEffects = {};
   window.soundEffects["carStart"] = p.loadSound("sound/carStart.wav");
   window.soundEffects["pageChange"] = p.loadSound("sound/newPage.wav");
+  window.soundEffects["gameOver"] = p.loadSound("sound/GameOver.wav");
   for (let key in window.soundEffects) {
     window.soundEffects[key].setVolume(effectsVolume);
 }

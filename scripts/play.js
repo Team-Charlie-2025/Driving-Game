@@ -1,6 +1,7 @@
 // scripts/play.js
 
 function PlaySketch(p) {
+  let gameOverSound = true;
   let car;
   let physicsEngine;
   let zoomFactor = 2.5;
@@ -83,6 +84,9 @@ function PlaySketch(p) {
 
 
     p.showGameOverScreen = function () {
+        bgMusic(Mode.PLAY, p, "stop");
+        if(gameOverSound) {soundEffect("gameOver", p, "play"); gameOverSound = false;} //only play once
+      
         p.push();
         p.fill(150, 0, 0, 180); // Semi-transparent red overlay
         p.rect(0, 0, p.width, p.height);
@@ -291,7 +295,6 @@ function PlaySketch(p) {
         switchSketch(Mode.PLAY);
       }
       if (p.keyIsDown(77)) { // 'M' key
-        bgMusic(Mode.PLAY, p, "stop");
         clearInterval(window.enemySpawnInterval);
         switchSketch(Mode.TITLE); // Go back to main menu
       }

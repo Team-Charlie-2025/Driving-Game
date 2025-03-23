@@ -75,7 +75,7 @@ class Collider {
       p.push();
       p.noFill();
       if(shieldDisplay)
-        p.stroke(0, 0, 245); // shield display
+        p.stroke(143, 233, 250); // shield display
       else
         p.stroke(255, 0, 0); // collision display
       p.strokeWeight(2);

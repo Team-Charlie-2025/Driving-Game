@@ -12,22 +12,39 @@ function bgMusic(mode, p, action = "stop"){
     switch(action){
         case "loop":
             if(!window.music[mode].isPlaying())
-                window.music[mode].loop();console.log(mode+ " " +action);
+                window.music[mode].loop();
             break;
 
         case "stop":
             if(window.music[mode].isPlaying())
-                window.music[mode].stop();console.log(mode+ " " +action);
+                window.music[mode].stop();
             break;
 
         case "play":
             if(!window.music[mode].isPlaying())
-                window.music[mode].play();console.log(mode+ " " +action);
+                window.music[mode].play();
             break;
     }
     
 }
-//function playEffect(p, name){}
+function soundEffect(name, p, action = "stop"){
+    switch(action){
+        case "loop":
+            if(!window.soundEffects[name].isPlaying())
+                window.soundEffects[name].loop();
+            break;
+
+        case "stop":
+            if(window.soundEffects[name].isPlaying())
+                window.soundEffects[name].stop();
+            break;
+
+        case "play":
+            if(!window.soundEffects[name].isPlaying())
+                window.soundEffects[name].play();
+            break;
+    }
+}
 
 function setMusicVolume(p, newVolume =0.25){
     musicVolume = newVolume; 
