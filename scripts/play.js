@@ -5,7 +5,7 @@ function PlaySketch(p) {
   let physicsEngine;
   let zoomFactor = 2.5;
   let enemies = [];
-  let ENEMY_SPAWN_RATE = 10000 / window.difficulty; // 1000 = 1 seconds
+  let ENEMY_SPAWN_RATE = 100000; // 1000 = 1 seconds
   let lastSpawn = 0;
   let coins = [];
   window.coinsCollected = 0;
@@ -21,9 +21,10 @@ function PlaySketch(p) {
   p.setup = function () {
     p.createCanvas(p.windowWidth, p.windowHeight);
     p.startTime = p.millis();
+    p.fps = p.frameRate();
     physicsEngine = new PhysicsEngine();
     generateGenMap(p, mapSize, mapSize);
-
+    //generateRoadMap(p, mapSize, mapSize);
     window.runCoinsCalculated = false;
     window.isGameOver = false;
 
@@ -217,13 +218,19 @@ function PlaySketch(p) {
       p.textSize(16);
       p.text("Health", 20, 18);
       p.text("Boost", 20, 58);
-  
+      
+      // Frame Rate
+      p.textSize(12);
+      p.textAlign(p.RIGHT, p.BOTTOM);
+      p.fill(0);
+      p.fps = p.frameRate();
+      p.text("Frames: " + Math.round(p.fps), 75 ,p.height-22);
       // debug positional for car
       if (car) {
         p.textSize(12);
         p.textAlign(p.LEFT, p.BOTTOM);
         p.fill(0);
-        p.text(`Car: (${Math.round(car.position.x)}, ${Math.round(car.position.y)})`, 10, p.height - 10);
+        p.text(`Car: (${Math.round(car.position.x/gridSize)}, ${Math.round(car.position.y/gridSize)})`, 10, p.height - 10);
       }
       
       // timer, coins
