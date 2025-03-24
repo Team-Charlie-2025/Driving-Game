@@ -1,7 +1,7 @@
 // classes/car.js
 const carWidth = 50;
 const carHeight = 30;
- 
+
 class Car extends GameObject {
   constructor(p, x, y, stats) {
     super(x, y);
@@ -10,7 +10,6 @@ class Car extends GameObject {
     this.angle = 0;
     this.velocity = new p5.Vector(0, 0);
 
-    // Load saved stats
     const data = loadPersistentData();
     const SAVED_STATS = data.stats;
     const selectedCarIndex = data.selectedCar || 0;
@@ -33,7 +32,6 @@ class Car extends GameObject {
         this.currentImage
       );
     } else {
-      // fallback rectangle
       this.width = carWidth;
       this.height = carHeight;
       this.collider = new Collider(this, "rectangle", {
@@ -48,11 +46,10 @@ class Car extends GameObject {
     this.controlDisabled = false;
     this.time = 0.0;
 
-    // Boost properties
     this.boostMeter = 100;
     this.boostMax = 100;
-    this.boostRegenDelay = 2000; // 2 seconds delay before regen
-    this.boostRegenRate = 1.5;   // Regeneration speed
+    this.boostRegenDelay = 2000;
+    this.boostRegenRate = 1.5;
     this.lastBoostTime = 0;
     this.isBoosting = false;
   }
@@ -61,24 +58,28 @@ class Car extends GameObject {
     const p = this.p;
 
     if (this.healthBar <= 0) {
-      this.healthBar = 0; // Prevent negative values
-      window.isGameOver = true; 
-      console.log("Game Over Triggered!"); // Debugging log
+      this.healthBar = 0;
+      window.isGameOver = true;
+      console.log("Game Over Triggered!");
     }
 
-    // W key: accelerate
-    if (p.keyIsDown(87) && !this.controlDisabled) {
-      // F key: boost
-      if (p.keyIsDown(70) && this.boostMeter > 0) {
+    const boostKey = getKeyForAction("boost");
+    const forwardKey = getKeyForAction("forward");
+    const backwardKey = getKeyForAction("backward");
+    const leftKey = getKeyForAction("left");
+    const rightKey = getKeyForAction("right");
+
+    if (p.keyIsDown(getKeyForAction("forward")) && !this.controlDisabled) {
+      if (p.keyIsDown(getKeyForAction("boost")) && this.boostMeter > 0) {
         this.isBoosting = true;
-        this.boostMeter = Math.max(0, this.boostMeter - 2.5); // Drain boost
+        this.boostMeter = Math.max(0, this.boostMeter - 2.5);
         this.lastBoostTime = Date.now();
 
         if (this.speed < 0) this.speed = 0.01;
         this.speed = p.constrain(
-          this.speed + this.acceleration * 2.5, // Stronger boost
+          this.speed + this.acceleration * 2.5,
           this.reverseSpeed * 2,
-          this.maxSpeed * 3 // Higher top speed during boost
+          this.maxSpeed * 3
         );
       } else {
         this.isBoosting = false;
@@ -94,8 +95,7 @@ class Car extends GameObject {
       }
     }
 
-    // S key: brake/reverse
-    if (p.keyIsDown(83) && !this.controlDisabled) {
+    if (p.keyIsDown(getKeyForAction("backward")) && !this.controlDisabled) {
       this.speed = p.constrain(
         this.speed - this.acceleration,
         this.reverseSpeed,
@@ -103,21 +103,22 @@ class Car extends GameObject {
       );
     }
 
-    let turnSpeed = 0.05;
-    if (p.keyIsDown(65) && !this.controlDisabled) { // A key
+    const turnSpeed = 0.05;
+    if (p.keyIsDown(getKeyForAction("left")) && !this.controlDisabled) {
       this.angle -= p.keyIsDown(16) ? turnSpeed * 2 : turnSpeed;
     }
-    if (p.keyIsDown(68) && !this.controlDisabled) { // D key
+    if (p.keyIsDown(getKeyForAction("right")) && !this.controlDisabled) {
       this.angle += p.keyIsDown(16) ? turnSpeed * 2 : turnSpeed;
     }
-
-    // Friction
-    if (!p.keyIsDown(87) && !p.keyIsDown(83)) {
-      this.speed *= (1 - this.friction);
+    
+    if (
+      !(p.keyIsDown(getKeyForAction("forward")) && !this.controlDisabled) &&
+      !(p.keyIsDown(getKeyForAction("backward")) && !this.controlDisabled)
+    ) {
+      this.speed *= 1 - this.friction;
       if (Math.abs(this.speed) < 0.01) this.speed = 0;
     }
 
-    // Update position
     this.position.x += this.speed * p.cos(this.angle);
     this.position.y += this.speed * p.sin(this.angle);
 
@@ -126,13 +127,11 @@ class Car extends GameObject {
       this.speed * this.p.sin(this.angle)
     );
 
-    // Keep within map bounds
     if (this.position.x < 0) this.position.x = 0;
     else if (this.position.x > mapSize * gridSize) this.position.x = mapSize * gridSize;
     if (this.position.y < 0) this.position.y = 0;
     else if (this.position.y > mapSize * gridSize) this.position.y = mapSize * gridSize;
 
-    // Boost regeneration
     if (!this.isBoosting && Date.now() - this.lastBoostTime > this.boostRegenDelay) {
       this.boostMeter = Math.min(this.boostMax, this.boostMeter + this.boostRegenRate);
     }
@@ -147,7 +146,6 @@ class Car extends GameObject {
     if (this.currentImage) {
       p.image(this.currentImage, -this.width / 2, -this.height / 2, this.width, this.height);
     } else {
-      // fallback rectangle
       p.fill(0);
       p.rect(-this.width / 2, -this.height / 2, this.width, this.height);
     }
@@ -157,7 +155,6 @@ class Car extends GameObject {
 
   onCollisionEnter(other) {
     super.onCollisionEnter(other);
-    // Add damage effect
     if (other instanceof Enemy) {
       this.healthBar = Math.max(0, this.healthBar - 10);
     }
