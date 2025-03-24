@@ -111,7 +111,11 @@ function TitleSketch(p) {
       toggleInfo(); 
     }, "blue")
   );
-
+  buttons.push(
+    new Button("Map Editor", p.width*7.4 / 8, p.height - p.height * 0.05, p.width, p.height, function () {
+      switchSketch(Mode.MAP_EDITOR);
+    }, "blue")
+  );
 
   
     /*

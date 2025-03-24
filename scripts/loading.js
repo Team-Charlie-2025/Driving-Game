@@ -21,7 +21,7 @@ window.LoadingScreen = {
         if (loadingScreen) {
             setTimeout(() => {
                 loadingScreen.style.display = "none";
-            }, 200); // Small delay to ensure smooth transition
+            }, 5); // Small delay to ensure smooth transition
         }
     }
 };

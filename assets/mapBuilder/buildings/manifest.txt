@@ -1,0 +1,5 @@
+bldg01.png
+bldg02.png
+bldg03.png
+bldg04.png
+bldg05.png
