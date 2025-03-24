@@ -1,9 +1,14 @@
 const shieldMaxTime = 10000; //max time, milliseconds
 let shieldStartTime = null; //start time
-let currentTime;
-let shieldElapsedTime; 
+let currentTime = null;
+let shieldElapsedTime = null; 
 
 class ItemsManager {
+    static shieldResetGame(){
+      shieldStartTime = null;
+      currentTime = null;
+      shieldElapsedTime = null; 
+    }
     static ifShield(){
       if(shieldStartTime == null) return false;
       return shieldElapsedTime <= shieldMaxTime;

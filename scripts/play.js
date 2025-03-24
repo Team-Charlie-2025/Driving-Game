@@ -30,6 +30,7 @@ function PlaySketch(p) {
     window.runCoinsCalculated = false;
     window.isGameOver = false;
 
+    ItemsManager.shieldResetGame(); //fix shield error
     
     window.LoadingScreen.hide();
     bgMusic(Mode.PLAY, p, "loop");

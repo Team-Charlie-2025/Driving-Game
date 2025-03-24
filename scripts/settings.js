@@ -19,11 +19,11 @@ function SettingsSketch(p){
     createKeybindButtons(p);
 
     musicSlider = p.createSlider(0, 1, getMusicVolume(p), 0.01);
-    musicSlider.position(p.width / 2 - 75, p.height / 2 + 130);
+    musicSlider.position(p.width / 2 - 75, p.height / 2 + 200);
     musicSlider.style('width', '150px');
 
     effectsSlider = p.createSlider(0, 1, getEffectsVolume(p), 0.01);
-    effectsSlider.position(p.width / 2 - 75, p.height / 2 + 180);
+    effectsSlider.position(p.width / 2 - 75, p.height / 2 + 260);
     effectsSlider.style('width', '150px');
 
     ExitIcon = new Button(
@@ -89,8 +89,8 @@ function SettingsSketch(p){
 
     p.textSize(24);
     p.textFont(window.PixelFont);
-    p.text("Music Volume: " + musicSlider.value(), p.width / 2, p.height / 2 + 160);
-    p.text("Effects Volume: " + effectsSlider.value(), p.width / 2, p.height / 2 + 210);
+    p.text("Music Volume: " + Math.trunc(musicSlider.value()*100), p.width / 2, p.height / 2 + 180);
+    p.text("Effects Volume: " + Math.trunc(effectsSlider.value()*100), p.width / 2, p.height / 2 + 240);
 
     setMusicVolume(p, musicSlider.value());
     setEffectsVolume(p, effectsSlider.value());
