@@ -158,14 +158,14 @@ class Car extends GameObject {
     let damage;
     // Add damage effect
     if (other instanceof Enemy) { //upon ememy collision
-      damage = 10;
+      damage = other.attackDamage;
       damage = ItemsManager.shieldDamage(damage);
       this.healthBar = Math.max(0, this.healthBar - damage);
     }
   }
 
   buildingCollision(){
-    let damage = 2;
+    let damage = 2 * window.difficulty;
     damage = ItemsManager.shieldDamage(damage);
     this.healthBar = Math.max(0, this.healthBar - damage);
   }
