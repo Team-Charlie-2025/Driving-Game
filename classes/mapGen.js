@@ -2,6 +2,13 @@
 
 const gridSize = 32;
 const mapSize = 500;
+
+let roadSizes = { tiny: 5, small: 7, normal: 9, big: 11, main: 13 };
+// These are more like outer bounds, and i need to change building generation to be better for buildings
+let buildingSizes = { smallHouse: 2, largeHouse: 4, shop: 8, shopWidth: 3,
+  factoryWidth: 10, factoryLength: 20
+}
+const largeHouseSize = 4;
 let map = []; 
 
 function drawMap(p, center, zoomFactor) {
@@ -40,20 +47,20 @@ function generateGenMap(p, rows, cols) {
     }
   }
 
-  drawRectRoad(p,12,1,25,420);
-  drawAngledRoad(p,20,15,420,42,11);
-  drawBezierRoad(p,50,18,70,50,18,50,9);
-  drawAngledRoad(p,40,47,120,119,9);
-  drawRectRoad(p,119,22,130,252);
+  drawRectRoad(p,12,1,12+roadSizes.big,420);
+  drawAngledRoad(p,20,15,420,42,roadSizes.big);
+  drawBezierRoad(p,50,18,70,50,18,50,roadSizes.normal);
+  drawAngledRoad(p,40,47,120,119,roadSizes.normal);
+  drawRectRoad(p,119,22,119+roadSizes.big,252);
   let blockSize = 50;
   for(let i=1; i<5; ++i){
-    drawRectRoad(p,119+(i*blockSize),5,128+(i*blockSize),252);   // Vertical roads
-    drawRectRoad(p,119,22+(i*blockSize),380,31+(i*blockSize));    // Horizontal Roads
+    drawRectRoad(p,119+(i*blockSize),5,119+roadSizes.normal+(i*blockSize),252);   // Vertical roads
+    drawRectRoad(p,119,22+(i*blockSize),380,22+roadSizes.normal+(i*blockSize));    // Horizontal Roads
   }
 
-  drawBezierRoad(p,15,160,150,225,15,260,9);
-  drawAngledRoad(p,61,245,75,400,9);
-  drawAngledRoad(p,86,218,119,226,8);
+  drawBezierRoad(p,15,160,150,225,15,260,roadSizes.normal);
+  drawAngledRoad(p,61,245,75,400,roadSizes.normal);
+  drawAngledRoad(p,86,218,119,226,roadSizes.normal);
   //drawBezierRoad(10,10,30,30,40,5,6);
 
   //drawRectBuilding(27,25,47,39);
@@ -62,7 +69,7 @@ function generateGenMap(p, rows, cols) {
   fillBigBuildings(p,1,200,130,400);
   fillShopsDynamically(p,1,1,100,180);
   fillBuildingsDynamically(p,120,1,400,250);
-  drawBezierRoad(p,20,105,80,100,75,75,9)
+  drawBezierRoad(p,20,105,80,100,75,75,roadSizes.normal)
 }
 
 function drawRectRoad(p, xStart, yStart, xEnd, yEnd) {
@@ -109,6 +116,7 @@ function drawAngledRoad(p, xStart, yStart, xEnd, yEnd, width) {
 function drawBezierRoad(p, x0, y0, x1, y1, x2, y2, width) {
   let numSteps = 1000;// Increase number when turn has random grass spots
   let prevX = x0, prevY = y0;
+  let perpX, perpY = 0;
   for (let i = 0; i <= numSteps; i++) {
     let t = i / numSteps;
     // Quadratic Bézier formula
@@ -119,8 +127,8 @@ function drawBezierRoad(p, x0, y0, x1, y1, x2, y2, width) {
     let tangentY = y - prevY;
     let length = Math.sqrt(tangentX * tangentX + tangentY * tangentY) || 1;
     // Normalize tangent to get a perpendicular direction
-    let perpX = -tangentY / length;
-    let perpY = tangentX / length;
+    perpX = -tangentY / length;
+    perpY = tangentX / length;
 
     // Apply width consistently along the curve
     for (let j = -Math.floor(width / 2); j <= Math.floor(width / 2); j++) {
@@ -133,6 +141,31 @@ function drawBezierRoad(p, x0, y0, x1, y1, x2, y2, width) {
     prevX = x;
     prevY = y;
   }
+  console.log("perpX" + perpX);
+  // Extend the road slightly beyond the endpoint to ensure overlap
+  for (let j = -Math.floor(width / 2); j <= Math.floor(width / 2); j++) {
+    let buildX = Math.round(x2 + j * perpX);
+    let buildY = Math.round(y2 + j * perpY);
+    if (map[buildY] && map[buildY][buildX] !== undefined) {
+      map[buildY][buildX] = new Road(p, buildX * gridSize + gridSize / 2, buildY * gridSize + gridSize / 2, gridSize, gridSize);
+    }
+  }
+}
+
+//get tile type to determine if car is on grass or road
+function getTileTypeAt(x, y) {
+  let col = Math.floor(x / gridSize);
+  let row = Math.floor(y / gridSize);
+
+  if (row >= 0 && row < map.length && col >= 0 && col < map[row].length) {
+      let tile = map[row][col];
+      if (tile instanceof Road) {
+          return "road";
+      } else if (tile instanceof Grass) {
+          return "grass";
+      }
+  }
+  return "unknown"; //default case (e.g., out of bounds)
 }
 
 
@@ -310,6 +343,142 @@ function drawParkingLot(p, xStart, yStart, xEnd, yEnd) {
   // ROAD GENERATION 
   /*
   
-       Whole lotta nothings
-  
+    As of right now we are just doing some random roads
+    Map will be generated with 500x500 "cities" with roads in/out connecting 
+    Each city is divided into districts that are varying random sizes 
+      City Square - Big main road with longer blocks, small alleys with shops and important buildings
+      Residential - Grid design with some offshooting more interesting neighborhoods (culdesacs, interesting streets looping back and dead ends)
+      Factory - Industrial complexes and stuff, maybe have it be a more decrepid open area
+      Country - Long country roads, some windy "mountain" roads, surrounds all of the city
+    These districts can all have interesting traits/gimmiks like city & resedential having more coins
+    Factory having more power ups and country roads could have something else
   */
+
+function generateRoadMap(p, rows, cols) {
+
+  for(let y=0; y<rows; y++){
+    map[y] = [];
+    for(let x=0; x<cols; x++){
+      map[y][x] = new Grass(x * gridSize, y * gridSize);
+    }
+  }
+  // Draws a residential area 
+  // generateResidentialRoads(p, 0, 0, 5, 50);
+  generateWindyCountryRoads(p,0,0,100,100 );
+
+}
+function generateResidentialRoads(p, xStart, yStart, blocks, blockSize) {
+  // Generate grid-like residential area with house
+  console.log("generating roads");
+  for (let i = 0; i < blocks; i++) {
+    drawRectRoad(xStart+(i*blockSize), yStart, xStart+roadSizes.normal+(i*blockSize), yStart+(blockSize*blocks));
+    drawRectRoad(xStart, yStart+(i*blockSize), xStart+(blocks*blockSize), yStart+roadSizes.normal+(i*blockSize));
+  }
+  console.log("generated Roads");
+}
+
+function generateResidentialBuildings(p, xStart, yStart, width) {
+
+}
+
+// More direct country road, no hairpins
+function generateCountryRoads(p, xStart, yStart, xEnd, yEnd, windiness = 1) {  
+  let currentX = xStart;
+  let currentY = yStart;
+  let roadWidth = roadSizes.small; 
+
+  while (currentX < xEnd && currentY < yEnd) {
+    let nextX = currentX + Math.floor(Math.random() * 30) + 10;
+    let nextY = currentY + Math.floor(Math.random() * 30) + 10;
+
+    if (nextX > xEnd) nextX = xEnd;
+    if (nextY > yEnd) nextY = yEnd;
+
+    let curvature = Math.random();
+    let controlX, controlY;
+    if (curvature < 0.2) {
+      controlX = currentX + (nextX - currentX) / 2 + (Math.random() > 0.5 ? 1 : -1) * Math.floor(Math.random() * 10);
+      controlY = currentY + (nextY - currentY) / 2 + (Math.random() > 0.5 ? 1 : -1) * Math.floor(Math.random() * 10);
+    } else if (curvature < 0.8) {
+      controlX = currentX + (nextX - currentX) / 2 + (Math.random() > 0.5 ? 1 : -1) * Math.floor(Math.random() * 20);
+      controlY = currentY + (nextY - currentY) / 2 + (Math.random() > 0.5 ? 1 : -1) * Math.floor(Math.random() * 20);
+    } else {
+      controlX = currentX + (nextX - currentX) / 2 + (Math.random() > 0.5 ? 1 : -1) * Math.floor(Math.random() * 30);
+      controlY = currentY + (nextY - currentY) / 2 + (Math.random() > 0.5 ? 1 : -1) * Math.floor(Math.random() * 30);
+    }
+
+    drawBezierRoad(p, currentX, currentY, controlX, controlY, nextX, nextY, roadWidth);
+    if (Math.random() > .5) {
+      let turnX = nextX + (Math.random() > 0.5 ? 1 : -1) * Math.floor(Math.random() * 20);
+      let turnY = nextY + (Math.random() > 0.5 ? 1 : -1) * Math.floor(Math.random() * 20);
+      let controlX1 = nextX + (turnX - nextX) / 2 + (Math.random() > 0.5 ? 1 : -1) * Math.floor(Math.random() * 20);
+      let controlY1 = nextY + (turnY - nextY) / 2 + (Math.random() > 0.5 ? 1 : -1) * Math.floor(Math.random() * 20);
+      drawBezierRoad(p, nextX, nextY, controlX1, controlY1, turnX, turnY, roadWidth);
+
+      let returnX = turnX + (Math.random() > 0.5 ? 1 : -1) * Math.floor(Math.random() * 20);
+      let returnY = turnY + (Math.random() > 0.5 ? 1 : -1) * Math.floor(Math.random() * 20);
+      let controlX2 = turnX + (returnX - turnX) / 2 + (Math.random() > 0.5 ? 1 : -1) * Math.floor(Math.random() * 20);
+      let controlY2 = turnY + (returnY - turnY) / 2 + (Math.random() > 0.5 ? 1 : -1) * Math.floor(Math.random() * 20);
+      drawBezierRoad(p, turnX, turnY, controlX2, controlY2, returnX, returnY, roadWidth);
+
+      currentX = returnX;
+      currentY = returnY;
+    } else {
+      currentX = nextX;
+      currentY = nextY;
+    }
+  }
+
+}
+
+// Windy country road
+function generateWindyCountryRoads(p, xStart, yStart, xEnd, yEnd, windiness = 1) {  
+  let currentX = xStart;
+  let currentY = yStart;
+  let roadWidth = roadSizes.small; 
+
+  while (currentX < xEnd && currentY < yEnd) {
+    let nextX = currentX + Math.floor(Math.random() * 30) + 10;
+    let nextY = currentY + Math.floor(Math.random() * 30) + 10;
+
+    if (nextX > xEnd) nextX = xEnd;
+    if (nextY > yEnd) nextY = yEnd;
+
+    let curvature = Math.random();
+    let controlX, controlY;
+    if (curvature < 0.2) {
+      controlX = currentX + (nextX - currentX) / 2 + (Math.random() > 0.5 ? 1 : -1) * Math.floor(Math.random() * 10);
+      controlY = currentY + (nextY - currentY) / 2 + (Math.random() > 0.5 ? 1 : -1) * Math.floor(Math.random() * 10);
+    } else if (curvature < 0.8) {
+      controlX = currentX + (nextX - currentX) / 2 + (Math.random() > 0.5 ? 1 : -1) * Math.floor(Math.random() * 20);
+      controlY = currentY + (nextY - currentY) / 2 + (Math.random() > 0.5 ? 1 : -1) * Math.floor(Math.random() * 20);
+    } else {
+      controlX = currentX + (nextX - currentX) / 2 + (Math.random() > 0.5 ? 1 : -1) * Math.floor(Math.random() * 30);
+      controlY = currentY + (nextY - currentY) / 2 + (Math.random() > 0.5 ? 1 : -1) * Math.floor(Math.random() * 30);
+    }
+
+    drawBezierRoad(p, currentX, currentY, controlX, controlY, nextX, nextY, roadWidth);
+
+    // 180 degree hairpin turn
+    if (Math.random() > 0.8) {
+      let turnX = nextX + (Math.random() > 0.5 ? 1 : -1) * Math.floor(Math.random() * 20);
+      let turnY = nextY + (Math.random() > 0.5 ? 1 : -1) * Math.floor(Math.random() * 20);
+      let controlX1 = nextX + (turnX - nextX) / 2 + (Math.random() > 0.5 ? 1 : -1) * Math.floor(Math.random() * 20);
+      let controlY1 = nextY + (turnY - nextY) / 2 + (Math.random() > 0.5 ? 1 : -1) * Math.floor(Math.random() * 20);
+      drawBezierRoad(p, nextX, nextY, controlX1, controlY1, turnX, turnY, roadWidth);
+
+      let returnX = turnX + (Math.random() > 0.5 ? 1 : -1) * Math.floor(Math.random() * 20);
+      let returnY = turnY + (Math.random() > 0.5 ? 1 : -1) * Math.floor(Math.random() * 20);
+      let controlX2 = turnX + (returnX - turnX) / 2 + (Math.random() > 0.5 ? 1 : -1) * Math.floor(Math.random() * 20);
+      let controlY2 = turnY + (returnY - turnY) / 2 + (Math.random() > 0.5 ? 1 : -1) * Math.floor(Math.random() * 20);
+      drawBezierRoad(p, turnX, turnY, controlX2, controlY2, returnX, returnY, roadWidth);
+
+      currentX = returnX;
+      currentY = returnY;
+    } else {
+      currentX = nextX;
+      currentY = nextY;
+    }
+  }
+
+}

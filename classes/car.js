@@ -14,6 +14,8 @@ class Car extends GameObject {
     const SAVED_STATS = data.stats;
     const selectedCarIndex = data.selectedCar || 0;
 
+    this.baseAcceleration = SAVED_STATS.acceleration;
+    this.baseMaxSpeed = SAVED_STATS.maxSpeed;
     this.acceleration = SAVED_STATS.acceleration;
     this.maxSpeed = SAVED_STATS.maxSpeed;
     this.friction = 0.05;
@@ -62,7 +64,28 @@ class Car extends GameObject {
       window.isGameOver = true;
       console.log("Game Over Triggered!");
     }
-
+    //check terrain type
+    let terrainType = getTileTypeAt(this.position.x, this.position.y);
+    //console.log(`Car is on: ${terrainType} at (${this.position.x}, {$this.position.y})`)
+    
+    if(this.isBoosting) {
+      if (terrainType === "grass") {
+        this.acceleration = this.baseAcceleration * 1.5; //smaller boost on grass
+        this.maxSpeed = this.baseMaxSpeed * 1.75; //lower maxSpeed increase on grass
+      } else {
+        this.acceleration = this.baseAcceleration * 2.5;
+        this.maxSpeed = this.baseMaxSpeed * 3;
+      }
+    } else {
+      if (terrainType === "grass") {
+        this.acceleration = this.baseAcceleration * 0.65; //reduce acceleration
+        this.maxSpeed = this.baseMaxSpeed * 0.65; //reduce max speed
+      } else {
+        this.acceleration = this.baseAcceleration;
+        this.maxSpeed = this.baseMaxSpeed;
+      }
+    }  
+    
     const boostKey = getKeyForAction("boost");
     const forwardKey = getKeyForAction("forward");
     const backwardKey = getKeyForAction("backward");
@@ -76,11 +99,14 @@ class Car extends GameObject {
         this.lastBoostTime = Date.now();
 
         if (this.speed < 0) this.speed = 0.01;
+        //make sure speed does not exceed max allowed for terrain
+        this.speed = Math.min(this.speed, this.maxSpeed);
         this.speed = p.constrain(
           this.speed + this.acceleration * 2.5,
           this.reverseSpeed * 2,
           this.maxSpeed * 3
         );
+        //console.log(`Boost activated. Speed: ${this.speed.toFixed(2)}, Max Speed: ${this.maxSpeed.toFixed(2)}`);
       } else {
         this.isBoosting = false;
         if (this.speed > this.maxSpeed) {
@@ -93,6 +119,7 @@ class Car extends GameObject {
           );
         }
       }
+      //console.log(`Boost ended. Speed: ${this.speed.toFixed(2)}, Max Speed: ${this.maxSpeed.toFixed(2)}`);
     }
 
     if (p.keyIsDown(getKeyForAction("backward")) && !this.controlDisabled) {
