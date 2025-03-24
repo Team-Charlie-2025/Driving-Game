@@ -42,11 +42,13 @@ function MapEditorSketch(p) {
     categories.forEach(cat => {
       p.loadStrings(`/assets/mapBuilder/${cat}/manifest.txt`, function(fileList) {
         assetManifest[cat] = fileList;
-        assets[cat] = [];
-        fileList.forEach(filename => {
+        assets[cat] = new Array(fileList.length);
+        fileList.forEach((filename, i) => {
           let cleanName = filename.trim();
           let path = `/assets/mapBuilder/${cat}/${cleanName}`;
-          p.loadImage(path, img => assets[cat].push(img));
+          p.loadImage(path, img => {
+            assets[cat][i] = img;
+          });
         });
       });
     });
@@ -76,6 +78,12 @@ function MapEditorSketch(p) {
     loadButton = p.createButton("Load Map");
     loadButton.position(assetPanelWidth + 10, 130);
     loadButton.mousePressed(loadMap);
+
+    let eraseMapButton = p.createButton("Erase Map");
+    eraseMapButton.position(assetPanelWidth + 10, 160);
+    eraseMapButton.mousePressed(() => {
+      placedTiles = [];
+    });
 
     p.canvas.oncontextmenu = e => e.preventDefault();
 
@@ -194,8 +202,8 @@ function MapEditorSketch(p) {
     const centerX = p.mouseX;
     const centerY = p.mouseY;
 
-    const snappedX = offset.x + Math.floor((centerX - offset.x - imgW / 2) / gridSize) * gridSize;
-    const snappedY = offset.y + Math.floor((centerY - offset.y - imgH / 2) / gridSize) * gridSize;
+    const snappedX = offset.x + Math.floor((centerX - offset.x) / gridSize) * gridSize;
+    const snappedY = offset.y + Math.floor((centerY - offset.y) / gridSize) * gridSize;
 
     if (
       snappedX < offset.x ||
@@ -205,19 +213,31 @@ function MapEditorSketch(p) {
     ) {
       return;
     }
-
+    for (let tile of placedTiles) {
+        if (tile.layer === selectedLayer) {
+            if (
+                snappedX < tile.x + tile.w &&
+                snappedX + imgW > tile.x &&
+                snappedY < tile.y + tile.h &&
+                snappedY + imgH > tile.y
+            ) {
+                return; 
+            }
+        }
+    }
     placedTiles.push({
-      img: img,
-      x: snappedX,
-      y: snappedY,
-      w: imgW,
-      h: imgH,
-      layer: selectedLayer,
-      hasCollider: hasColliderCheckbox.checked(),
-      category: selectedTile.category,
-      index: selectedTile.index
+        img: img,
+        x: snappedX,
+        y: snappedY,
+        w: imgW,
+        h: imgH,
+        layer: selectedLayer,
+        hasCollider: hasColliderCheckbox.checked(),
+        category: selectedTile.category,
+        index: selectedTile.index
     });
-  }
+}
+
 
   function eraseTile() {
     let offset = getGridOffset();
@@ -236,9 +256,131 @@ function MapEditorSketch(p) {
     }
   }
 
+
+  function fillTiles() {
+    if (!selectedTile) return;
+    
+    let offset = getGridOffset();
+    let img = selectedTile.img;
+    const imgW = Math.ceil(img.width / gridSize) * gridSize;
+    const imgH = Math.ceil(img.height / gridSize) * gridSize;
+    const tileCellsWide = imgW / gridSize;
+    const tileCellsHigh = imgH / gridSize;
+    
+    let startCol = Math.floor((p.mouseX - offset.x) / gridSize);
+    let startRow = Math.floor((p.mouseY - offset.y) / gridSize);
+    
+    if (
+      startCol < 0 || startRow < 0 ||
+      startCol > mapCols - tileCellsWide ||
+      startRow > mapRows - tileCellsHigh
+    ) {
+      return;
+    }
+    
+    let queue = [];
+    let visited = {};
+    let key = (c, r) => `${c},${r}`;
+    
+    queue.push({col: startCol, row: startRow});
+    visited[key(startCol, startRow)] = true;
+    
+    while (queue.length) {
+      let cell = queue.shift();
+      if (canPlaceTileAt(cell.col, cell.row, imgW, imgH)) {
+        placedTiles.push({
+          img: img,
+          x: offset.x + cell.col * gridSize,
+          y: offset.y + cell.row * gridSize,
+          w: imgW,
+          h: imgH,
+          layer: selectedLayer,
+          hasCollider: hasColliderCheckbox.checked(),
+          category: selectedTile.category,
+          index: selectedTile.index
+        });
+        
+        let neighbors = [
+          {col: cell.col + 1, row: cell.row},
+          {col: cell.col - 1, row: cell.row},
+          {col: cell.col, row: cell.row + 1},
+          {col: cell.col, row: cell.row - 1}
+        ];
+        
+        for (let n of neighbors) {
+          if (
+            n.col >= 0 && n.row >= 0 &&
+            n.col <= mapCols - tileCellsWide &&
+            n.row <= mapRows - tileCellsHigh &&
+            !visited[key(n.col, n.row)]
+          ) {
+            visited[key(n.col, n.row)] = true;
+            queue.push(n);
+          }
+        }
+      }
+    }
+  }
+
+  function eraseAllSameTile() {
+    let offset = getGridOffset();
+    let targetTile = null;
+    
+    for (let i = placedTiles.length - 1; i >= 0; i--) {
+      let tile = placedTiles[i];
+      if (
+        p.mouseX >= tile.x &&
+        p.mouseX <= tile.x + tile.w &&
+        p.mouseY >= tile.y &&
+        p.mouseY <= tile.y + tile.h &&
+        tile.layer === selectedLayer
+      ) {
+        targetTile = tile;
+        break;
+      }
+    }
+    
+    if (targetTile) {
+      placedTiles = placedTiles.filter(tile => {
+        return !(tile.layer === selectedLayer &&
+                 tile.category === targetTile.category &&
+                 tile.index === targetTile.index);
+      });
+    }
+  }
+  
+  function canPlaceTileAt(col, row, imgW, imgH) {
+    let offset = getGridOffset();
+    let candidateX = offset.x + col * gridSize;
+    let candidateY = offset.y + row * gridSize;
+    
+    if (
+      candidateX < offset.x ||
+      candidateY < offset.y ||
+      candidateX + imgW > offset.x + offset.gridWidth ||
+      candidateY + imgH > offset.y + offset.gridHeight
+    ) {
+      return false;
+    }
+    
+    for (let tile of placedTiles) {
+      if (tile.layer === selectedLayer) {
+        if (
+          candidateX < tile.x + tile.w &&
+          candidateX + imgW > tile.x &&
+          candidateY < tile.y + tile.h &&
+          candidateY + imgH > tile.y
+        ) {
+          return false;
+        }
+      }
+    }
+    return true;
+  }
+
   p.mousePressed = function(e) {
     if (e.target !== p.canvas) return;
-
+  
     if (p.mouseX < assetPanelWidth) {
       const startY = thumbnailsAreaY;
       for (let i = 0; i < thumbnails.length; i++) {
@@ -260,11 +402,19 @@ function MapEditorSketch(p) {
       }
       return;
     }
-
+  
     if (p.mouseButton === p.LEFT) {
-      placeTile();
+      if (p.keyIsDown(p.SHIFT)) {
+        fillTiles();
+      } else {
+        placeTile();
+      }
     } else if (p.mouseButton === p.RIGHT) {
-      eraseTile();
+      if (p.keyIsDown(p.SHIFT)) {
+        eraseAllSameTile();
+      } else {
+        eraseTile();
+      }
     }
   };
 
