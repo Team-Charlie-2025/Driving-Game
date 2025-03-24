@@ -3,10 +3,10 @@
 class Enemy extends Car {
   constructor(p, x, y, target) {
     const stats = {
-      acceleration: 0.4 * window.difficulty,
-      maxSpeed: 4.5 * window.difficulty,
+      acceleration: 1 * window.difficulty,
+      maxSpeed: 25 * window.difficulty,
       health: 100 * window.difficulty,
-      friction: 0.05 
+      friction: 0.02
     };
     
     super(p, x, y, stats);
@@ -19,22 +19,26 @@ class Enemy extends Car {
 
     // Movement properties
     this.velocity = p.createVector(0, 0);
-    this.maxForce = 0.3;
+    this.maxForce = 0.6;         // How quickly it can change direction
+    this.turnRadius = 0.6;      // NEW: Explicit turn radius control (lower = wider turns)
     this.desired = p.createVector(0, 0);
     this.steer = p.createVector(0, 0);
+    
+    // NEW: Visual scale to make vehicles visually distinct
+    this.visualScale = 1.0;
 
     if (this.currentImage) {
-      this.width = 64;
-      this.height = 64;
+      this.width = 64 * this.visualScale;
+      this.height = 64 * this.visualScale;
       this.collider = new Collider(
         this,
         "polygon",
-        { offsetX: -32, offsetY: -32 },
+        { offsetX: -32 * this.visualScale, offsetY: -32 * this.visualScale },
         this.currentImage
       );
     } else {
-      this.width = carWidth;
-      this.height = carHeight;
+      this.width = carWidth * this.visualScale;
+      this.height = carHeight * this.visualScale;
       this.collider = new Collider(this, "rectangle", {
         width: this.width,
         height: this.height,
@@ -49,11 +53,37 @@ class Enemy extends Car {
   
     // Calculate desired direction to target
     this.desired = p5.Vector.sub(this.target.position, this.position);
+    
+    // Apply turn radius limitation by adding an intermediate target
+    if (this.turnRadius > 0) {
+      // Get current direction and desired direction
+      const currentDir = p5.Vector.fromAngle(this.angle);
+      const desiredDir = this.desired.copy().normalize();
+      
+      // Calculate angle between current and desired direction
+      let angleDiff = this.p.atan2(
+        currentDir.x * desiredDir.y - currentDir.y * desiredDir.x,
+        currentDir.x * desiredDir.x + currentDir.y * desiredDir.y
+      );
+      
+      // Limit the angle change based on turn radius
+      const maxAngleChange = this.turnRadius;
+      angleDiff = this.p.constrain(angleDiff, -maxAngleChange, maxAngleChange);
+      
+      // Create a new direction based on the limited angle change
+      const newDir = p5.Vector.fromAngle(this.angle + angleDiff);
+      newDir.setMag(this.desired.mag());
+      this.desired = newDir;
+    }
+    
     this.desired.setMag(this.maxSpeed);
   
     // Calculate steering force
     this.steer = p5.Vector.sub(this.desired, this.velocity);
     this.steer.limit(this.maxForce);
+    
+    // Apply acceleration
+    this.steer.mult(this.acceleration);
     this.velocity.add(this.steer);
     
     // Apply friction
@@ -97,22 +127,90 @@ class Enemy extends Car {
       this.position.add(separation);
     }
   }
+  
+  // NEW: Override default display method to apply visual scale
+  display() {
+    const p = this.p;
+    p.push();
+    p.translate(this.position.x, this.position.y);
+    p.rotate(this.angle);
+
+    if (this.currentImage) {
+      p.image(this.currentImage, 
+              -this.width / 2, 
+              -this.height / 2, 
+              this.width, 
+              this.height);
+    } else {
+      // fallback rectangle
+      p.fill(0);
+      p.rect(-this.width / 2, -this.height / 2, this.width, this.height);
+    }
+
+    p.pop();
+  }
 }
 
 // Truck: Slower, sharper turns, more damage
 class Truck extends Enemy {
   constructor(p, x, y, target) {
     super(p, x, y, target);
-    // Override movement properties
-    this.acceleration = 0.25 * window.difficulty; // Even slower acceleration
-    this.maxSpeed = 2.5 * window.difficulty;      // Even slower max speed
-    this.maxForce = 0.5;                          // Sharper turns (higher force = sharper)
-    // Override combat properties
-    this.healthBar = 200 * window.difficulty;     // Much more health
-    this.attackDamage = 35 * window.difficulty;   // Much more damage
+    
+    // Movement properties
+    this.acceleration = 0.5 * window.difficulty;  // Very slow acceleration
+    this.maxSpeed = 6 * window.difficulty;       // Very slow max speed
+    this.maxForce = 0.2;                           // Less force
+    this.turnRadius = 0.8;                        // SMALL turn radius = sharp turns
+    this.friction = 0.03;                          // Less friction
+    
+    // Combat properties
+    this.healthBar = 250 * window.difficulty;      // Much more health
+    this.attackDamage = 40 * window.difficulty;    // Much more damage
     this.attackCooldown = 2000 / window.difficulty; // Slower attack rate
-    // Set truck image - fix this to use the actual truck image
+    
+    // Visual properties - adjusted for truck proportions
+    this.visualScale = 1.5;
     this.currentImage = p.truckImg;
+    
+    // Adjust width and height separately for truck proportions
+    // Make the truck longer than it is wide
+    if (this.currentImage) {
+      this.width = 160 * this.visualScale;  // Wider/longer
+      this.height = 50 * this.visualScale; // Less tall
+      
+      // Update collider to match new dimensions
+      this.collider = new Collider(
+        this,
+        "polygon",
+        { 
+          offsetX: -this.width / 2, 
+          offsetY: -this.height / 2 
+        },
+        this.currentImage
+      );
+    }
+  }
+  
+  // Override display method to handle the rectangular sprite
+  display() {
+    const p = this.p;
+    p.push();
+    p.translate(this.position.x, this.position.y);
+    p.rotate(this.angle);
+
+    if (this.currentImage) {
+      p.image(this.currentImage, 
+              -this.width / 2, 
+              -this.height / 2, 
+              this.width, 
+              this.height);
+    } else {
+      // fallback rectangle
+      p.fill(0);
+      p.rect(-this.width / 2, -this.height / 2, this.width, this.height);
+    }
+
+    p.pop();
   }
 }
 
@@ -120,15 +218,33 @@ class Truck extends Enemy {
 class Motorcycle extends Enemy {
   constructor(p, x, y, target) {
     super(p, x, y, target);
-    // Override movement properties
-    this.acceleration = 5.0 * window.difficulty;  // Much higher acceleration
-    this.maxSpeed = 50.0 * window.difficulty;     // Significantly faster max speed
-    this.maxForce = 0.08;                         // Much wider turns (lower value = wider turns)
-    // Override combat properties
-    this.healthBar = 60 * window.difficulty;      // Less health
-    this.attackDamage = 10 * window.difficulty;   // Less damage
+    
+    // Movement properties
+    this.acceleration = 0.8 * window.difficulty;   // High acceleration
+    this.maxSpeed = 7.0 * window.difficulty;       // High max speed
+    this.maxForce = 0.5;                           // More force
+    this.turnRadius = 0.08;                        // LARGE turn radius = wide turns
+    this.friction = 0.05;                          // Medium friction
+    
+    // Combat properties
+    this.healthBar = 60 * window.difficulty;       // Less health
+    this.attackDamage = 8 * window.difficulty;     // Less damage
     this.attackCooldown = 1000 / window.difficulty; // Faster attack rate
-    // Set motorcycle image
+    
+    // Visual properties
+    this.visualScale = 0.7;                        // 30% smaller
     this.currentImage = p.bikeImg;
+    
+    // Update collider to match new size
+    if (this.currentImage) {
+      this.width = 64 * this.visualScale;
+      this.height = 64 * this.visualScale;
+      this.collider = new Collider(
+        this,
+        "polygon",
+        { offsetX: -32 * this.visualScale, offsetY: -32 * this.visualScale },
+        this.currentImage
+      );
+    }
   }
 }

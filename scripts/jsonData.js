@@ -4,6 +4,7 @@ window.defaultData = {
   selectedCar: 0,
   selectedEngine: 0,
   selectedWheel: 0,
+  vehicleType: 0, // Default to Car (0). Van is 1.
   stats: { 
     health: 100,
     boost: 50,

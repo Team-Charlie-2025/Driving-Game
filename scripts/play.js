@@ -14,6 +14,7 @@ function PlaySketch(p) {
     loadMusic(p);
     loadSoundEffects(p);
     p.carImg = p.loadImage("assets/car.png");
+    p.vanImg = p.loadImage("assets/van.png"); // Add van image
     p.buildingImg = p.loadImage("assets/building.png");
     p.enemyImg = p.loadImage("assets/police+car.png"); // Regular cop car image
     p.truckImg = p.loadImage("assets/police+truck.png"); // Truck image
@@ -28,6 +29,51 @@ function PlaySketch(p) {
 
     window.runCoinsCalculated = false;
     window.isGameOver = false;
+
+    // Initialize player car based on saved vehicle type
+    const savedData = loadPersistentData();
+    const stats = savedData.stats;
+    const vehicleType = savedData.vehicleType || 0;
+    
+    // Create appropriate vehicle type based on saved selection
+    if (vehicleType === 1) {
+      // Create Van
+      car = new Van(p, p.width / 2, p.height / 2, stats);
+      car.currentImage = p.vanImg; // Use loaded van image
+    } else {
+      // Create regular Car
+      car = new Car(p, p.width / 2, p.height / 2, stats);
+      
+      // Set car image from selected car color if it exists
+      const selectedCarIndex = savedData.selectedCar || 0;
+      if (window.cars && window.cars[selectedCarIndex]) {
+        car.currentImage = window.cars[selectedCarIndex];
+      } else {
+        car.currentImage = p.carImg; // Fallback to default car image
+      }
+    }
+    
+    // Update collider with the correct image and dimensions
+    if (car instanceof Van) {
+      car.collider = new Collider(
+        car,
+        "polygon",
+        { 
+          offsetX: -car.width / 2, 
+          offsetY: -car.height / 2 
+        },
+        car.currentImage
+      );
+    } else {
+      car.collider = new Collider(
+        car,
+        "polygon",
+        { offsetX: -32, offsetY: -32 },
+        car.currentImage
+      );
+    }
+    
+    physicsEngine.add(car);
 
     window.LoadingScreen.hide();
     bgMusic(Mode.PLAY, p, "loop");
@@ -82,9 +128,9 @@ function PlaySketch(p) {
     const y = car.position.y + spawnDistance * p.sin(angle);
 
     // Define spawn probabilities (must sum to 1.0 or 100%)
-    const COP_CAR_CHANCE = 0.00;  // 60% chance for regular Enemy (cop car)
-    const TRUCK_CHANCE = 0.50;    // 20% chance for Truck
-    const BIKE_CHANCE = 0.50;     // 20% chance for Motorcycle
+    const COP_CAR_CHANCE = 0.60;  // 60% chance for regular Enemy (cop car)
+    const TRUCK_CHANCE = 0.20;    // 20% chance for Truck
+    const BIKE_CHANCE = 0.20;     // 20% chance for Motorcycle
 
     // Generate a random value between 0 and 1
     const rand = p.random();
@@ -146,12 +192,6 @@ function PlaySketch(p) {
   
     // GAMEPLAY LOGIC
     coins = checkCoinCollisions(coins, car, p);
-
-    if (!car) {
-      const stats = loadPersistentData().stats;
-      car = new Car(p, p.width / 2, p.height / 2, stats);
-      physicsEngine.add(car);
-    }
     
     enemies = enemies.filter(enemy => {
       if (enemy.removeFromWorld || enemy.healthBar <= 0) {
@@ -215,20 +255,14 @@ function PlaySketch(p) {
       p.fill(50);
       p.rect(20, 60, 200, 25);
       p.fill(255, 165, 0);
-      p.rect(20, 60, car.boostMeter * 2, 25);
+      // Use boostMax for the scaling to handle van's larger boost meter
+      p.rect(20, 60, (car.boostMeter / car.boostMax) * 200, 25);
   
       p.fill(255);
       p.textSize(16);
       p.text("Health", 20, 18);
       p.text("Boost", 20, 58);
   
-      if (car) {
-        p.textSize(12);
-        p.textAlign(p.LEFT, p.BOTTOM);
-        p.fill(0);
-        p.text(`Car: (${Math.round(car.position.x)}, ${Math.round(car.position.y)})`, 10, p.height - 10);
-      }
-      
       p.push();
         p.textSize(16);
         p.fill(255);
