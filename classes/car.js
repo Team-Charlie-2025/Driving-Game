@@ -165,7 +165,7 @@ class Car extends GameObject {
   }
 
   buildingCollision(){
-    let damage = 2 * window.difficulty;
+    let damage = 5 * window.difficulty;
     damage = ItemsManager.shieldDamage(damage);
     this.healthBar = Math.max(0, this.healthBar - damage);
   }
