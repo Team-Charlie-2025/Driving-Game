@@ -15,7 +15,9 @@ function PlaySketch(p) {
     loadSoundEffects(p);
     p.carImg = p.loadImage("assets/car.png");
     p.buildingImg = p.loadImage("assets/building.png");
-    p.enemyImg = p.loadImage("assets/police+car.png"); // Add enemy image
+    p.enemyImg = p.loadImage("assets/police+car.png"); // Regular cop car image
+    p.truckImg = p.loadImage("assets/police+truck.png"); // Truck image
+    p.bikeImg = p.loadImage("assets/police+bike.png"); // Motorcycle image
   };
 
   p.setup = function () {
@@ -27,24 +29,19 @@ function PlaySketch(p) {
     window.runCoinsCalculated = false;
     window.isGameOver = false;
 
-    
     window.LoadingScreen.hide();
     bgMusic(Mode.PLAY, p, "loop");
 
     // Start enemy spawner
     window.enemySpawnInterval = setInterval(() => spawnEnemy(p), ENEMY_SPAWN_RATE);
 
-    // coin creation, positioning, building check, and logs
-    ////////////////////////////////////////////////
+    // Coin creation, positioning, building check, and logs
     const totalCoins = 750;
     let attempts = 0;
     const maxAttempts = 10000; 
     while (coins.length < totalCoins && attempts < maxAttempts) {
-      // random map index
       let randX = Math.floor(p.random(0, map[0].length));
       let randY = Math.floor(p.random(0, map.length));
-      
-      // checks tile, if road, puts coin in center
       if (map[randY] && map[randY][randX] instanceof Road) {
         let coinX = randX * gridSize + gridSize / 2;
         let coinY = randY * gridSize + gridSize / 2;
@@ -57,28 +54,25 @@ function PlaySketch(p) {
     if (attempts >= maxAttempts && debug) {
       console.log("Max attempts reached while spawning coins. Coins spawned: " + coins.length);
     }
-    ////////////////////////////////////////////////
-
-
-    p.showGameOverScreen = function () {
-        p.push();
-        p.fill(150, 0, 0, 180); // Semi-transparent red overlay
-        p.rect(0, 0, p.width, p.height);
-        
-        p.fill(255);
-        p.textSize(50);
-        p.textAlign(p.CENTER, p.CENTER);
-        p.text("GAME OVER", p.width / 2, p.height / 3);
-
-        p.textSize(30);
-        p.fill(255);
-        p.text("Press R to Restart", p.width / 2, p.height / 2);
-        p.text("Press M for Main Menu", p.width / 2, p.height / 1.5);
-        p.pop();
-    };
   };
 
-  // Add spawn function
+  p.showGameOverScreen = function () {
+    p.push();
+    p.fill(150, 0, 0, 180); // Semi-transparent red overlay
+    p.rect(0, 0, p.width, p.height);
+    
+    p.fill(255);
+    p.textSize(50);
+    p.textAlign(p.CENTER, p.CENTER);
+    p.text("GAME OVER", p.width / 2, p.height / 3);
+
+    p.textSize(30);
+    p.fill(255);
+    p.text("Press R to Restart", p.width / 2, p.height / 2);
+    p.text("Press M for Main Menu", p.width / 2, p.height / 1.5);
+    p.pop();
+  };
+
   function spawnEnemy(p) {
     if (!car || window.isGameOver) return;
 
@@ -87,7 +81,23 @@ function PlaySketch(p) {
     const x = car.position.x + spawnDistance * p.cos(angle);
     const y = car.position.y + spawnDistance * p.sin(angle);
 
-    const enemy = new Enemy(p, x, y, car);
+    // Define spawn probabilities (must sum to 1.0 or 100%)
+    const COP_CAR_CHANCE = 0.00;  // 60% chance for regular Enemy (cop car)
+    const TRUCK_CHANCE = 0.50;    // 20% chance for Truck
+    const BIKE_CHANCE = 0.50;     // 20% chance for Motorcycle
+
+    // Generate a random value between 0 and 1
+    const rand = p.random();
+    let enemy;
+
+    if (rand < COP_CAR_CHANCE) {
+      enemy = new Enemy(p, x, y, car);       // Spawn cop car
+    } else if (rand < COP_CAR_CHANCE + TRUCK_CHANCE) {
+      enemy = new Truck(p, x, y, car);       // Spawn truck
+    } else {
+      enemy = new Motorcycle(p, x, y, car);  // Spawn motorcycle
+    }
+
     physicsEngine.add(enemy);
     enemies.push(enemy);
   }
@@ -97,26 +107,23 @@ function PlaySketch(p) {
   
     // GAME OVER
     if (window.isGameOver) {
-      ////////////////////////////////////////////
       if (!window.runCoinsCalculated) {
-        // calculate coins, scores
         const runCoinReward = CurrencyManager.computeCoinsEarned(window.coinsCollected);
         CurrencyManager.updateTotalCoins(runCoinReward);
         const elapsedTime = (p.millis() - p.startTime) / 1000;
         const enemyDestroyed = window.enemyDestroyedCount || 0;
         const computedScore = ScoreManager.computeScore(elapsedTime, enemyDestroyed, window.coinsCollected);
         
-        if(window.debug){
-        console.log("Game Over: Run coins reward calculated: " + runCoinReward);
-        console.log("Game Over: Score calculated: " + computedScore +
-                    " (Elapsed Time: " + elapsedTime +
-                    ", Enemies Destroyed: " + enemyDestroyed +
-                    ", Coins Collected: " + window.coinsCollected +
-                    ", Difficulty: " + window.difficulty + ")");
+        if (window.debug) {
+          console.log("Game Over: Run coins reward calculated: " + runCoinReward);
+          console.log("Game Over: Score calculated: " + computedScore +
+                      " (Elapsed Time: " + elapsedTime +
+                      ", Enemies Destroyed: " + enemyDestroyed +
+                      ", Coins Collected: " + window.coinsCollected +
+                      ", Difficulty: " + window.difficulty + ")");
         }
         window.runCoinsCalculated = true;
       }
-      ////////////////////////////////////////////
       
       p.push();
       p.translate(p.width / 2, p.height / 2);
@@ -200,25 +207,21 @@ function PlaySketch(p) {
   
     // UI
     p.push();
-      // Draw Health Bar
       p.fill(50);
       p.rect(20, 20, 200, 25);
       p.fill(0, 255, 0);
       p.rect(20, 20, car.healthBar * 2, 25);
   
-      // Draw Boost Meter
       p.fill(50);
       p.rect(20, 60, 200, 25);
       p.fill(255, 165, 0);
       p.rect(20, 60, car.boostMeter * 2, 25);
   
-      // Labels
       p.fill(255);
       p.textSize(16);
       p.text("Health", 20, 18);
       p.text("Boost", 20, 58);
   
-      // debug positional for car
       if (car) {
         p.textSize(12);
         p.textAlign(p.LEFT, p.BOTTOM);
@@ -226,7 +229,6 @@ function PlaySketch(p) {
         p.text(`Car: (${Math.round(car.position.x)}, ${Math.round(car.position.y)})`, 10, p.height - 10);
       }
       
-      // timer, coins
       p.push();
         p.textSize(16);
         p.fill(255);
@@ -237,7 +239,6 @@ function PlaySketch(p) {
       p.pop();
     p.pop();
 
-  
     // PHYSICS
     physicsEngine.update();
     car.update();
@@ -245,8 +246,6 @@ function PlaySketch(p) {
     checkCarCollisions(car, enemies);
   };
   
-  
-
   p.windowResized = function() {
     p.resizeCanvas(p.windowWidth, p.windowHeight);
   };
@@ -265,17 +264,16 @@ function PlaySketch(p) {
       if (p.keyIsDown(77)) { // 'M' key
         bgMusic(Mode.PLAY, p, "stop");
         clearInterval(window.enemySpawnInterval);
-        switchSketch(Mode.TITLE); // Go back to main menu
+        switchSketch(Mode.TITLE);
       }
     }
     if (p.keyCode === p.ESCAPE) {
-        bgMusic(Mode.PLAY, p, "stop");
-        clearInterval(window.enemySpawnInterval);
-        switchSketch(Mode.TITLE);
+      bgMusic(Mode.PLAY, p, "stop");
+      clearInterval(window.enemySpawnInterval);
+      switchSketch(Mode.TITLE);
     }
   };
 
-  // Modified collision check
   function checkBuildingCollisions(obj) {
     const tileX = Math.floor(obj.position.x / gridSize);
     const tileY = Math.floor(obj.position.y / gridSize);
@@ -284,17 +282,16 @@ function PlaySketch(p) {
         if (map[j] && map[j][i] instanceof Building) {
           let building = map[j][i];
           if (obj.collider.intersects(building.collider)) {
-            if (obj.velocity) {  //reverse velocity (enemy & player)
+            if (obj.velocity) {
               obj.velocity.mult(-1);
-          }
-          if (obj.speed !== undefined) {  //reverse speed if it exists (player)
+            }
+            if (obj.speed !== undefined) {
               obj.speed = (-1) * obj.speed;
-          }
-          //apply small knockback to prevent enemies getting stuck
-          let knockbackForce = 5;  
-          let knockbackVector = p5.Vector.sub(obj.position, building.position);
-          knockbackVector.setMag(knockbackForce);
-          obj.position.add(knockbackVector);
+            }
+            let knockbackForce = 5;  
+            let knockbackVector = p5.Vector.sub(obj.position, building.position);
+            knockbackVector.setMag(knockbackForce);
+            obj.position.add(knockbackVector);
 
             if (!obj.controlDisabled) {
               obj.controlDisabled = true;
@@ -309,31 +306,24 @@ function PlaySketch(p) {
     }
   }
 
-  //enemy collision check
   function checkCarCollisions(car, enemies) {
     for (let enemy of enemies) {
       if (car.collider.intersects(enemy.collider)) {
         car.healthBar = Math.max(0, car.healthBar - enemy.attackDamage);
-
-        //use relative velocity to scale knockback
         let relativeVelocity = p5.Vector.sub(car.velocity, enemy.velocity).mag();
-        let knockbackForce = p.map(relativeVelocity, 0, 10, 5, 20); //adjust scaling
-  
-        //apply knockback in opposite directions
+        let knockbackForce = p.map(relativeVelocity, 0, 10, 5, 20);
         let knockbackVector = p5.Vector.sub(car.position, enemy.position);
         knockbackVector.setMag(knockbackForce);
-  
         car.position.add(knockbackVector);
-        enemy.position.sub(knockbackVector); //push enemy slightly
+        enemy.position.sub(knockbackVector);
 
-        //temp disable enemy movement to prevent rapid collisions
         if (!enemy.controlDisabled) {
           enemy.controlDisabled = true;
           setTimeout(() => {
-              enemy.controlDisabled = false;
+            enemy.controlDisabled = false;
           }, 750);
         }
       }
     }
   }
-} 
+}
