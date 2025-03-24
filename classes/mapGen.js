@@ -135,6 +135,22 @@ function drawBezierRoad(p, x0, y0, x1, y1, x2, y2, width) {
   }
 }
 
+//Function to get tile type to determine if car is on grass or road
+function getTileTypeAt(x, y) {
+  let col = Math.floor(x / gridSize);
+  let row = Math.floor(y / gridSize);
+
+  if (row >= 0 && row < map.length && col >= 0 && col < map[row].length) {
+      let tile = map[row][col];
+      if (tile instanceof Road) {
+          return "road";
+      } else if (tile instanceof Grass) {
+          return "grass";
+      }
+  }
+  return "unknown"; //default case (e.g., out of bounds)
+}
+
 
 // Draws Buildings given the cordinates 
 function drawRectBuilding(p, xStart, yStart, xEnd, yEnd) {

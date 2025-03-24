@@ -15,6 +15,8 @@ class Car extends GameObject {
     const SAVED_STATS = data.stats;
     const selectedCarIndex = data.selectedCar || 0;
 
+    this.baseAcceleration = SAVED_STATS.acceleration;
+    this.baseMaxSpeed = SAVED_STATS.maxSpeed;
     this.acceleration = SAVED_STATS.acceleration;
     this.maxSpeed = SAVED_STATS.maxSpeed;
     this.friction = 0.05;
@@ -66,6 +68,18 @@ class Car extends GameObject {
       console.log("Game Over Triggered!"); // Debugging log
     }
 
+    //check terrain type
+    let terrainType = getTileTypeAt(this.position.x, this.position.y);
+    console.log(`Car is on: ${terrainType} at (${this.position.x}, {$this.position.y})`)
+    
+    if (terrainType === "grass") {
+      this.acceleration = this.baseAcceleration * 0.65; //reduce acceleration
+      this.maxSpeed = this.baseMaxSpeed * 0.65; //reduce max speed
+    } else {
+      this.acceleration = this.baseAcceleration;
+      this.maxSpeed = this.baseMaxSpeed;
+    }
+
     // W key: accelerate
     if (p.keyIsDown(87) && !this.controlDisabled) {
       // F key: boost
@@ -75,6 +89,8 @@ class Car extends GameObject {
         this.lastBoostTime = Date.now();
 
         if (this.speed < 0) this.speed = 0.01;
+        //make sure speed does not exceed max allowed for the terrain
+        this.speed = Math.min(this.speed, this.maxSpeed);
         this.speed = p.constrain(
           this.speed + this.acceleration * 2.5, // Stronger boost
           this.reverseSpeed * 2,
