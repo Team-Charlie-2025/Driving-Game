@@ -89,7 +89,7 @@ class Car extends GameObject {
         this.lastBoostTime = Date.now();
 
         if (this.speed < 0) this.speed = 0.01;
-        //make sure speed does not exceed max allowed for the terrain
+        //make sure speed does not exceed max allowed for terrain
         this.speed = Math.min(this.speed, this.maxSpeed);
         this.speed = p.constrain(
           this.speed + this.acceleration * 2.5, // Stronger boost
