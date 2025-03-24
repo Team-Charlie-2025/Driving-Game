@@ -20,11 +20,11 @@ function MapEditorSketch(p) {
 
   const assetPanelWidth = gridSize * 6;   // 192px
   const visibleThumbnailCount = 6;
-  const thumbnailSize = gridSize * 4;     // reduced to 128px to avoid overflow
+  const thumbnailSize = gridSize * 4;     // 128px
   const thumbnailSpacing = 10;
   const categoryButtonHeight = 40;
   const categoryButtonsHeight = categories.length * categoryButtonHeight + 20;
-  const thumbnailsAreaY = categoryButtonsHeight; // Start thumbnails below buttons
+  const thumbnailsAreaY = categoryButtonsHeight;
 
   let thumbnailScroll = 0;
 
@@ -184,80 +184,62 @@ function MapEditorSketch(p) {
     }
     p.pop();
   }
-  
-  // ----- Helper: Place Tile in Centered Grid -----
+
   function placeTile() {
     if (!selectedTile) return;
     let offset = getGridOffset();
-    // Only place tile if mouse is within the grid.
+    let img = selectedTile.img;
+    const imgW = Math.ceil(img.width / gridSize) * gridSize;
+    const imgH = Math.ceil(img.height / gridSize) * gridSize;
+
+    const centerX = p.mouseX;
+    const centerY = p.mouseY;
+
+    const snappedX = offset.x + Math.floor((centerX - offset.x - imgW / 2) / gridSize) * gridSize;
+    const snappedY = offset.y + Math.floor((centerY - offset.y - imgH / 2) / gridSize) * gridSize;
+
     if (
-      p.mouseX < offset.x ||
-      p.mouseX >= offset.x + offset.gridWidth ||
-      p.mouseY < offset.y ||
-      p.mouseY >= offset.y + offset.gridHeight
+      snappedX < offset.x ||
+      snappedX + imgW > offset.x + offset.gridWidth ||
+      snappedY < offset.y ||
+      snappedY + imgH > offset.y + offset.gridHeight
     ) {
       return;
     }
-    const gridX = Math.floor((p.mouseX - offset.x) / gridSize);
-    const gridY = Math.floor((p.mouseY - offset.y) / gridSize);
-    const snappedX = offset.x + gridX * gridSize;
-    const snappedY = offset.y + gridY * gridSize;
-    let img = selectedTile.img;
-    let tileW = gridSize;
-    let tileH = gridSize;
-    // Remove any tile on the same layer in the same cell.
-    for (let i = placedTiles.length - 1; i >= 0; i--) {
-      let tile = placedTiles[i];
-      if (tile.layer === selectedLayer &&
-          tile.gridX === gridX &&
-          tile.gridY === gridY) {
-        placedTiles.splice(i, 1);
-      }
-    }
+
     placedTiles.push({
       img: img,
       x: snappedX,
       y: snappedY,
-      w: tileW,
-      h: tileH,
+      w: imgW,
+      h: imgH,
       layer: selectedLayer,
       hasCollider: hasColliderCheckbox.checked(),
       category: selectedTile.category,
-      index: selectedTile.index,
-      gridX: gridX,
-      gridY: gridY
+      index: selectedTile.index
     });
   }
-  
-  // ----- Helper: Erase Tile in Centered Grid -----
+
   function eraseTile() {
     let offset = getGridOffset();
-    if (
-      p.mouseX < offset.x ||
-      p.mouseX >= offset.x + offset.gridWidth ||
-      p.mouseY < offset.y ||
-      p.mouseY >= offset.y + offset.gridHeight
-    ) {
-      return;
-    }
-    const gridX = Math.floor((p.mouseX - offset.x) / gridSize);
-    const gridY = Math.floor((p.mouseY - offset.y) / gridSize);
     for (let i = placedTiles.length - 1; i >= 0; i--) {
       let tile = placedTiles[i];
-      if (tile.layer === selectedLayer &&
-          tile.gridX === gridX &&
-          tile.gridY === gridY) {
+      if (
+        p.mouseX >= tile.x &&
+        p.mouseX <= tile.x + tile.w &&
+        p.mouseY >= tile.y &&
+        p.mouseY <= tile.y + tile.h &&
+        tile.layer === selectedLayer
+      ) {
         placedTiles.splice(i, 1);
         break;
       }
     }
   }
-  
-  // ----- p5 Mouse Pressed Handler -----
+
   p.mousePressed = function(e) {
     if (e.target !== p.canvas) return;
-    
-    // If click is in the asset panel area, check for thumbnail selection.
+
     if (p.mouseX < assetPanelWidth) {
       const startY = thumbnailsAreaY;
       for (let i = 0; i < thumbnails.length; i++) {
@@ -279,8 +261,7 @@ function MapEditorSketch(p) {
       }
       return;
     }
-    
-    // Process grid clicks.
+
     if (p.mouseButton === p.LEFT) {
       placeTile();
     } else if (p.mouseButton === p.RIGHT) {
@@ -288,34 +269,21 @@ function MapEditorSketch(p) {
     }
   };
 
-  // ----- p5 Mouse Dragged Handler -----
   p.mouseDragged = function(e) {
     if (e.target !== p.canvas) return;
-    let offset = getGridOffset();
-    // If dragging within the grid area, process placement or erasure.
-    if (
-      p.mouseX >= offset.x &&
-      p.mouseX < offset.x + offset.gridWidth &&
-      p.mouseY >= offset.y &&
-      p.mouseY < offset.y + offset.gridHeight
-    ) {
-      if (p.mouseButton === p.LEFT) {
-        placeTile();
-      } else if (p.mouseButton === p.RIGHT) {
-        eraseTile();
-      }
+    if (p.mouseButton === p.LEFT) {
+      placeTile();
+    } else if (p.mouseButton === p.RIGHT) {
+      eraseTile();
     }
   };
 
-  // ----- Save Map Functionality -----
   function saveMap() {
     let mapData = {
       gridSize: gridSize,
       tiles: placedTiles.map(tile => ({
         x: tile.x,
         y: tile.y,
-        gridX: tile.gridX,
-        gridY: tile.gridY,
         w: tile.w,
         h: tile.h,
         layer: tile.layer,
@@ -328,7 +296,6 @@ function MapEditorSketch(p) {
     p.saveJSON(mapData, `/maps/${filename}`);
   }
 
-  // ----- Load Map Functionality -----
   function loadMap(e) {
     if (e) e.stopPropagation();
     let filename = mapSelect.value();
@@ -344,8 +311,6 @@ function MapEditorSketch(p) {
           img: img,
           x: t.x,
           y: t.y,
-          gridX: t.gridX,
-          gridY: t.gridY,
           w: t.w,
           h: t.h,
           layer: t.layer,
@@ -359,7 +324,6 @@ function MapEditorSketch(p) {
     });
   }
 
-  // ----- Handle Window Resize -----
   p.windowResized = function() {
     p.resizeCanvas(p.windowWidth, p.windowHeight);
   };
