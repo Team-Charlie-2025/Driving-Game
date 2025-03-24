@@ -5,7 +5,7 @@ let shieldElapsedTime = null;
 
 class ItemsManager {
     static shieldResetGame(){
-      shieldStartTime = null; //start time
+      shieldStartTime = null;
       currentTime = null;
       shieldElapsedTime = null; 
     }
