@@ -1,13 +1,12 @@
 // /scripts/mapEditor.js
 
 function MapEditorSketch(p) {
-  // ----- Global Variables -----
   const categories = ['buildings', 'roads', 'terrain', 'doodads'];
   let currentTab = 'terrain';
   let assetManifest = {}; // Loaded from manifest.txt files
-  let assets = {};        // Holds loaded images per category
-  let thumbnails = [];    // Images for the current tab
-  let selectedTile = null;  // { img, category, index }
+  let assets = {};
+  let thumbnails = [];
+  let selectedTile = null;
   let selectedLayer = 0;
   let hasColliderCheckbox;
   let saveButton, loadButton, mapSelect;
@@ -18,9 +17,9 @@ function MapEditorSketch(p) {
   const mapCols = 32;
   const mapRows = 32;
 
-  const assetPanelWidth = gridSize * 6;   // 192px
+  const assetPanelWidth = gridSize * 6;
   const visibleThumbnailCount = 6;
-  const thumbnailSize = gridSize * 4;     // 128px
+  const thumbnailSize = gridSize * 4;
   const thumbnailSpacing = 10;
   const categoryButtonHeight = 40;
   const categoryButtonsHeight = categories.length * categoryButtonHeight + 20;
