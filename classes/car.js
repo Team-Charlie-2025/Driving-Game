@@ -72,13 +72,23 @@ class Car extends GameObject {
     let terrainType = getTileTypeAt(this.position.x, this.position.y);
     //console.log(`Car is on: ${terrainType} at (${this.position.x}, {$this.position.y})`)
     
-    if (terrainType === "grass") {
-      this.acceleration = this.baseAcceleration * 0.65; //reduce acceleration
-      this.maxSpeed = this.baseMaxSpeed * 0.65; //reduce max speed
+    if(this.isBoosting) {
+      if (terrainType === "grass") {
+        this.acceleration = this.baseAcceleration * 1.5; //smaller boost on grass
+        this.maxSpeed = this.baseMaxSpeed * 1.75; //lower maxSpeed increase on grass
+      } else {
+        this.acceleration = this.baseAcceleration * 2.5;
+        this.maxSpeed = this.baseMaxSpeed * 3;
+      }
     } else {
-      this.acceleration = this.baseAcceleration;
-      this.maxSpeed = this.baseMaxSpeed;
-    }
+      if (terrainType === "grass") {
+        this.acceleration = this.baseAcceleration * 0.65; //reduce acceleration
+        this.maxSpeed = this.baseMaxSpeed * 0.65; //reduce max speed
+      } else {
+        this.acceleration = this.baseAcceleration;
+        this.maxSpeed = this.baseMaxSpeed;
+      }
+    }   
 
     // W key: accelerate
     if (p.keyIsDown(87) && !this.controlDisabled) {
@@ -96,6 +106,7 @@ class Car extends GameObject {
           this.reverseSpeed * 2,
           this.maxSpeed * 3 // Higher top speed during boost
         );
+        //console.log(`Boost activated. Speed: ${this.speed.toFixed(2)}, Max Speed: ${this.maxSpeed.toFixed(2)}`);
       } else {
         this.isBoosting = false;
         if (this.speed > this.maxSpeed) {
@@ -108,6 +119,7 @@ class Car extends GameObject {
           );
         }
       }
+      //console.log(`Boost ended. Speed: ${this.speed.toFixed(2)}, Max Speed: ${this.maxSpeed.toFixed(2)}`);
     }
 
     // S key: brake/reverse
