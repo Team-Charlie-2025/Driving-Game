@@ -70,7 +70,7 @@ class Car extends GameObject {
 
     //check terrain type
     let terrainType = getTileTypeAt(this.position.x, this.position.y);
-    console.log(`Car is on: ${terrainType} at (${this.position.x}, {$this.position.y})`)
+    //console.log(`Car is on: ${terrainType} at (${this.position.x}, {$this.position.y})`)
     
     if (terrainType === "grass") {
       this.acceleration = this.baseAcceleration * 0.65; //reduce acceleration
