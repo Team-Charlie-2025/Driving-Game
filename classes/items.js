@@ -14,9 +14,9 @@ class ItemsManager {
       if(!this.ifShield())
         return; //dont display if zero?
       p.fill(50);
-      p.rect(300, 20, shieldMaxTime * 6 /1000, 25);
+      p.rect(300, 20, shieldMaxTime * 10 /1000, 25);
       p.fill(0, 255, 0);
-      p.rect(300, 20, (shieldMaxTime * 6 /1000) - (shieldElapsedTime * 6 /1000) , 25);
+      p.rect(300, 20, (shieldMaxTime * 10 /1000) - (shieldElapsedTime * 10 /1000) , 25);
 
       p.fill(255);
       p.textSize(16);
