@@ -122,10 +122,8 @@ function checkShieldCollisions(shields, car, p) {
   if (!car) return shields;
   for (let shield of shields) {
     if (!shield.collected && shield.collider && shield.collider.intersects(car.collider)) {
-      if(!ItemsManager.ifShieldFull()){ //only collect if theres something to gain
         shield.collected = true;
         ItemsManager.shieldCollected();
-      }
     }
   }
   return shields.filter(shield => !shield.collected);

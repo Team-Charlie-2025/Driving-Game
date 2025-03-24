@@ -248,7 +248,7 @@ function PlaySketch(p) {
       p.text("Health", 20, 18);
       p.text("Boost", 20, 58);
 
-      ItemsManager.sheildDisplayBar(p);
+      ItemsManager.shieldDisplayBar(p);
   
       // debug positional for car
       if (car) {
