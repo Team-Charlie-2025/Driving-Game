@@ -292,6 +292,7 @@ function PlaySketch(p) {
 
     if (window.isGameOver) {
       if (p.keyIsDown(82)) { // 'R' key
+        ItemsManager.shieldResetGame(); //fix shield error
         switchSketch(Mode.PLAY);
       }
       if (p.keyIsDown(77)) { // 'M' key
