@@ -1,6 +1,7 @@
 // scripts/play.js
 
 function PlaySketch(p) {
+  let gameOverSound = true;
   let car;
   let physicsEngine;
   let zoomFactor = 2.5;
@@ -8,12 +9,13 @@ function PlaySketch(p) {
   let ENEMY_SPAWN_RATE = 10000 / window.difficulty; // 1000 = 1 seconds
   let lastSpawn = 0;
   let coins = [];
+  let shields= [];
   window.coinsCollected = 0;
   
   p.preload = function() {
     loadMusic(p);
     loadSoundEffects(p);
-    p.carImg = p.loadImage("assets/car.png");
+    //p.carImg = p.loadImage("assets/car.png");
     p.buildingImg = p.loadImage("assets/building.png");
     p.enemyImg = p.loadImage("assets/police+car.png"); // Add enemy image
   };
@@ -37,6 +39,7 @@ function PlaySketch(p) {
     // coin creation, positioning, building check, and logs
     ////////////////////////////////////////////////
     const totalCoins = 750;
+    const totalSheilds = 200; 
     let attempts = 0;
     const maxAttempts = 10000; 
     while (coins.length < totalCoins && attempts < maxAttempts) {
@@ -57,10 +60,33 @@ function PlaySketch(p) {
     if (attempts >= maxAttempts && debug) {
       console.log("Max attempts reached while spawning coins. Coins spawned: " + coins.length);
     }
+    // shield creation, positioning, building check, and logs
+    attempts = 0;
+    while (shields.length < totalSheilds && attempts < maxAttempts) {
+      // random map index
+      let randX = Math.floor(p.random(0, map[0].length));
+      let randY = Math.floor(p.random(0, map.length));
+      
+      // checks tile, if road, puts coin in center
+      if (map[randY] && map[randY][randX] instanceof Road) {
+        let shieldX = randX * gridSize + gridSize / 2;
+        let shieldY = randY * gridSize + gridSize / 2;
+        if (window.debug) console.log(`Spawning sheild ${shields.length + 1} at tile (${randX}, ${randY}) with world coordinates (${shieldX}, ${shieldY})`);
+        shields.push(new Shield(p, shieldX, shieldY));
+      }
+      attempts++;
+    }
+    
+    if (attempts >= maxAttempts && debug) {
+      console.log("Max attempts reached while spawning shields. Shields spawned: " + sheilds.length);
+    }
     ////////////////////////////////////////////////
 
 
     p.showGameOverScreen = function () {
+        bgMusic(Mode.PLAY, p, "stop");
+        if(gameOverSound) {soundEffect("gameOver", p, "play"); gameOverSound = false;} //only play once
+      
         p.push();
         p.fill(150, 0, 0, 180); // Semi-transparent red overlay
         p.rect(0, 0, p.width, p.height);
@@ -139,6 +165,7 @@ function PlaySketch(p) {
   
     // GAMEPLAY LOGIC
     coins = checkCoinCollisions(coins, car, p);
+    shields = checkShieldCollisions(shields, car, p);
 
     if (!car) {
       const stats = loadPersistentData().stats;
@@ -170,6 +197,7 @@ function PlaySketch(p) {
       });
   
       coins.forEach(coin => coin.display());
+      shields.forEach(shield => shield.display());
   
       if (window.debug) {
         physicsEngine.objects.forEach(obj => {
@@ -196,6 +224,8 @@ function PlaySketch(p) {
           }
         }
       }
+      if(ItemsManager.ifShield()) //draw outline on car for shield
+        car.collider.drawOutline(true);
     p.pop();
   
     // UI
@@ -217,6 +247,8 @@ function PlaySketch(p) {
       p.textSize(16);
       p.text("Health", 20, 18);
       p.text("Boost", 20, 58);
+
+      ItemsManager.shieldDisplayBar(p);
   
       // debug positional for car
       if (car) {
@@ -263,7 +295,6 @@ function PlaySketch(p) {
         switchSketch(Mode.PLAY);
       }
       if (p.keyIsDown(77)) { // 'M' key
-        bgMusic(Mode.PLAY, p, "stop");
         clearInterval(window.enemySpawnInterval);
         switchSketch(Mode.TITLE); // Go back to main menu
       }
@@ -284,6 +315,10 @@ function PlaySketch(p) {
         if (map[j] && map[j][i] instanceof Building) {
           let building = map[j][i];
           if (obj.collider.intersects(building.collider)) {
+
+              if( ! (obj instanceof Enemy) ){
+                obj.buildingCollision(); //user car gets damage
+              }
             if (obj.velocity) {  //reverse velocity (enemy & player)
               obj.velocity.mult(-1);
           }
@@ -313,7 +348,6 @@ function PlaySketch(p) {
   function checkCarCollisions(car, enemies) {
     for (let enemy of enemies) {
       if (car.collider.intersects(enemy.collider)) {
-        car.healthBar = Math.max(0, car.healthBar - enemy.attackDamage);
 
         //use relative velocity to scale knockback
         let relativeVelocity = p5.Vector.sub(car.velocity, enemy.velocity).mag();
