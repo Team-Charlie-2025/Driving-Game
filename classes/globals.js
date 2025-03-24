@@ -34,6 +34,7 @@ function loadSoundEffects(p) {
   window.soundEffects = {};
   window.soundEffects["carStart"] = p.loadSound("sound/carStart.wav");
   window.soundEffects["pageChange"] = p.loadSound("sound/newPage.wav");
+  window.soundEffects["gameOver"] = p.loadSound("sound/GameOver.wav");
   for (let key in window.soundEffects) {
     window.soundEffects[key].setVolume(effectsVolume);
 }
@@ -108,7 +109,11 @@ function loadAnimations(p) {
   window.animations["coin"].push(p.loadImage("graphics/coinAnimation/tile003.png"));
   window.animations["coin"].push(p.loadImage("graphics/coinAnimation/tile004.png"));
 
-  console.log("coin animations loaded");
+  window.animations["shield"] = [];
+  window.animations["shield"].push(p.loadImage("graphics/shieldAnimation/shield1.png"));
+  //add other images after animation is made
+
+  console.log("animations loaded");
 }
 //////////////////////////////////////////////////
 
