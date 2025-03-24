@@ -175,8 +175,8 @@ class Truck extends Enemy {
     // Adjust width and height separately for truck proportions
     // Make the truck longer than it is wide
     if (this.currentImage) {
-      this.width = 160 * this.visualScale;  // Wider/longer
-      this.height = 50 * this.visualScale; // Less tall
+      this.width = 146 //* this.visualScale;  // Wider/longer
+      this.height = 59 //* this.visualScale; // Less tall
       
       // Update collider to match new dimensions
       this.collider = new Collider(
@@ -237,12 +237,17 @@ class Motorcycle extends Enemy {
     
     // Update collider to match new size
     if (this.currentImage) {
-      this.width = 64 * this.visualScale;
-      this.height = 64 * this.visualScale;
+      this.width = 70 //* this.visualScale;  // Wider/longer
+      this.height = 36 //* this.visualScale; // Less tall
+      
+      // Update collider to match new dimensions
       this.collider = new Collider(
         this,
         "polygon",
-        { offsetX: -32 * this.visualScale, offsetY: -32 * this.visualScale },
+        { 
+          offsetX: -this.width / 2, 
+          offsetY: -this.height / 2 
+        },
         this.currentImage
       );
     }

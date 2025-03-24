@@ -1,46 +1,48 @@
 // classes/van.js - New vehicle class
 
 class Van extends Car {
-    constructor(p, x, y, stats) {
-      // Call parent constructor with base stats
-      super(p, x, y, stats);
-      
-      // Modify base properties for the van
-      this.maxSpeed = this.maxSpeed * 0.7;      // 30% slower than regular car
-      this.turnRadius = 0.06;                   // Worse turning (higher value = worse)
-      this.friction = 0.04;                     // Slightly less friction
-      this.healthBar = this.healthBar * 1.6;    // 60% more health
-      
-      // Boost modifications
-      this.boostMax = 150;                      // 50% more boost capacity
-      this.boostMeter = this.boostMax;          // Start with full boost
-      this.boostRegenDelay = 1000;              // 1 second delay before regen (faster)
-      this.boostRegenRate = 2.5;                // Faster regeneration
-      
-      // Visual adjustments if needed
-      this.width = 80;
-      this.height = 48;
-      
-      // Update the collider to match the van dimensions
-      if (this.currentImage) {
-        this.collider = new Collider(
-          this,
-          "polygon",
-          { 
-            offsetX: -this.width / 2, 
-            offsetY: -this.height / 2 
-          },
-          this.currentImage
-        );
-      } else {
-        this.collider = new Collider(this, "rectangle", {
-          width: this.width,
-          height: this.height,
-          offsetX: -this.width / 2,
-          offsetY: -this.height / 2,
-        });
-      }
+  constructor(p, x, y, stats) {
+    // Call parent constructor with base stats
+    super(p, x, y, stats);
+    
+    // Modify base properties for the van
+    this.maxSpeed = this.maxSpeed * 0.7;      // 30% slower than regular car
+    this.turnRadius = 0.06;                   // Worse turning (higher value = worse)
+    this.friction = 0.04;                     // Slightly less friction
+    this.healthBar = this.healthBar * 1.6;    // 60% more health
+    
+    // Boost modifications
+    this.boostMax = 150;                      // 50% more boost capacity
+    this.boostMeter = this.boostMax;          // Start with full boost
+    this.boostRegenDelay = 1000;              // 1 second delay before regen (faster)
+    this.boostRegenRate = 2.5;                // Faster regeneration
+    
+    // Visual adjustments - wider but not as tall
+    this.width = 116;                         // Wider than car
+    this.height = 59;                         // Thinner/shorter
+    
+    // Create a proper polygon collider from the image - this is key for accurate collisions
+    this.currentImage = p.vanImg || this.currentImage;
+    if (this.currentImage) {
+      this.collider = new Collider(
+        this,
+        "polygon",
+        { 
+          offsetX: -this.width / 2, 
+          offsetY: -this.height / 2 
+        },
+        this.currentImage
+      );
+    } else {
+      // Fallback rectangle collider if no image
+      this.collider = new Collider(this, "rectangle", {
+        width: this.width,
+        height: this.height,
+        offsetX: -this.width / 2,
+        offsetY: -this.height / 2,
+      });
     }
+  }
     
     // Override the update method to include van-specific boost behavior
     update() {

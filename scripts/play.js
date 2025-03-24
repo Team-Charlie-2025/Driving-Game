@@ -128,8 +128,8 @@ function PlaySketch(p) {
     const y = car.position.y + spawnDistance * p.sin(angle);
 
     // Define spawn probabilities (must sum to 1.0 or 100%)
-    const COP_CAR_CHANCE = 0.60;  // 60% chance for regular Enemy (cop car)
-    const TRUCK_CHANCE = 0.20;    // 20% chance for Truck
+    const COP_CAR_CHANCE = 0.0;  // 60% chance for regular Enemy (cop car)
+    const TRUCK_CHANCE = 0.0;    // 20% chance for Truck
     const BIKE_CHANCE = 0.20;     // 20% chance for Motorcycle
 
     // Generate a random value between 0 and 1
