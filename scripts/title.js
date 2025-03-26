@@ -73,6 +73,7 @@ function TitleSketch(p) {
   };
 
   p.mousePressed = function () {
+    bgMusic(Mode.TITLE, p, "loop"); 
     for (let btn of buttons) {
       if (btn.isMouseOver(p)) {
         bgMusic(Mode.TITLE, p, "stop");
