@@ -102,7 +102,7 @@ function TitleSketch(p) {
       })
   ); 
   buttons.push(
-    new Button("Leaderboard", p.width / 1.2, p.height - p.height * 0.90, p.width, p.height, function () {
+    new Button("Leaderboard", p.width / 1.2, p.height - p.height * 0.85, p.width, p.height, function () {
       switchSketch(Mode.LEADERBOARD);
     })
   );

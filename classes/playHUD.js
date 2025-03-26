@@ -1,6 +1,8 @@
 // Heads up display function for the play screen
 //will hopefull help with fututre modification
 
+//make all functions into classes
+
 function gameHUD(p, car){
     timeDisplay(p);
     coinDisplay(p);
@@ -41,7 +43,7 @@ function healthBar(p, car){// Draw Health Bar
 
     p.fill(0, 255, 0);
     p.rect(xpos, ypos, (car.healthBar /maxHealth) * width, height);
-    
+
   // Label
     p.fill(255);
     p.textSize(16);
