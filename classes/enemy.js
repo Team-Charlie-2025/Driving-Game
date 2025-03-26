@@ -1,6 +1,6 @@
 // classes/enemy.js
-
-class Enemy extends Car {
+// DOES NOT EXTEND USER CAR NOW
+class Enemy extends GameObject{
   constructor(p, x, y, target) {
     const stats = {
       acceleration: 0.4 * window.difficulty,

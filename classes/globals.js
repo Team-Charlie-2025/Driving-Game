@@ -11,6 +11,7 @@ function loadGlobals(p) {
   loadButtons(p);
   loadAnimations(p);
   window.buildingImg = p.loadImage("assets/building.png");
+  window.barImg = p.loadImage("graphics/basicBar.png");
   window.difficulty = 1.0;
   window.debug = false;
   globalsLoaded = true;
@@ -111,6 +112,9 @@ function loadAnimations(p) {
 
   window.animations["shield"] = [];
   window.animations["shield"].push(p.loadImage("graphics/shieldAnimation/shield1.png"));
+  window.animations["shield"].push(p.loadImage("graphics/shieldAnimation/shield2.png"));
+  window.animations["shield"].push(p.loadImage("graphics/shieldAnimation/shield3.png"));
+  window.animations["shield"].push(p.loadImage("graphics/shieldAnimation/shield4.png"));
   //add other images after animation is made
 
   console.log("animations loaded");

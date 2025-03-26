@@ -32,23 +32,11 @@ class ItemsManager {
       shieldStartTime = currentTime; //new start time
     }
     static shieldDamage(damageTaken){
-        if (!this.ifShield()){
+      if (!this.ifShield()){
             return damageTaken; //no shield active
-        }
-        /*
-        else if (damageTaken <= currentShield){
-            currentShield -=damageTaken; //shield active
-            return 0;
-        }
-        else{ //shield active but weak
-            let temp = currentShield;
-            currentShield = 0;
-            return damageTaken - temp;
-        }
-        */
-       else
+      }
+      else
         return 0;
-
     }
   }
 
@@ -66,14 +54,10 @@ class Shield extends GameObject {
       });
     }
   
-    update() {
-    }
-  
     display() { 
       const p = this.p;
       const frameDuration = 150; // 5fps
-      //const frameIndex = Math.floor(p.millis() / frameDuration) % window.animations["shield"].length;
-      const frameIndex = 0;
+      const frameIndex = Math.floor(p.millis() / frameDuration) % window.animations["shield"].length;
       const shieldImg = window.animations["shield"][frameIndex];
   
       p.push();
