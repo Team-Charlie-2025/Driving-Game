@@ -26,6 +26,7 @@ function MapEditorSketch(p) {
   const thumbnailsAreaY = categoryButtonsHeight;
 
   let thumbnailScroll = 0;
+  let currentRotation = 0; 
 
   function getGridOffset() {
     const gridWidth = mapCols * gridSize;
@@ -122,18 +123,60 @@ function MapEditorSketch(p) {
     selectedTile = null;
   }
 
+  function getEffectiveDimensions(img, rotation) {
+    const origW = Math.ceil(img.width / gridSize) * gridSize;
+    const origH = Math.ceil(img.height / gridSize) * gridSize;
+    if (rotation % 180 !== 0) {
+      return { w: origH, h: origW };
+    }
+    return { w: origW, h: origH };
+  }
+
   p.draw = function() {
     p.background(220);
     drawGrid();
     drawPlacedTiles();
+
+    if (selectedTile) {
+      let offset = getGridOffset();
+      if (
+        p.mouseX >= offset.x &&
+        p.mouseX <= offset.x + offset.gridWidth &&
+        p.mouseY >= offset.y &&
+        p.mouseY <= offset.y + offset.gridHeight
+      ) {
+        const snappedX = offset.x + Math.floor((p.mouseX - offset.x) / gridSize) * gridSize;
+        const snappedY = offset.y + Math.floor((p.mouseY - offset.y) / gridSize) * gridSize;
+        let { w: shadowW, h: shadowH } = getEffectiveDimensions(selectedTile.img, selectedTile.rotation);
+        p.push();
+        p.translate(snappedX + shadowW / 2, snappedY + shadowH / 2);
+        p.rotate(selectedTile.rotation * p.PI / 180);
+        p.tint(255, 100); 
+        p.image(selectedTile.img, -shadowW / 2, -shadowH / 2, shadowW, shadowH);
+        p.pop();
+      }
+    }
+
     drawAssetPanel();
+
+    if (selectedTile) {
+      let { w: previewW, h: previewH } = getEffectiveDimensions(selectedTile.img, selectedTile.rotation);
+      p.push();
+      p.translate(p.mouseX + 10 + previewW / 2, p.mouseY + 10 + previewH / 2);
+      p.rotate(selectedTile.rotation * p.PI / 180);
+      p.tint(255, 200);
+      p.image(selectedTile.img, -previewW / 2, -previewH / 2, previewW, previewH);
+      p.pop();
+    }
   };
 
   function drawGrid() {
     let offset = getGridOffset();
     p.stroke(180);
-    for (let x = offset.x; x <= offset.x + offset.gridWidth; x += gridSize) p.line(x, offset.y, x, offset.y + offset.gridHeight);
-    for (let y = offset.y; y <= offset.y + offset.gridHeight; y += gridSize) p.line(offset.x, y, offset.x + offset.gridWidth, y);
+    for (let x = offset.x; x <= offset.x + offset.gridWidth; x += gridSize)
+      p.line(x, offset.y, x, offset.y + offset.gridHeight);
+    for (let y = offset.y; y <= offset.y + offset.gridHeight; y += gridSize)
+      p.line(offset.x, y, offset.x + offset.gridWidth, y);
     p.noFill();
     p.stroke(0);
     p.rect(offset.x, offset.y, offset.gridWidth, offset.gridHeight);
@@ -141,12 +184,16 @@ function MapEditorSketch(p) {
 
   function drawPlacedTiles() {
     placedTiles.sort((a, b) => a.layer - b.layer).forEach(tile => {
-      p.image(tile.img, tile.x, tile.y, tile.w, tile.h);
+      p.push();
+      p.translate(tile.x + tile.w / 2, tile.y + tile.h / 2);
+      p.rotate(tile.rotation * p.PI / 180);
+      p.image(tile.img, -tile.w / 2, -tile.h / 2, tile.w, tile.h);
       if (tile.hasCollider) {
         p.noFill();
         p.stroke(255, 0, 0);
-        p.rect(tile.x, tile.y, tile.w, tile.h);
+        p.rect(-tile.w / 2, -tile.h / 2, tile.w, tile.h);
       }
+      p.pop();
     });
   }
 
@@ -196,8 +243,8 @@ function MapEditorSketch(p) {
     if (!selectedTile) return;
     let offset = getGridOffset();
     let img = selectedTile.img;
-    const imgW = Math.ceil(img.width / gridSize) * gridSize;
-    const imgH = Math.ceil(img.height / gridSize) * gridSize;
+    let rotation = selectedTile.rotation || 0;
+    let { w: effectiveW, h: effectiveH } = getEffectiveDimensions(img, rotation);
 
     const centerX = p.mouseX;
     const centerY = p.mouseY;
@@ -207,37 +254,37 @@ function MapEditorSketch(p) {
 
     if (
       snappedX < offset.x ||
-      snappedX + imgW > offset.x + offset.gridWidth ||
+      snappedX + effectiveW > offset.x + offset.gridWidth ||
       snappedY < offset.y ||
-      snappedY + imgH > offset.y + offset.gridHeight
+      snappedY + effectiveH > offset.y + offset.gridHeight
     ) {
       return;
     }
     for (let tile of placedTiles) {
-        if (tile.layer === selectedLayer) {
-            if (
-                snappedX < tile.x + tile.w &&
-                snappedX + imgW > tile.x &&
-                snappedY < tile.y + tile.h &&
-                snappedY + imgH > tile.y
-            ) {
-                return; 
-            }
+      if (tile.layer === selectedLayer) {
+        if (
+          snappedX < tile.x + tile.w &&
+          snappedX + effectiveW > tile.x &&
+          snappedY < tile.y + tile.h &&
+          snappedY + effectiveH > tile.y
+        ) {
+          return; 
         }
+      }
     }
     placedTiles.push({
-        img: img,
-        x: snappedX,
-        y: snappedY,
-        w: imgW,
-        h: imgH,
-        layer: selectedLayer,
-        hasCollider: hasColliderCheckbox.checked(),
-        category: selectedTile.category,
-        index: selectedTile.index
+      img: img,
+      x: snappedX,
+      y: snappedY,
+      w: effectiveW,
+      h: effectiveH,
+      layer: selectedLayer,
+      hasCollider: hasColliderCheckbox.checked(),
+      category: selectedTile.category,
+      index: selectedTile.index,
+      rotation: rotation
     });
-}
-
+  }
 
   function eraseTile() {
     let offset = getGridOffset();
@@ -256,16 +303,15 @@ function MapEditorSketch(p) {
     }
   }
 
-
   function fillTiles() {
     if (!selectedTile) return;
     
     let offset = getGridOffset();
     let img = selectedTile.img;
-    const imgW = Math.ceil(img.width / gridSize) * gridSize;
-    const imgH = Math.ceil(img.height / gridSize) * gridSize;
-    const tileCellsWide = imgW / gridSize;
-    const tileCellsHigh = imgH / gridSize;
+    let rotation = selectedTile.rotation || 0;
+    let { w: effectiveW, h: effectiveH } = getEffectiveDimensions(img, rotation);
+    const tileCellsWide = effectiveW / gridSize;
+    const tileCellsHigh = effectiveH / gridSize;
     
     let startCol = Math.floor((p.mouseX - offset.x) / gridSize);
     let startRow = Math.floor((p.mouseY - offset.y) / gridSize);
@@ -287,17 +333,18 @@ function MapEditorSketch(p) {
     
     while (queue.length) {
       let cell = queue.shift();
-      if (canPlaceTileAt(cell.col, cell.row, imgW, imgH)) {
+      if (canPlaceTileAt(cell.col, cell.row, effectiveW, effectiveH)) {
         placedTiles.push({
           img: img,
           x: offset.x + cell.col * gridSize,
           y: offset.y + cell.row * gridSize,
-          w: imgW,
-          h: imgH,
+          w: effectiveW,
+          h: effectiveH,
           layer: selectedLayer,
           hasCollider: hasColliderCheckbox.checked(),
           category: selectedTile.category,
-          index: selectedTile.index
+          index: selectedTile.index,
+          rotation: rotation
         });
         
         let neighbors = [
@@ -349,7 +396,7 @@ function MapEditorSketch(p) {
     }
   }
   
-  function canPlaceTileAt(col, row, imgW, imgH) {
+  function canPlaceTileAt(col, row, effectiveW, effectiveH) {
     let offset = getGridOffset();
     let candidateX = offset.x + col * gridSize;
     let candidateY = offset.y + row * gridSize;
@@ -357,8 +404,8 @@ function MapEditorSketch(p) {
     if (
       candidateX < offset.x ||
       candidateY < offset.y ||
-      candidateX + imgW > offset.x + offset.gridWidth ||
-      candidateY + imgH > offset.y + offset.gridHeight
+      candidateX + effectiveW > offset.x + offset.gridWidth ||
+      candidateY + effectiveH > offset.y + offset.gridHeight
     ) {
       return false;
     }
@@ -367,9 +414,9 @@ function MapEditorSketch(p) {
       if (tile.layer === selectedLayer) {
         if (
           candidateX < tile.x + tile.w &&
-          candidateX + imgW > tile.x &&
+          candidateX + effectiveW > tile.x &&
           candidateY < tile.y + tile.h &&
-          candidateY + imgH > tile.y
+          candidateY + effectiveH > tile.y
         ) {
           return false;
         }
@@ -395,7 +442,8 @@ function MapEditorSketch(p) {
           selectedTile = {
             img: thumbnails[i],
             category: currentTab,
-            index: i
+            index: i,
+            rotation: currentRotation
           };
           break;
         }
@@ -427,6 +475,20 @@ function MapEditorSketch(p) {
     }
   };
 
+  p.keyPressed = function() {
+    if (p.key === 'q' || p.key === 'Q') {
+      currentRotation = (currentRotation - 90 + 360) % 360;
+      if (selectedTile) {
+        selectedTile.rotation = currentRotation;
+      }
+    } else if (p.key === 'e' || p.key === 'E') {
+      currentRotation = (currentRotation + 90) % 360;
+      if (selectedTile) {
+        selectedTile.rotation = currentRotation;
+      }
+    }
+  };
+
   function saveMap() {
     let mapData = {
       gridSize: gridSize,
@@ -438,7 +500,8 @@ function MapEditorSketch(p) {
         layer: tile.layer,
         hasCollider: tile.hasCollider,
         category: tile.category,
-        index: tile.index
+        index: tile.index,
+        rotation: tile.rotation
       }))
     };
     let filename = mapSelect.value();
@@ -465,7 +528,8 @@ function MapEditorSketch(p) {
           layer: t.layer,
           hasCollider: t.hasCollider,
           category: t.category,
-          index: t.index
+          index: t.index,
+          rotation: t.rotation
         });
       });
     }, 'json', (err) => {
