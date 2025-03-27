@@ -8,6 +8,7 @@ function PlaySketch(p) {
   let lastSpawn = 0;
   let coins = [];
   let shields= [];
+  let wrenches = [];
   window.coinsCollected = 0;
   
   p.preload = function() {
@@ -34,11 +35,12 @@ function PlaySketch(p) {
 
     // Start enemy spawner
     window.enemySpawnInterval = setInterval(() => spawnEnemy(p), ENEMY_SPAWN_RATE);
+    ////////////////////////////////////////////////////////////////////////////////////////////////
 
     // coin creation, positioning, building check, and logs
-    ////////////////////////////////////////////////
     const totalCoins = 750;
-    const totalSheilds = 20 / window.difficulty; 
+    const totalShields = 20 / window.difficulty;
+    const totalWrenches  = 300 / window.difficulty;
     let attempts = 0;
     const maxAttempts = 10000; 
     while (coins.length < totalCoins && attempts < maxAttempts) {
@@ -55,13 +57,13 @@ function PlaySketch(p) {
       }
       attempts++;
     }
-    
     if (attempts >= maxAttempts && debug) {
       console.log("Max attempts reached while spawning coins. Coins spawned: " + coins.length);
     }
+    ////////////////////////////////////////////////
     // shield creation, positioning, building check, and logs
     attempts = 0;
-    while (shields.length < totalSheilds && attempts < maxAttempts) {
+    while (shields.length < totalShields && attempts < maxAttempts) {
       // random map index
       let randX = Math.floor(p.random(0, map[0].length));
       let randY = Math.floor(p.random(0, map.length));
@@ -74,12 +76,31 @@ function PlaySketch(p) {
         shields.push(new Shield(p, shieldX, shieldY));
       }
       attempts++;
-    }
-    
+    }   
     if (attempts >= maxAttempts && debug) {
       console.log("Max attempts reached while spawning shields. Shields spawned: " + sheilds.length);
     }
     ////////////////////////////////////////////////
+    // wrench creation, positioning, building check, and logs
+    attempts = 0;
+    while (wrenches.length < totalWrenches && attempts < maxAttempts) {
+      // random map index
+      let randX = Math.floor(p.random(0, map[0].length));
+      let randY = Math.floor(p.random(0, map.length));
+      
+      // checks tile, if road, puts coin in center
+      if (map[randY] && map[randY][randX] instanceof Road) {
+        let wrenchX = randX * gridSize + gridSize / 2;
+        let wrenchY = randY * gridSize + gridSize / 2;
+        if (window.debug) console.log(`Spawning sheild ${wrenches.length + 1} at tile (${randX}, ${randY}) with world coordinates (${wrenchX}, ${wrenchY})`);
+        wrenches.push(new Wrench(p, wrenchX, wrenchY));
+      }
+      attempts++;
+    }  
+    if (attempts >= maxAttempts && debug) {
+      console.log("Max attempts reached while spawning wrenches. wrenches spawned: " + sheilds.length);
+    }
+    ////////////////////////////////////////////////////////////////////////////////////////////////
 
 
     p.showGameOverScreen = function () {
@@ -165,6 +186,7 @@ function PlaySketch(p) {
     // GAMEPLAY LOGIC
     coins = checkCoinCollisions(coins, car, p);
     shields = checkShieldCollisions(shields, car, p);
+    wrenches = checkWrenchCollisions(wrenches, car, p);
 
     if (!car) {
       const stats = loadPersistentData().stats;
@@ -194,9 +216,11 @@ function PlaySketch(p) {
         enemy.display();
         checkBuildingCollisions(enemy);
       });
-  
+
+      /////DISPLAY ALL IN GAME ITEMS//////////
       coins.forEach(coin => coin.display());
       shields.forEach(shield => shield.display());
+      wrenches.forEach(wrench => wrench.display());
   
       if (window.debug) {
         physicsEngine.objects.forEach(obj => {

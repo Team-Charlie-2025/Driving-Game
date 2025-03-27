@@ -128,6 +128,16 @@ function checkShieldCollisions(shields, car, p) {
   }
   return shields.filter(shield => !shield.collected);
 }
+function checkWrenchCollisions(wrenches, car, p) {
+  if (!car) return wrenches;
+  for (let wrench of wrenches) {
+    if (!wrench.collected && wrench.collider && wrench.collider.intersects(car.collider)) {
+        wrench.collected = true;
+        ItemsManager.wrenchCollected(car);
+    }
+  }
+  return wrenches.filter(wrench => !wrench.collected);
+}
 
 /*
 function isCoinCollidingWithBuilding(coin) {
