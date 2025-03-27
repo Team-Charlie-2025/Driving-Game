@@ -139,20 +139,3 @@ function checkWrenchCollisions(wrenches, car, p) {
   return wrenches.filter(wrench => !wrench.collected);
 }
 
-/*
-function isCoinCollidingWithBuilding(coin) {
-  const tileX = Math.floor(coin.position.x / gridSize);
-  const tileY = Math.floor(coin.position.y / gridSize);
-  for (let j = tileY - 1; j <= tileY + 1; j++) {
-    for (let i = tileX - 1; i <= tileX + 1; i++) {
-      if (map[j] && map[j][i] instanceof Building) {
-        let building = map[j][i];
-        if (coin.collider.intersects(building.collider)) {
-          return true;
-        }
-      }
-    }
-  }
-  return false;
-}
-*/

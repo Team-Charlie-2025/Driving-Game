@@ -28,79 +28,22 @@ function PlaySketch(p) {
     window.runCoinsCalculated = false;
     window.isGameOver = false;
 
-    ItemsManager.shieldResetGame(); //fix shield error
+    ItemsManager.shieldResetGame();
     
     window.LoadingScreen.hide();
     bgMusic(Mode.PLAY, p, "loop");
 
     // Start enemy spawner
     window.enemySpawnInterval = setInterval(() => spawnEnemy(p), ENEMY_SPAWN_RATE);
-    ////////////////////////////////////////////////////////////////////////////////////////////////
 
-    // coin creation, positioning, building check, and logs
-    const totalCoins = 750;
-    const totalShields = 20 / window.difficulty;
-    const totalWrenches  = 300 / window.difficulty;
-    let attempts = 0;
-    const maxAttempts = 10000; 
-    while (coins.length < totalCoins && attempts < maxAttempts) {
-      // random map index
-      let randX = Math.floor(p.random(0, map[0].length));
-      let randY = Math.floor(p.random(0, map.length));
-      
-      // checks tile, if road, puts coin in center
-      if (map[randY] && map[randY][randX] instanceof Road) {
-        let coinX = randX * gridSize + gridSize / 2;
-        let coinY = randY * gridSize + gridSize / 2;
-        if (window.debug) console.log(`Spawning coin ${coins.length + 1} at tile (${randX}, ${randY}) with world coordinates (${coinX}, ${coinY})`);
-        coins.push(new Coin(p, coinX, coinY));
-      }
-      attempts++;
-    }
-    if (attempts >= maxAttempts && debug) {
-      console.log("Max attempts reached while spawning coins. Coins spawned: " + coins.length);
-    }
-    ////////////////////////////////////////////////
-    // shield creation, positioning, building check, and logs
-    attempts = 0;
-    while (shields.length < totalShields && attempts < maxAttempts) {
-      // random map index
-      let randX = Math.floor(p.random(0, map[0].length));
-      let randY = Math.floor(p.random(0, map.length));
-      
-      // checks tile, if road, puts coin in center
-      if (map[randY] && map[randY][randX] instanceof Road) {
-        let shieldX = randX * gridSize + gridSize / 2;
-        let shieldY = randY * gridSize + gridSize / 2;
-        if (window.debug) console.log(`Spawning sheild ${shields.length + 1} at tile (${randX}, ${randY}) with world coordinates (${shieldX}, ${shieldY})`);
-        shields.push(new Shield(p, shieldX, shieldY));
-      }
-      attempts++;
-    }   
-    if (attempts >= maxAttempts && debug) {
-      console.log("Max attempts reached while spawning shields. Shields spawned: " + sheilds.length);
-    }
-    ////////////////////////////////////////////////
-    // wrench creation, positioning, building check, and logs
-    attempts = 0;
-    while (wrenches.length < totalWrenches && attempts < maxAttempts) {
-      // random map index
-      let randX = Math.floor(p.random(0, map[0].length));
-      let randY = Math.floor(p.random(0, map.length));
-      
-      // checks tile, if road, puts coin in center
-      if (map[randY] && map[randY][randX] instanceof Road) {
-        let wrenchX = randX * gridSize + gridSize / 2;
-        let wrenchY = randY * gridSize + gridSize / 2;
-        if (window.debug) console.log(`Spawning sheild ${wrenches.length + 1} at tile (${randX}, ${randY}) with world coordinates (${wrenchX}, ${wrenchY})`);
-        wrenches.push(new Wrench(p, wrenchX, wrenchY));
-      }
-      attempts++;
-    }  
-    if (attempts >= maxAttempts && debug) {
-      console.log("Max attempts reached while spawning wrenches. wrenches spawned: " + sheilds.length);
-    }
-    ////////////////////////////////////////////////////////////////////////////////////////////////
+    //////////MAP ITEM CREATION///////////////
+    createShields(p, shields, map);
+    console.log("Shields made: " + shields.length);
+    createWrenches(p, wrenches, map);
+    console.log("Wrenches made: " + wrenches.length);
+    createCoins(p, coins, map);
+    console.log("Coins made: " + coins.length);
+    ///////////////////////////////////////////
 
 
     p.showGameOverScreen = function () {
