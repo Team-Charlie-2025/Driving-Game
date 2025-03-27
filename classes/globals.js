@@ -111,7 +111,15 @@ function loadAnimations(p) {
 
   window.animations["shield"] = [];
   window.animations["shield"].push(p.loadImage("graphics/shieldAnimation/shield1.png"));
-  //add other images after animation is made
+  window.animations["shield"].push(p.loadImage("graphics/shieldAnimation/shield2.png"));
+  window.animations["shield"].push(p.loadImage("graphics/shieldAnimation/shield3.png"));
+  window.animations["shield"].push(p.loadImage("graphics/shieldAnimation/shield4.png"));
+  
+  window.animations["wrench"] = [];
+  window.animations["wrench"].push(p.loadImage("graphics/wenchAnimation/wrench1.png"));
+  window.animations["wrench"].push(p.loadImage("graphics/wenchAnimation/wrench2.png"));
+  window.animations["wrench"].push(p.loadImage("graphics/wenchAnimation/wrench3.png"));
+  window.animations["wrench"].push(p.loadImage("graphics/wenchAnimation/wrench4.png"));
 
   console.log("animations loaded");
 }

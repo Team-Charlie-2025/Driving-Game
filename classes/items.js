@@ -1,3 +1,5 @@
+const frameDuration = 150; // 5fps
+
 const shieldMaxTime = 10000; //max time, milliseconds
 let shieldStartTime = null; //start time
 let currentTime = null;
@@ -32,24 +34,21 @@ class ItemsManager {
       shieldStartTime = currentTime; //new start time
     }
     static shieldDamage(damageTaken){
-        if (!this.ifShield()){
+      if (!this.ifShield()){
             return damageTaken; //no shield active
-        }
-        /*
-        else if (damageTaken <= currentShield){
-            currentShield -=damageTaken; //shield active
-            return 0;
-        }
-        else{ //shield active but weak
-            let temp = currentShield;
-            currentShield = 0;
-            return damageTaken - temp;
-        }
-        */
-       else
+      }
+      else
         return 0;
-
     }
+    static wrenchCollected(car){
+      let newHealth = car.getHealth() + 10;
+      console.log("current health: " + car.getHealth());
+      newHealth = Math.min(newHealth, loadPersistentData().stats.health);
+      car.healthChange( newHealth); //no more than max
+      console.log("health restored : " + car.getHealth());
+    }
+
+
   }
 
 class Shield extends GameObject {
@@ -66,14 +65,9 @@ class Shield extends GameObject {
       });
     }
   
-    update() {
-    }
-  
     display() { 
       const p = this.p;
-      const frameDuration = 150; // 5fps
-      //const frameIndex = Math.floor(p.millis() / frameDuration) % window.animations["shield"].length;
-      const frameIndex = 0;
+      const frameIndex = Math.floor(p.millis() / frameDuration) % window.animations["shield"].length;
       const shieldImg = window.animations["shield"][frameIndex];
   
       p.push();
@@ -84,3 +78,33 @@ class Shield extends GameObject {
       p.pop();
     }
   }
+
+
+
+class Wrench extends GameObject {
+  constructor(p, x, y, size = 30) {
+    super(x, y);
+    this.p = p;
+    this.size = size;
+    this.collected = false;
+    this.collider = new Collider(this, "rectangle", {
+      width: this.size,
+      height: this.size,
+      offsetX: -this.size / 2,
+      offsetY: -this.size / 2
+    });
+  }
+
+  display() { 
+    const p = this.p;
+    const frameIndex = Math.floor(p.millis() / frameDuration) % window.animations["wrench"].length;
+    const wrenchImg = window.animations["wrench"][frameIndex];
+
+    p.push();
+      p.translate(this.position.x, this.position.y);
+      p.imageMode(p.CENTER);
+      p.noStroke();
+      p.image(wrenchImg, 0, 0, this.size, this.size);
+    p.pop();
+  }
+}

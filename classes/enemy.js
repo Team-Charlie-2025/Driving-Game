@@ -1,6 +1,5 @@
 // classes/enemy.js
-
-class Enemy extends Car {
+class Enemy extends Car{
   constructor(p, x, y, target) {
     const stats = {
       acceleration: 0.4 * window.difficulty,
