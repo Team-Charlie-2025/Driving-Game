@@ -6,7 +6,7 @@ function PlaySketch(p) {
   let physicsEngine;
   let zoomFactor = 2.5;
   let enemies = [];
-  let ENEMY_SPAWN_RATE = 100000; // 1000 = 1 seconds
+  let ENEMY_SPAWN_RATE = 10000; // 1000 = 1 seconds
   let lastSpawn = 0;
   let coins = [];
   let shields= [];
