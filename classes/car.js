@@ -197,4 +197,12 @@ class Car extends GameObject {
     this.healthBar = Math.max(0, this.healthBar - damage);
   }
 
+  getHealth(){
+    return this.healthBar;
+  }
+
+  healthChange(changeAmount){
+    this.healthBar = changeAmount;
+  }
+
 }
