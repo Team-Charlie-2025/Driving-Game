@@ -18,6 +18,10 @@ function PlaySketch(p) {
     //p.carImg = p.loadImage("assets/car.png");
     p.buildingImg = p.loadImage("assets/building.png");
     p.enemyImg = p.loadImage("assets/police+car.png"); // Add enemy image
+
+    // will be moved to globals eventually
+    grassImg = p.loadImage("assets/mapBuilder/Terrain/terr04.png");
+
   };
 
   p.setup = function () {

@@ -40,10 +40,11 @@ function drawMap(p, center, zoomFactor) {
 // This is the beginning of generation, starts with blank map of grass, adds roads, then takes grass and fills it with buildings
 function generateGenMap(p, rows, cols) {
   // Initialize the map with Grass.
+  // grassImg = p.loadImage("assets/mapBuildier/Terrain/terr04.png");
   for (let y = 0; y < rows; y++) {
     map[y] = [];
     for (let x = 0; x < cols; x++) {
-      map[y][x] = new Grass(x * gridSize, y * gridSize);
+      map[y][x] = new Grass(p, x * gridSize + gridSize / 2, y * gridSize+ gridSize / 2, gridSize, gridSize, null);
     }
   }
 
