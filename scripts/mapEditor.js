@@ -1,8 +1,8 @@
 // /scripts/mapEditor.js
 
 function MapEditorSketch(p) {
-  const categories = ['buildings', 'roads', 'terrain', 'doodads'];
-  let currentTab = 'terrain';
+  const categories = ['Buildings', 'Roads', 'Terrain', 'Decorations', 'Nodes'];
+  let currentTab = 'Buildings';
   let assetManifest = {}; // Loaded from manifest.txt files
   let assets = {};
   let thumbnails = [];
@@ -10,13 +10,14 @@ function MapEditorSketch(p) {
   let selectedLayer = 0;
   let hasColliderCheckbox;
   let saveButton, loadButton, mapSelect;
-  const gridSize = 32;
   let placedTiles = [];
-  const mapFilenames = ["map01.json","map02.json","map03.json","map04.json","map05.json"];
+  let thumbnailScroll = 0;
+  let currentRotation = 0; 
 
+  const gridSize = 32;
+  const mapFilenames = ["map01.json","map02.json","map03.json","map04.json","map05.json"];
   const mapCols = 32;
   const mapRows = 32;
-
   const assetPanelWidth = gridSize * 6;
   const visibleThumbnailCount = 6;
   const thumbnailSize = gridSize * 4;
@@ -24,9 +25,6 @@ function MapEditorSketch(p) {
   const categoryButtonHeight = 40;
   const categoryButtonsHeight = categories.length * categoryButtonHeight + 20;
   const thumbnailsAreaY = categoryButtonsHeight;
-
-  let thumbnailScroll = 0;
-  let currentRotation = 0; 
 
   function getGridOffset() {
     const gridWidth = mapCols * gridSize;
@@ -97,9 +95,12 @@ function MapEditorSketch(p) {
         return false;
       }
     };
+    window.LoadingScreen.hide();
+  };
 
-    if (window.LoadingScreen && typeof window.LoadingScreen.hide === "function") {
-      window.LoadingScreen.hide();
+  p.keyPressed = function () {
+    if (p.keyCode === p.ESCAPE) {
+      switchSketch(Mode.TITLE);
     }
   };
 
@@ -136,7 +137,21 @@ function MapEditorSketch(p) {
     p.background(220);
     drawGrid();
     drawPlacedTiles();
+    drawMouseOver();
+    drawAssetPanel();
 
+    if (selectedTile) {
+      let { w: previewW, h: previewH } = getEffectiveDimensions(selectedTile.img, selectedTile.rotation);
+      p.push();
+      p.translate(p.mouseX + 10 + previewW / 2, p.mouseY + 10 + previewH / 2);
+      p.rotate(selectedTile.rotation * p.PI / 180);
+      p.tint(255, 200);
+      p.image(selectedTile.img, -previewW / 2, -previewH / 2, previewW, previewH);
+      p.pop();
+    }
+  };
+
+  function drawMouseOver(){
     if (selectedTile) {
       let offset = getGridOffset();
       if (
@@ -156,20 +171,7 @@ function MapEditorSketch(p) {
         p.pop();
       }
     }
-
-    drawAssetPanel();
-
-    if (selectedTile) {
-      let { w: previewW, h: previewH } = getEffectiveDimensions(selectedTile.img, selectedTile.rotation);
-      p.push();
-      p.translate(p.mouseX + 10 + previewW / 2, p.mouseY + 10 + previewH / 2);
-      p.rotate(selectedTile.rotation * p.PI / 180);
-      p.tint(255, 200);
-      p.image(selectedTile.img, -previewW / 2, -previewH / 2, previewW, previewH);
-      p.pop();
-    }
-  };
-
+  }
   function drawGrid() {
     let offset = getGridOffset();
     p.stroke(180);
@@ -493,8 +495,8 @@ function MapEditorSketch(p) {
     let mapData = {
       gridSize: gridSize,
       tiles: placedTiles.map(tile => ({
-        x: tile.x,
-        y: tile.y,
+        col: (tile.x - getGridOffset().x) / gridSize,
+        row: (tile.y - getGridOffset().y) / gridSize,
         w: tile.w,
         h: tile.h,
         layer: tile.layer,
@@ -507,7 +509,7 @@ function MapEditorSketch(p) {
     let filename = mapSelect.value();
     p.saveJSON(mapData, `/maps/${filename}`);
   }
-
+  
   function loadMap(e) {
     if (e) e.stopPropagation();
     let filename = mapSelect.value();
@@ -521,8 +523,8 @@ function MapEditorSketch(p) {
         let img = assets[t.category][t.index];
         placedTiles.push({
           img: img,
-          x: t.x,
-          y: t.y,
+          x: getGridOffset().x + t.col * gridSize,
+          y: getGridOffset().y + t.row * gridSize,
           w: t.w,
           h: t.h,
           layer: t.layer,
