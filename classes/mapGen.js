@@ -53,6 +53,9 @@ function generateGenMap(p, rows, cols) {
   drawBezierRoad(p,50,18,70,50,18,50,roadSizes.normal);
   drawAngledRoad(p,40,47,120,119,roadSizes.normal);
   drawRectRoad(p,119,22,119+roadSizes.big,252);
+  drawLake(p,1,1,11,20)
+  drawLake(p,42,27,49,38)
+  drawLake(p,103,31,117,52);
   let blockSize = 50;
   for(let i=1; i<5; ++i){
     drawRectRoad(p,119+(i*blockSize),5,119+roadSizes.normal+(i*blockSize),252);   // Vertical roads
@@ -71,6 +74,32 @@ function generateGenMap(p, rows, cols) {
   fillShopsDynamically(p,1,1,100,180);
   fillBuildingsDynamically(p,120,1,400,250);
   drawBezierRoad(p,20,105,80,100,75,75,roadSizes.normal)
+}
+
+
+function drawLake(p, xStart, yStart, xEnd, yEnd) {
+  if(!canPlaceBuilding(p,xStart,yStart,xEnd,yEnd)) return;
+  // Calculates the center and radius of the lake
+  const centerX = Math.floor((xStart + xEnd) / 2);
+  const centerY = Math.floor((yStart + yEnd) / 2);
+  const radiusX = Math.floor((xEnd - xStart) / 2);
+  const radiusY = Math.floor((yEnd - yStart) / 2);
+
+  for (let y = yStart; y < yEnd; y++) {
+    for (let x = xStart; x < xEnd; x++) {
+      const dx = (x - centerX) / radiusX;
+      const dy = (y - centerY) / radiusY;
+      const distance = Math.sqrt(dx * dx + dy * dy);
+      
+      const edgeThreshold = 1 + (Math.random() - 0.5) * 0.12; // Makes the edge fun and jaged
+
+      if (distance <= edgeThreshold) {
+        if (map[y] && map[y][x] instanceof Grass) {
+          map[y][x] = new Water(p, x * gridSize + gridSize / 2, y * gridSize + gridSize / 2, gridSize, gridSize);
+        }
+      }
+    }
+  }
 }
 
 function drawRectRoad(p, xStart, yStart, xEnd, yEnd) {
@@ -295,9 +324,9 @@ function fillBigBuildings(p, xPosStart, yPosStart, xPosEnd, yPosEnd) {
 }
 
   // Ensure space is large enough for the building + buffer
-function canPlaceLargeBuilding(p, xStart, yStart, xEnd, yEnd) {
-  for (let y = yStart - grassBuffer - 3; y < yEnd + grassBuffer + 3; y++) {
-    for (let x = xStart - grassBuffer - 3; x < xEnd + grassBuffer + 3; x++) {
+function canPlaceLargeBuilding(p, xStart, yStart, xEnd, yEnd, extraGap = 3) {
+  for (let y = yStart - grassBuffer - extraGap; y < yEnd + grassBuffer + extraGap; y++) {
+    for (let x = xStart - grassBuffer - extraGap; x < xEnd + grassBuffer + extraGap; x++) {
       if (
         y < 0 || x < 0 || y >= map.length || x >= map[y].length ||
         !(map[y][x] instanceof Grass)

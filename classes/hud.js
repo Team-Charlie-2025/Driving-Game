@@ -30,12 +30,12 @@ function drawMeters(p,car,scale){
   p.textSize(16*windowScale);
   p.text("Health", 10*windowWidthScale, 18*windowHeightScale);
   p.text("Boost", 10*windowWidthScale, 65*windowHeightScale);
-    
+  let maxHealth = (loadPersistentData().stats.health);  
   // Draw Health Bar
   p.fill(50);
   p.rect(10*windowWidthScale, 20*windowHeightScale, 200*windowWidthScale, 25*windowHeightScale);
   p.fill(0, 255, 0);
-  p.rect(10*windowWidthScale, 20*windowHeightScale, car.healthBar * 2*windowWidthScale, 25*windowHeightScale);
+  p.rect(10*windowWidthScale, 20*windowHeightScale, (car.healthBar/maxHealth)*200*windowWidthScale, 25*windowHeightScale);
 
   // Draw Boost Meter
   p.fill(50);

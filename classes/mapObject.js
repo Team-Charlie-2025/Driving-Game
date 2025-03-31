@@ -61,7 +61,7 @@ class Rocks extends BaseTile {
 
 class Water extends BaseTile {
   constructor(p, x, y, width, height, img = null) {
-    super(p, x, y, width, height, img, "blue");
+    super(p, x, y, width, height, img=waterImg, "blue");
   }
 }
 
