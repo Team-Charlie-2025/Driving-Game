@@ -49,7 +49,7 @@ function drawMeters(p,car,scale){
 // Draws the framerate and car position
 function drawDebugInfo(p,car,scale){
   // Frame Rate
-  p.textSize(12*windowScale);
+  p.textSize(14*windowScale);
   p.textAlign(p.LEFT, p.BOTTOM);
   p.fill(0);
   p.fps = p.frameRate();
