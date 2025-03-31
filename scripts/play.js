@@ -5,18 +5,21 @@ function PlaySketch(p) {
   let physicsEngine;
   let zoomFactor = 2.5;
   let enemies = [];
-  let ENEMY_SPAWN_RATE = 10000; // 1000 = 1 seconds
+  let ENEMY_SPAWN_RATE = 10000 / window.difficulty; // 10 seconds base rate, adjusted by difficulty
   let lastSpawn = 0;
   let coins = [];
-  let shields= [];
+  let shields = [];
   let wrenches = [];
   window.coinsCollected = 0;
+  window.enemyDestroyedCount = 0;
   
   p.preload = function() {
     loadMusic(p);
     loadSoundEffects(p);
     p.buildingImg = p.loadImage("assets/building.png");
-    p.enemyImg = p.loadImage("assets/police+car.png"); // Add enemy image
+    p.enemyImg = p.loadImage("assets/police+car.png");   // Regular cop car image
+    p.truckImg = p.loadImage("assets/police+truck.png"); // Truck image
+    p.bikeImg = p.loadImage("assets/police+bike.png");   // Motorcycle image
 
     // will be moved to globals eventually
     grassImg = p.loadImage("assets/mapBuilder/Terrain/grass.png");
@@ -33,7 +36,28 @@ function PlaySketch(p) {
     window.runCoinsCalculated = false;
     window.isGameOver = false;
 
-    ItemsManager.shieldResetGame();
+    // Load player car
+    const savedData = loadPersistentData();
+    const stats = savedData.stats;
+    car = new Car(p, p.width / 2, p.height / 2, stats);
+    
+    // Set car image from selected car color if it exists
+    const selectedCarIndex = savedData.selectedCar || 0;
+    if (window.cars && window.cars[selectedCarIndex]) {
+      car.currentImage = window.cars[selectedCarIndex];
+    }
+    
+    // Update collider with the correct image
+    car.collider = new Collider(
+      car,
+      "polygon",
+      { offsetX: -32, offsetY: -32 },
+      car.currentImage
+    );
+    
+    physicsEngine.add(car);
+
+    ItemsManager.shieldResetGame(); //fix shield error
     
     window.LoadingScreen.hide();
     bgMusic(Mode.PLAY, p, "loop");
@@ -72,7 +96,7 @@ function PlaySketch(p) {
     };
   };
 
-  // Add spawn function
+  // Enemy spawning function with different types
   function spawnEnemy(p) {
     if (!car || window.isGameOver) return;
 
@@ -81,7 +105,23 @@ function PlaySketch(p) {
     const x = car.position.x + spawnDistance * p.cos(angle);
     const y = car.position.y + spawnDistance * p.sin(angle);
 
-    const enemy = new Enemy(p, x, y, car);
+    // Define spawn probabilities (must sum to 1.0 or 100%)
+    const COP_CAR_CHANCE = 0.6;  // 60% chance for regular Enemy (cop car)
+    const TRUCK_CHANCE = 0.2;    // 20% chance for Truck
+    const BIKE_CHANCE = 0.2;     // 20% chance for Motorcycle
+
+    // Generate a random value between 0 and 1
+    const rand = p.random();
+    let enemy;
+
+    if (rand < COP_CAR_CHANCE) {
+      enemy = new Enemy(p, x, y, car);       // Spawn cop car
+    } else if (rand < COP_CAR_CHANCE + TRUCK_CHANCE) {
+      enemy = new Truck(p, x, y, car);       // Spawn truck
+    } else {
+      enemy = new Motorcycle(p, x, y, car);  // Spawn motorcycle
+    }
+
     physicsEngine.add(enemy);
     enemies.push(enemy);
   }
@@ -120,6 +160,7 @@ function PlaySketch(p) {
       if (car) car.display();
       enemies.forEach(enemy => enemy.display());
       coins.forEach(coin => coin.display());
+      shields.forEach(shield => shield.display());
       p.pop();
         
       p.push();
@@ -145,6 +186,7 @@ function PlaySketch(p) {
     enemies = enemies.filter(enemy => {
       if (enemy.removeFromWorld || enemy.healthBar <= 0) {
         physicsEngine.remove(enemy);
+        window.enemyDestroyedCount = (window.enemyDestroyedCount || 0) + 1;
         return false;
       }
       return true;
@@ -303,4 +345,4 @@ function PlaySketch(p) {
       }
     }
   }
-} 
+}
