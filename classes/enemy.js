@@ -82,7 +82,7 @@ class Enemy extends Car{
     this.steer.limit(this.maxForce);
     
     // Apply acceleration
-    this.steer.mult(this.acceleration);
+    // this.steer.mult(this.acceleration);
     this.velocity.add(this.steer);
     
     // Apply friction
@@ -210,7 +210,7 @@ class Motorcycle extends Enemy {
     
     // Movement properties
     this.acceleration = 0.8 * window.difficulty;   // High acceleration
-    this.maxSpeed = 8.0 * window.difficulty;       // High max speed
+    this.maxSpeed = 11.0 * window.difficulty;       // High max speed
     this.maxForce = 0.5;                           // More force
     this.turnRadius = 0.08;                        // LARGE turn radius = wide turns
     this.friction = 0.05;                          // Medium friction
