@@ -232,8 +232,8 @@ function PlaySketch(p) {
         car.collider.drawOutline(true);
     p.pop();
 
-    showHud(p);
-  
+    showHud(p, map, car);
+    
   
     // PHYSICS
     physicsEngine.update();

@@ -13,19 +13,19 @@ class ItemsManager {
       if(shieldStartTime == null) return false;
       return shieldElapsedTime <= shieldMaxTime;
     }
-    static shieldDisplayBar(p){
+    static shieldDisplayBar(p,scale){
       currentTime = p.millis();
       shieldElapsedTime = (currentTime - shieldStartTime);
       if(!this.ifShield())
         return; //dont display if zero?
       p.fill(50);
-      p.rect(300, 20, shieldMaxTime * 10 /1000, 25);
+      p.rect(300*windowWidthScale, 20*windowHeightScale, (shieldMaxTime * 10 /1000)*windowWidthScale, 25*windowHeightScale);
       p.fill(143, 233, 250);
-      p.rect(300, 20, (shieldMaxTime * 10 /1000) - (shieldElapsedTime * 10 /1000) , 25);
+      p.rect(300*windowWidthScale, 20*windowHeightScale, ((shieldMaxTime * 10 /1000) - (shieldElapsedTime * 10 /1000)) * windowWidthScale , 25*windowHeightScale);
 
       p.fill(255);
-      p.textSize(16);
-      p.text("Shield", 300, 20);
+      p.textSize(16*windowScale);
+      p.text("Shield", 300*windowWidthScale, 20*windowHeightScale);
 
     }
     static shieldCollected(){ //a shield has been collected
