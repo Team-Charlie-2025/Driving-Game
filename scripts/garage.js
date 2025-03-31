@@ -1,5 +1,3 @@
-// GarageSketch with car selector, small car display, car color purchases, and reset upgrades button (center-left)
-
 class UpgradeButton extends Button {
   display(p) {
     this.width = 180;
@@ -20,7 +18,6 @@ class UpgradeButton extends Button {
     if (this.label === "MAX") {
       p.text("MAX", this.x, this.y);
     } else {
-      // Draw coin image + price
       const labelWidth = p.textWidth(this.label);
       const totalWidth = labelWidth + 20;
       const startX = this.x - totalWidth / 2;
@@ -55,7 +52,7 @@ function GarageSketch(p) {
     p.createCanvas(p.windowWidth, p.windowHeight);
     ExitIcon = new Button("ExitIcon", p.width - p.width * 0.05, p.height - p.height * 0.95, p.width, p.height, () => switchSketch(Mode.TITLE));
 
-    resetUpgradeButton = new Button("Reset", 80, p.height / 2, resetUpgrades, "gray"); // Center-left
+    resetUpgradeButton = new Button("Reset", 80, p.height / 2, resetUpgrades, "gray");
 
     let savedConfig = loadPersistentData();
     if (savedConfig) {
@@ -303,7 +300,6 @@ function GarageSketch(p) {
     upgradeTransmissionLevel = 1;
     upgradeTiresLevel = 1;
   
-    // Reset upgrade button labels
     upgrades.forEach(updateUpgradeButtonText);
     purchasedCars = [true, false, false, false, false, false, false, false];
   
