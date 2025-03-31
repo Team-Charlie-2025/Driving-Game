@@ -128,21 +128,14 @@ function checkShieldCollisions(shields, car, p) {
   }
   return shields.filter(shield => !shield.collected);
 }
-
-/*
-function isCoinCollidingWithBuilding(coin) {
-  const tileX = Math.floor(coin.position.x / gridSize);
-  const tileY = Math.floor(coin.position.y / gridSize);
-  for (let j = tileY - 1; j <= tileY + 1; j++) {
-    for (let i = tileX - 1; i <= tileX + 1; i++) {
-      if (map[j] && map[j][i] instanceof Building) {
-        let building = map[j][i];
-        if (coin.collider.intersects(building.collider)) {
-          return true;
-        }
-      }
+function checkWrenchCollisions(wrenches, car, p) {
+  if (!car) return wrenches;
+  for (let wrench of wrenches) {
+    if (!wrench.collected && wrench.collider && wrench.collider.intersects(car.collider)) {
+        wrench.collected = true;
+        ItemsManager.wrenchCollected(car);
     }
   }
-  return false;
+  return wrenches.filter(wrench => !wrench.collected);
 }
-*/
+
