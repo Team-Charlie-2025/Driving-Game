@@ -119,7 +119,7 @@ class Car extends GameObject {
           );
         }
       }
-      //console.log(`Boost ended. Speed: ${this.speed.toFixed(2)}, Max Speed: ${this.maxSpeed.toFixed(2)}`);
+      //console.log(`Boost ended. Player Speed: ${this.speed.toFixed(2)}, Max Speed: ${this.maxSpeed.toFixed(2)}`);
     }
 
     if (p.keyIsDown(getKeyForAction("backward")) && !this.controlDisabled) {

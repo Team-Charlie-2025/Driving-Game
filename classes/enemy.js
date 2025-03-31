@@ -4,7 +4,7 @@ class Enemy extends Car {
   constructor(p, x, y, target) {
     const stats = {
       acceleration: 0.4 * window.difficulty,
-      maxSpeed: 4.5 * window.difficulty,
+      maxSpeed: 8 * window.difficulty,  //prev 4.5
       health: 100 * window.difficulty,
       friction: 0.05 
     };
@@ -17,37 +17,52 @@ class Enemy extends Car {
     this.currentImage = p.enemyImg;
     this.removeFromWorld = false;
 
-      // Movement properties
-      this.velocity = p.createVector(0, 0);
-      this.maxForce = 0.3;
-      this.desired = p.createVector(0, 0);
-      this.steer = p.createVector(0, 0);
+    this.baseAcceleration = stats.acceleration;
+    this.baseMaxSpeed = stats.maxSpeed;
 
-      if (this.currentImage) {
-        this.width = 64;
-        this.height = 64;
-        this.collider = new Collider(
-          this,
-          "polygon",
-          { offsetX: -32, offsetY: -32 },
-          this.currentImage
-        );
-      } else {
-        // fallback rectangle
-        this.width = carWidth;
-        this.height = carHeight;
-        this.collider = new Collider(this, "rectangle", {
-          width: this.width,
-          height: this.height,
-          offsetX: -this.width / 2,
-          offsetY: -this.height / 2,
-        });
-      }
+    // Movement properties
+    this.velocity = p.createVector(0, 0);
+    this.maxForce = 0.3;
+    this.desired = p.createVector(0, 0);
+    this.steer = p.createVector(0, 0);
+
+    if (this.currentImage) {
+      this.width = 64;
+      this.height = 64;
+      this.collider = new Collider(
+        this,
+        "polygon",
+        { offsetX: -32, offsetY: -32 },
+        this.currentImage
+      );
+    } else {
+      // fallback rectangle
+      this.width = carWidth;
+      this.height = carHeight;
+      this.collider = new Collider(this, "rectangle", {
+        width: this.width,
+        height: this.height,
+        offsetX: -this.width / 2,
+        offsetY: -this.height / 2,
+      });
     }
+  }
   
     update() {
       if (!this.target || this.controlDisabled) return;
-  
+
+      let terrainType = getTileTypeAt(this.position.x, this.position.y);
+
+      if (window.difficulty <= 1.0 && terrainType === "grass") {
+        this.acceleration = this.baseAcceleration * 0.65;
+        this.maxSpeed = this.baseMaxSpeed * 0.65;
+      } else {
+        this.acceleration = this.baseAcceleration;
+        this.maxSpeed = this.baseMaxSpeed;
+      }
+        
+      //console.log(`Speed: ${this.speed.toFixed(2)}, Max Speed: ${this.maxSpeed.toFixed(2)}`);
+
       // Calculate desired direction to target
       this.desired = p5.Vector.sub(this.target.position, this.position);
       this.desired.setMag(this.maxSpeed);
