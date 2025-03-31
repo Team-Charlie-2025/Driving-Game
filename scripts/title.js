@@ -118,6 +118,12 @@ function TitleSketch(p) {
     }, "blue")
   );
 
+  buttons.push(
+    new Button("Signup", p.width*7.4 / 8, p.height - p.height * 0.25, p.width, p.height, function () {
+      switchSketch(Mode.Signup);
+    }, "blue")
+  );
+
   
     /*
     buttons.push(
