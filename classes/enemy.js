@@ -2,10 +2,10 @@
 class Enemy extends Car{
   constructor(p, x, y, target) {
     const stats = {
-      acceleration: 0.4 * window.difficulty,
-      maxSpeed: 4.5 * window.difficulty,
+      acceleration: 0.8 * window.difficulty,
+      maxSpeed: 7.0 * window.difficulty,
       health: 100 * window.difficulty,
-      friction: 0.05 
+      friction: 0.03
     };
     
     super(p, x, y, stats);
@@ -18,8 +18,8 @@ class Enemy extends Car{
 
     // Movement properties
     this.velocity = p.createVector(0, 0);
-    this.maxForce = 0.3;         // How quickly it can change direction
-    this.turnRadius = 0.3;       // Turn radius control (lower = wider turns)
+    this.maxForce = 0.8;         // How quickly it can change direction
+    this.turnRadius = 0.8;       // Turn radius control (lower = wider turns)
     this.desired = p.createVector(0, 0);
     this.steer = p.createVector(0, 0);
     
@@ -178,7 +178,7 @@ class Truck extends Enemy {
     
     // Combat properties
     this.healthBar = 250 * window.difficulty;      // Much more health
-    this.attackDamage = 40 * window.difficulty;    // Much more damage
+    this.attackDamage = 25 * window.difficulty;    // Much more damage
     this.attackCooldown = 2000 / window.difficulty; // Slower attack rate
     
     this.currentImage = p.truckImg;
@@ -210,7 +210,7 @@ class Motorcycle extends Enemy {
     
     // Movement properties
     this.acceleration = 0.8 * window.difficulty;   // High acceleration
-    this.maxSpeed = 7.0 * window.difficulty;       // High max speed
+    this.maxSpeed = 8.0 * window.difficulty;       // High max speed
     this.maxForce = 0.5;                           // More force
     this.turnRadius = 0.08;                        // LARGE turn radius = wide turns
     this.friction = 0.05;                          // Medium friction
