@@ -54,6 +54,8 @@ function generateGenMap(p, rows, cols) {
   drawAngledRoad(p,40,47,120,119,roadSizes.normal);
   drawRectRoad(p,119,22,119+roadSizes.big,252);
   drawLake(p,1,1,11,20)
+  drawLake(p,42,27,49,38)
+  drawLake(p,103,31,117,52);
   let blockSize = 50;
   for(let i=1; i<5; ++i){
     drawRectRoad(p,119+(i*blockSize),5,119+roadSizes.normal+(i*blockSize),252);   // Vertical roads
@@ -89,7 +91,7 @@ function drawLake(p, xStart, yStart, xEnd, yEnd) {
       const dy = (y - centerY) / radiusY;
       const distance = Math.sqrt(dx * dx + dy * dy);
       
-      const edgeThreshold = 1 + (Math.random() - 0.5) * 0.2; // Makes the edge fun and jaged
+      const edgeThreshold = 1 + (Math.random() - 0.5) * 0.12; // Makes the edge fun and jaged
 
       if (distance <= edgeThreshold) {
         if (map[y] && map[y][x] instanceof Grass) {
