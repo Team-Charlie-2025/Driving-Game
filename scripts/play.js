@@ -23,6 +23,7 @@ function PlaySketch(p) {
 
     // will be moved to globals eventually
     grassImg = p.loadImage("assets/mapBuilder/Terrain/grass.png");
+    waterImg = p.loadImage("assets/mapBuilder/Terrain/water.png")
 
   };
 
