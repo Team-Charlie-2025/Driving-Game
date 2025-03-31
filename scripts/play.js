@@ -20,6 +20,10 @@ function PlaySketch(p) {
     p.enemyImg = p.loadImage("assets/police+car.png");   // Regular cop car image
     p.truckImg = p.loadImage("assets/police+truck.png"); // Truck image
     p.bikeImg = p.loadImage("assets/police+bike.png");   // Motorcycle image
+
+    // will be moved to globals eventually
+    grassImg = p.loadImage("assets/mapBuilder/Terrain/grass.png");
+
   };
 
   p.setup = function () {
