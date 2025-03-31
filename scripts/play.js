@@ -17,6 +17,10 @@ function PlaySketch(p) {
     loadSoundEffects(p);
     p.buildingImg = p.loadImage("assets/building.png");
     p.enemyImg = p.loadImage("assets/police+car.png"); // Add enemy image
+
+    // will be moved to globals eventually
+    grassImg = p.loadImage("assets/mapBuilder/Terrain/grass.png");
+
   };
 
   p.setup = function () {

@@ -1,35 +1,128 @@
-// /scripts/mapEditor.js
+// mapEditor.js
 
 function MapEditorSketch(p) {
-  const categories = ['buildings', 'roads', 'terrain', 'doodads'];
-  let currentTab = 'terrain';
-  let assetManifest = {}; // Loaded from manifest.txt files
-  let assets = {};
-  let thumbnails = [];
-  let selectedTile = null;
-  let selectedLayer = 0;
-  let hasColliderCheckbox;
-  let saveButton, loadButton, mapSelect;
-  const gridSize = 32;
-  let placedTiles = [];
-  const mapFilenames = ["map01.json","map02.json","map03.json","map04.json","map05.json"];
+  p.preload = function() {
+    window.loadMapAssets(p);
+  };
 
-  const mapCols = 32;
-  const mapRows = 32;
+  p.setup = function() {
+    p.createCanvas(p.windowWidth, p.windowHeight);
+    createAssetTabs();
+    updateThumbnails();
 
-  const assetPanelWidth = gridSize * 6;
-  const visibleThumbnailCount = 6;
-  const thumbnailSize = gridSize * 4;
-  const thumbnailSpacing = 10;
-  const categoryButtonHeight = 40;
-  const categoryButtonsHeight = categories.length * categoryButtonHeight + 20;
-  const thumbnailsAreaY = categoryButtonsHeight;
+    window.hasColliderCheckbox = p.createCheckbox("hasCollider", false);
+    window.hasColliderCheckbox.position(window.assetPanelWidth + 10, 40);
 
-  let thumbnailScroll = 0;
+    window.saveButton = p.createButton("Save Map");
+    window.saveButton.position(window.assetPanelWidth + 10, 70);
+    window.saveButton.mousePressed(saveMap);
+
+    window.mapSelect = p.createSelect();
+    window.mapSelect.position(window.assetPanelWidth + 10, 100);
+    window.mapFilenames.forEach(fn => window.mapSelect.option(fn));
+
+    window.loadButton = p.createButton("Load Map");
+    window.loadButton.position(window.assetPanelWidth + 10, 130);
+    window.loadButton.mousePressed(loadMap);
+
+    let eraseMapButton = p.createButton("Erase Map");
+    eraseMapButton.position(window.assetPanelWidth + 10, 160);
+    eraseMapButton.mousePressed(() => {
+      window.placedTiles = [];
+    });
+
+    p.canvas.oncontextmenu = e => e.preventDefault();
+
+    p.mouseWheel = function(event) {
+      if (p.mouseX < window.assetPanelWidth) {
+        window.thumbnailScroll += event.delta;
+        let totalHeight = window.thumbnails.length * (window.thumbnailSize + window.thumbnailSpacing);
+        let visibleHeight = window.visibleThumbnailCount * (window.thumbnailSize + window.thumbnailSpacing);
+        window.thumbnailScroll = p.constrain(window.thumbnailScroll, 0, Math.max(totalHeight - visibleHeight, 0));
+        return false;
+      }
+    };
+    window.LoadingScreen.hide();
+  };
+
+  p.keyPressed = function () {
+    if (p.keyCode === p.ESCAPE) {
+      switchSketch(Mode.TITLE);
+    }
+  };
+
+  function createAssetTabs() {
+    let xPos = 10;
+    let yPos = 10;
+    window.categories.forEach(cat => {
+      let btn = p.createButton(cat);
+      btn.position(xPos, yPos);
+      btn.mousePressed(() => {
+        window.currentTab = cat;
+        updateThumbnails();
+        window.thumbnailScroll = 0;
+      });
+      yPos += window.categoryButtonHeight;
+    });
+  }
+
+  function updateThumbnails() {
+    window.thumbnails = window.assets[window.currentTab];
+    window.selectedTile = null;
+  }
+  
+  function getEffectiveDimensions(img, rotation) {
+    const origW = Math.ceil(img.width / window.gridSize) * window.gridSize;
+    const origH = Math.ceil(img.height / window.gridSize) * window.gridSize;
+    if (rotation % 180 !== 0) {
+      return { w: origH, h: origW };
+    }
+    return { w: origW, h: origH };
+  }
+
+  p.draw = function() {
+    p.background(220);
+    drawGrid();
+    drawPlacedTiles();
+    drawMouseOver();
+    drawAssetPanel();
+
+    if (window.selectedTile) {
+      let { w: previewW, h: previewH } = getEffectiveDimensions(window.selectedTile.img, window.selectedTile.rotation);
+      p.push();
+      p.translate(p.mouseX + 10 + previewW / 2, p.mouseY + 10 + previewH / 2);
+      p.rotate(window.selectedTile.rotation * p.PI / 180);
+      p.tint(255, 200);
+      p.image(window.selectedTile.img, -previewW / 2, -previewH / 2, previewW, previewH);
+      p.pop();
+    }
+  };
+
+  function drawMouseOver(){
+    if (window.selectedTile) {
+      let offset = getGridOffset();
+      if (
+        p.mouseX >= offset.x &&
+        p.mouseX <= offset.x + offset.gridWidth &&
+        p.mouseY >= offset.y &&
+        p.mouseY <= offset.y + offset.gridHeight
+      ) {
+        const snappedX = offset.x + Math.floor((p.mouseX - offset.x) / window.gridSize) * window.gridSize;
+        const snappedY = offset.y + Math.floor((p.mouseY - offset.y) / window.gridSize) * window.gridSize;
+        let { w: shadowW, h: shadowH } = getEffectiveDimensions(window.selectedTile.img, window.selectedTile.rotation);
+        p.push();
+        p.translate(snappedX + shadowW / 2, snappedY + shadowH / 2);
+        p.rotate(window.selectedTile.rotation * p.PI / 180);
+        p.tint(255, 100); 
+        p.image(window.selectedTile.img, -shadowW / 2, -shadowH / 2, shadowW, shadowH);
+        p.pop();
+      }
+    }
+  }
 
   function getGridOffset() {
-    const gridWidth = mapCols * gridSize;
-    const gridHeight = mapRows * gridSize;
+    const gridWidth = window.mapCols * window.gridSize;
+    const gridHeight = window.mapRows * window.gridSize;
     return {
       x: (p.windowWidth - gridWidth) / 2,
       y: (p.windowHeight - gridHeight) / 2,
@@ -38,115 +131,30 @@ function MapEditorSketch(p) {
     };
   }
 
-  p.preload = function() {
-    categories.forEach(cat => {
-      p.loadStrings(`/assets/mapBuilder/${cat}/manifest.txt`, function(fileList) {
-        assetManifest[cat] = fileList;
-        assets[cat] = new Array(fileList.length);
-        fileList.forEach((filename, i) => {
-          let cleanName = filename.trim();
-          let path = `/assets/mapBuilder/${cat}/${cleanName}`;
-          p.loadImage(path, img => {
-            assets[cat][i] = img;
-          });
-        });
-      });
-    });
-  };
-
-  p.setup = function() {
-    p.createCanvas(p.windowWidth, p.windowHeight);
-    createAssetTabs();
-    updateThumbnails();
-
-    let layerSelect = p.createSelect();
-    layerSelect.position(assetPanelWidth + 10, 10);
-    for (let i = 0; i < 5; i++) layerSelect.option(i);
-    layerSelect.changed(() => selectedLayer = Number(layerSelect.value()));
-
-    hasColliderCheckbox = p.createCheckbox("hasCollider", false);
-    hasColliderCheckbox.position(assetPanelWidth + 10, 40);
-
-    saveButton = p.createButton("Save Map");
-    saveButton.position(assetPanelWidth + 10, 70);
-    saveButton.mousePressed(saveMap);
-
-    mapSelect = p.createSelect();
-    mapSelect.position(assetPanelWidth + 10, 100);
-    mapFilenames.forEach(fn => mapSelect.option(fn));
-
-    loadButton = p.createButton("Load Map");
-    loadButton.position(assetPanelWidth + 10, 130);
-    loadButton.mousePressed(loadMap);
-
-    let eraseMapButton = p.createButton("Erase Map");
-    eraseMapButton.position(assetPanelWidth + 10, 160);
-    eraseMapButton.mousePressed(() => {
-      placedTiles = [];
-    });
-
-    p.canvas.oncontextmenu = e => e.preventDefault();
-
-    p.mouseWheel = function(event) {
-      if (p.mouseX < assetPanelWidth) {
-        thumbnailScroll += event.delta;
-        let totalHeight = thumbnails.length * (thumbnailSize + thumbnailSpacing);
-        let visibleHeight = visibleThumbnailCount * (thumbnailSize + thumbnailSpacing);
-        thumbnailScroll = p.constrain(thumbnailScroll, 0, Math.max(totalHeight - visibleHeight, 0));
-        return false;
-      }
-    };
-
-    if (window.LoadingScreen && typeof window.LoadingScreen.hide === "function") {
-      window.LoadingScreen.hide();
-    }
-  };
-
-  function createAssetTabs() {
-    let xPos = 10;
-    let yPos = 10;
-    categories.forEach(cat => {
-      let btn = p.createButton(cat);
-      btn.position(xPos, yPos);
-      btn.mousePressed(() => {
-        currentTab = cat;
-        updateThumbnails();
-        thumbnailScroll = 0;
-      });
-      yPos += categoryButtonHeight;
-    });
-  }
-
-  function updateThumbnails() {
-    thumbnails = assets[currentTab];
-    selectedTile = null;
-  }
-
-  p.draw = function() {
-    p.background(220);
-    drawGrid();
-    drawPlacedTiles();
-    drawAssetPanel();
-  };
-
   function drawGrid() {
     let offset = getGridOffset();
     p.stroke(180);
-    for (let x = offset.x; x <= offset.x + offset.gridWidth; x += gridSize) p.line(x, offset.y, x, offset.y + offset.gridHeight);
-    for (let y = offset.y; y <= offset.y + offset.gridHeight; y += gridSize) p.line(offset.x, y, offset.x + offset.gridWidth, y);
+    for (let x = offset.x; x <= offset.x + offset.gridWidth; x += window.gridSize)
+      p.line(x, offset.y, x, offset.y + offset.gridHeight);
+    for (let y = offset.y; y <= offset.y + offset.gridHeight; y += window.gridSize)
+      p.line(offset.x, y, offset.x + offset.gridWidth, y);
     p.noFill();
     p.stroke(0);
     p.rect(offset.x, offset.y, offset.gridWidth, offset.gridHeight);
   }
 
   function drawPlacedTiles() {
-    placedTiles.sort((a, b) => a.layer - b.layer).forEach(tile => {
-      p.image(tile.img, tile.x, tile.y, tile.w, tile.h);
+    window.placedTiles.sort((a, b) => a.layer - b.layer).forEach(tile => {
+      p.push();
+      p.translate(tile.x + tile.w / 2, tile.y + tile.h / 2);
+      p.rotate(tile.rotation * p.PI / 180);
+      p.image(tile.img, -tile.w / 2, -tile.h / 2, tile.w, tile.h);
       if (tile.hasCollider) {
         p.noFill();
         p.stroke(255, 0, 0);
-        p.rect(tile.x, tile.y, tile.w, tile.h);
+        p.rect(-tile.w / 2, -tile.h / 2, tile.w, tile.h);
       }
+      p.pop();
     });
   }
 
@@ -154,126 +162,126 @@ function MapEditorSketch(p) {
     p.push();
     p.noStroke();
     p.fill(240);
-    p.rect(0, 0, assetPanelWidth, p.height);
+    p.rect(0, 0, window.assetPanelWidth, p.height);
     p.stroke(150);
-    p.line(0, thumbnailsAreaY - 10, assetPanelWidth, thumbnailsAreaY - 10);
+    p.line(0, window.thumbnailsAreaY - 10, window.assetPanelWidth, window.thumbnailsAreaY - 10);
 
-    p.beginClip(0, thumbnailsAreaY - 1, assetPanelWidth, p.height - thumbnailsAreaY + 1);
-    for (let i = 0; i < thumbnails.length; i++) {
-      let img = thumbnails[i];
+    p.beginClip(0, window.thumbnailsAreaY - 1, window.assetPanelWidth, p.height - window.thumbnailsAreaY + 1);
+    for (let i = 0; i < window.thumbnails.length; i++) {
+      let img = window.thumbnails[i];
       let thumbX = 10;
-      let thumbY = thumbnailsAreaY + i * (thumbnailSize + thumbnailSpacing) - thumbnailScroll;
+      let thumbY = window.thumbnailsAreaY + i * (window.thumbnailSize + window.thumbnailSpacing) - window.thumbnailScroll;
 
       p.stroke(0);
       p.noFill();
-      p.rect(thumbX, thumbY, thumbnailSize, thumbnailSize);
-      if (img.width > 0) p.image(img, thumbX, thumbY, thumbnailSize, thumbnailSize);
+      p.rect(thumbX, thumbY, window.thumbnailSize, window.thumbnailSize);
+      if (img.width > 0) p.image(img, thumbX, thumbY, window.thumbnailSize, window.thumbnailSize);
 
-      if (selectedTile && selectedTile.img === img && selectedTile.category === currentTab && selectedTile.index === i) {
+      if (window.selectedTile && window.selectedTile.img === img && window.selectedTile.category === window.currentTab && window.selectedTile.index === i) {
         p.noFill();
         p.stroke(255, 0, 0);
-        p.rect(thumbX, thumbY, thumbnailSize, thumbnailSize);
+        p.rect(thumbX, thumbY, window.thumbnailSize, window.thumbnailSize);
       }
     }
     p.endClip();
 
-    let totalListHeight = thumbnails.length * (thumbnailSize + thumbnailSpacing);
-    let visibleHeight = visibleThumbnailCount * (thumbnailSize + thumbnailSpacing);
+    let totalListHeight = window.thumbnails.length * (window.thumbnailSize + window.thumbnailSpacing);
+    let visibleHeight = window.visibleThumbnailCount * (window.thumbnailSize + window.thumbnailSpacing);
     if (totalListHeight > visibleHeight) {
       let scrollbarHeight = visibleHeight * (visibleHeight / totalListHeight);
       let maxScroll = totalListHeight - visibleHeight;
-      let scrollbarY = thumbnailsAreaY + (thumbnailScroll / maxScroll) * (visibleHeight - scrollbarHeight);
+      let scrollbarY = window.thumbnailsAreaY + (window.thumbnailScroll / maxScroll) * (visibleHeight - scrollbarHeight);
       p.noStroke();
       p.fill(200);
-      p.rect(assetPanelWidth - 10, thumbnailsAreaY, 10, visibleHeight);
+      p.rect(window.assetPanelWidth - 10, window.thumbnailsAreaY, 10, visibleHeight);
       p.fill(150);
-      p.rect(assetPanelWidth - 10, scrollbarY, 10, scrollbarHeight);
+      p.rect(window.assetPanelWidth - 10, scrollbarY, 10, scrollbarHeight);
     }
     p.pop();
   }
 
   function placeTile() {
-    if (!selectedTile) return;
+    if (!window.selectedTile) return;
     let offset = getGridOffset();
-    let img = selectedTile.img;
-    const imgW = Math.ceil(img.width / gridSize) * gridSize;
-    const imgH = Math.ceil(img.height / gridSize) * gridSize;
+    let img = window.selectedTile.img;
+    let rotation = window.selectedTile.rotation || 0;
+    let { w: effectiveW, h: effectiveH } = getEffectiveDimensions(img, rotation);
 
     const centerX = p.mouseX;
     const centerY = p.mouseY;
-
-    const snappedX = offset.x + Math.floor((centerX - offset.x) / gridSize) * gridSize;
-    const snappedY = offset.y + Math.floor((centerY - offset.y) / gridSize) * gridSize;
+    const snappedX = offset.x + Math.floor((centerX - offset.x) / window.gridSize) * window.gridSize;
+    const snappedY = offset.y + Math.floor((centerY - offset.y) / window.gridSize) * window.gridSize;
 
     if (
       snappedX < offset.x ||
-      snappedX + imgW > offset.x + offset.gridWidth ||
+      snappedX + effectiveW > offset.x + offset.gridWidth ||
       snappedY < offset.y ||
-      snappedY + imgH > offset.y + offset.gridHeight
+      snappedY + effectiveH > offset.y + offset.gridHeight
     ) {
       return;
     }
-    for (let tile of placedTiles) {
-        if (tile.layer === selectedLayer) {
-            if (
-                snappedX < tile.x + tile.w &&
-                snappedX + imgW > tile.x &&
-                snappedY < tile.y + tile.h &&
-                snappedY + imgH > tile.y
-            ) {
-                return; 
-            }
+    const tileLayer = window.getLayerForCategory(window.selectedTile.category);
+    for (let tile of window.placedTiles) {
+      if (tile.layer === tileLayer) {
+        if (
+          snappedX < tile.x + tile.w &&
+          snappedX + effectiveW > tile.x &&
+          snappedY < tile.y + tile.h &&
+          snappedY + effectiveH > tile.y
+        ) {
+          return; 
         }
+      }
     }
-    placedTiles.push({
-        img: img,
-        x: snappedX,
-        y: snappedY,
-        w: imgW,
-        h: imgH,
-        layer: selectedLayer,
-        hasCollider: hasColliderCheckbox.checked(),
-        category: selectedTile.category,
-        index: selectedTile.index
+    window.placedTiles.push({
+      img: img,
+      x: snappedX,
+      y: snappedY,
+      w: effectiveW,
+      h: effectiveH,
+      layer: tileLayer,
+      hasCollider: window.hasColliderCheckbox.checked(),
+      category: window.selectedTile.category,
+      index: window.selectedTile.index,
+      rotation: rotation
     });
-}
-
+  }
 
   function eraseTile() {
     let offset = getGridOffset();
-    for (let i = placedTiles.length - 1; i >= 0; i--) {
-      let tile = placedTiles[i];
+    const activeLayer = window.getLayerForCategory(window.currentTab);
+    for (let i = window.placedTiles.length - 1; i >= 0; i--) {
+      let tile = window.placedTiles[i];
       if (
         p.mouseX >= tile.x &&
         p.mouseX <= tile.x + tile.w &&
         p.mouseY >= tile.y &&
         p.mouseY <= tile.y + tile.h &&
-        tile.layer === selectedLayer
+        tile.layer === activeLayer
       ) {
-        placedTiles.splice(i, 1);
+        window.placedTiles.splice(i, 1);
         break;
       }
     }
   }
 
-
   function fillTiles() {
-    if (!selectedTile) return;
+    if (!window.selectedTile) return;
     
     let offset = getGridOffset();
-    let img = selectedTile.img;
-    const imgW = Math.ceil(img.width / gridSize) * gridSize;
-    const imgH = Math.ceil(img.height / gridSize) * gridSize;
-    const tileCellsWide = imgW / gridSize;
-    const tileCellsHigh = imgH / gridSize;
+    let img = window.selectedTile.img;
+    let rotation = window.selectedTile.rotation || 0;
+    let { w: effectiveW, h: effectiveH } = getEffectiveDimensions(img, rotation);
+    const tileCellsWide = effectiveW / window.gridSize;
+    const tileCellsHigh = effectiveH / window.gridSize;
     
-    let startCol = Math.floor((p.mouseX - offset.x) / gridSize);
-    let startRow = Math.floor((p.mouseY - offset.y) / gridSize);
+    let startCol = Math.floor((p.mouseX - offset.x) / window.gridSize);
+    let startRow = Math.floor((p.mouseY - offset.y) / window.gridSize);
     
     if (
       startCol < 0 || startRow < 0 ||
-      startCol > mapCols - tileCellsWide ||
-      startRow > mapRows - tileCellsHigh
+      startCol > window.mapCols - tileCellsWide ||
+      startRow > window.mapRows - tileCellsHigh
     ) {
       return;
     }
@@ -285,19 +293,21 @@ function MapEditorSketch(p) {
     queue.push({col: startCol, row: startRow});
     visited[key(startCol, startRow)] = true;
     
+    const tileLayer = window.getLayerForCategory(window.selectedTile.category);
     while (queue.length) {
       let cell = queue.shift();
-      if (canPlaceTileAt(cell.col, cell.row, imgW, imgH)) {
-        placedTiles.push({
+      if (canPlaceTileAt(cell.col, cell.row, effectiveW, effectiveH)) {
+        window.placedTiles.push({
           img: img,
-          x: offset.x + cell.col * gridSize,
-          y: offset.y + cell.row * gridSize,
-          w: imgW,
-          h: imgH,
-          layer: selectedLayer,
-          hasCollider: hasColliderCheckbox.checked(),
-          category: selectedTile.category,
-          index: selectedTile.index
+          x: offset.x + cell.col * window.gridSize,
+          y: offset.y + cell.row * window.gridSize,
+          w: effectiveW,
+          h: effectiveH,
+          layer: tileLayer,
+          hasCollider: window.hasColliderCheckbox.checked(),
+          category: window.selectedTile.category,
+          index: window.selectedTile.index,
+          rotation: rotation
         });
         
         let neighbors = [
@@ -310,8 +320,8 @@ function MapEditorSketch(p) {
         for (let n of neighbors) {
           if (
             n.col >= 0 && n.row >= 0 &&
-            n.col <= mapCols - tileCellsWide &&
-            n.row <= mapRows - tileCellsHigh &&
+            n.col <= window.mapCols - tileCellsWide &&
+            n.row <= window.mapRows - tileCellsHigh &&
             !visited[key(n.col, n.row)]
           ) {
             visited[key(n.col, n.row)] = true;
@@ -324,16 +334,17 @@ function MapEditorSketch(p) {
 
   function eraseAllSameTile() {
     let offset = getGridOffset();
+    const activeLayer = window.getLayerForCategory(window.currentTab);
     let targetTile = null;
     
-    for (let i = placedTiles.length - 1; i >= 0; i--) {
-      let tile = placedTiles[i];
+    for (let i = window.placedTiles.length - 1; i >= 0; i--) {
+      let tile = window.placedTiles[i];
       if (
         p.mouseX >= tile.x &&
         p.mouseX <= tile.x + tile.w &&
         p.mouseY >= tile.y &&
         p.mouseY <= tile.y + tile.h &&
-        tile.layer === selectedLayer
+        tile.layer === activeLayer
       ) {
         targetTile = tile;
         break;
@@ -341,35 +352,36 @@ function MapEditorSketch(p) {
     }
     
     if (targetTile) {
-      placedTiles = placedTiles.filter(tile => {
-        return !(tile.layer === selectedLayer &&
+      window.placedTiles = window.placedTiles.filter(tile => {
+        return !(tile.layer === activeLayer &&
                  tile.category === targetTile.category &&
                  tile.index === targetTile.index);
       });
     }
   }
   
-  function canPlaceTileAt(col, row, imgW, imgH) {
+  function canPlaceTileAt(col, row, effectiveW, effectiveH) {
     let offset = getGridOffset();
-    let candidateX = offset.x + col * gridSize;
-    let candidateY = offset.y + row * gridSize;
+    let candidateX = offset.x + col * window.gridSize;
+    let candidateY = offset.y + row * window.gridSize;
     
     if (
       candidateX < offset.x ||
       candidateY < offset.y ||
-      candidateX + imgW > offset.x + offset.gridWidth ||
-      candidateY + imgH > offset.y + offset.gridHeight
+      candidateX + effectiveW > offset.x + offset.gridWidth ||
+      candidateY + effectiveH > offset.y + offset.gridHeight
     ) {
       return false;
     }
     
-    for (let tile of placedTiles) {
-      if (tile.layer === selectedLayer) {
+    const activeLayer = window.getLayerForCategory(window.currentTab);
+    for (let tile of window.placedTiles) {
+      if (tile.layer === activeLayer) {
         if (
           candidateX < tile.x + tile.w &&
-          candidateX + imgW > tile.x &&
+          candidateX + effectiveW > tile.x &&
           candidateY < tile.y + tile.h &&
-          candidateY + imgH > tile.y
+          candidateY + effectiveH > tile.y
         ) {
           return false;
         }
@@ -381,21 +393,22 @@ function MapEditorSketch(p) {
   p.mousePressed = function(e) {
     if (e.target !== p.canvas) return;
   
-    if (p.mouseX < assetPanelWidth) {
-      const startY = thumbnailsAreaY;
-      for (let i = 0; i < thumbnails.length; i++) {
+    if (p.mouseX < window.assetPanelWidth) {
+      const startY = window.thumbnailsAreaY;
+      for (let i = 0; i < window.thumbnails.length; i++) {
         const thumbX = 10;
-        const thumbY = startY + i * (thumbnailSize + thumbnailSpacing) - thumbnailScroll;
+        const thumbY = startY + i * (window.thumbnailSize + window.thumbnailSpacing) - window.thumbnailScroll;
         if (
           p.mouseX >= thumbX &&
-          p.mouseX <= thumbX + thumbnailSize &&
+          p.mouseX <= thumbX + window.thumbnailSize &&
           p.mouseY >= thumbY &&
-          p.mouseY <= thumbY + thumbnailSize
+          p.mouseY <= thumbY + window.thumbnailSize
         ) {
-          selectedTile = {
-            img: thumbnails[i],
-            category: currentTab,
-            index: i
+          window.selectedTile = {
+            img: window.thumbnails[i],
+            category: window.currentTab,
+            index: i,
+            rotation: window.currentRotation
           };
           break;
         }
@@ -427,45 +440,61 @@ function MapEditorSketch(p) {
     }
   };
 
+  p.keyPressed = function() {
+    if (p.key === 'q' || p.key === 'Q') {
+      window.currentRotation = (window.currentRotation - 90 + 360) % 360;
+      if (window.selectedTile) {
+        window.selectedTile.rotation = window.currentRotation;
+      }
+    } else if (p.key === 'e' || p.key === 'E') {
+      window.currentRotation = (window.currentRotation + 90) % 360;
+      if (window.selectedTile) {
+        window.selectedTile.rotation = window.currentRotation;
+      }
+    }
+  };
+
   function saveMap() {
     let mapData = {
-      gridSize: gridSize,
-      tiles: placedTiles.map(tile => ({
-        x: tile.x,
-        y: tile.y,
+      gridSize: window.gridSize,
+      tiles: window.placedTiles.map(tile => ({
+        col: (tile.x - getGridOffset().x) / window.gridSize,
+        row: (tile.y - getGridOffset().y) / window.gridSize,
         w: tile.w,
         h: tile.h,
         layer: tile.layer,
         hasCollider: tile.hasCollider,
         category: tile.category,
-        index: tile.index
+        index: tile.index,
+        rotation: tile.rotation
       }))
     };
-    let filename = mapSelect.value();
+    let filename = window.mapSelect.value();
     p.saveJSON(mapData, `/maps/${filename}`);
   }
-
+  
   function loadMap(e) {
     if (e) e.stopPropagation();
-    let filename = mapSelect.value();
+    let filename = window.mapSelect.value();
     if (!filename) {
       alert("Please select a map file to load.");
       return;
     }
     p.loadJSON(`/maps/${filename}`, (mapData) => {
-      placedTiles = [];
+      window.placedTiles = [];
       mapData.tiles.forEach(t => {
-        let img = assets[t.category][t.index];
-        placedTiles.push({
+        let img = window.assets[t.category][t.index];
+        window.placedTiles.push({
           img: img,
-          x: t.x,
-          y: t.y,
+          x: getGridOffset().x + t.col * window.gridSize,
+          y: getGridOffset().y + t.row * window.gridSize,
           w: t.w,
           h: t.h,
           layer: t.layer,
           hasCollider: t.hasCollider,
           category: t.category,
-          index: t.index
+          index: t.index,
+          rotation: t.rotation
         });
       });
     }, 'json', (err) => {
