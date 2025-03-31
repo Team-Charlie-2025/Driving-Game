@@ -28,8 +28,10 @@ function loadPersistentData() {
   return defaultData;
 }
 
-function savePersistentData(data) {
-  localStorage.setItem("persistentData", JSON.stringify(data));
+function savePersistentData(newData) {
+  const existing = loadPersistentData();
+  const merged = { ...existing, ...newData };
+  localStorage.setItem("persistentData", JSON.stringify(merged));
 }
 
 function clearPersistentData(){
