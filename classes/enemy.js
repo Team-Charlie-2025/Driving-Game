@@ -96,11 +96,11 @@ class Enemy extends Car {
   
     onCollisionEnter(other) {
       //super.onCollisionEnter(other);
-      if (other instanceof Car) { //upon ememy collision
+      if (other instanceof Car && !(other instanceof Enemy)) { //upon ememy collision
         let damage = 10;
         this.healthBar = Math.max(0, this.healthBar - damage);
       }
-      if (other instanceof Car && Date.now() - this.lastAttack > this.attackCooldown) {
+      if (other instanceof Car && !(other instanceof Enemy) && Date.now() - this.lastAttack > this.attackCooldown) {
         this.lastAttack = Date.now();
   
         // Add knockback
