@@ -502,6 +502,12 @@ function MapEditorSketch(p) {
     });
   }
 
+  p.keyPressed = function () {
+    if (p.keyCode === p.ESCAPE) {
+      switchSketch(Mode.TITLE);
+    }
+  };
+  
   p.windowResized = function() {
     p.resizeCanvas(p.windowWidth, p.windowHeight);
   };
