@@ -45,11 +45,6 @@ function MapEditorSketch(p) {
     window.LoadingScreen.hide();
   };
 
-  p.keyPressed = function () {
-    if (p.keyCode === p.ESCAPE) {
-      switchSketch(Mode.TITLE);
-    }
-  };
 
   function createAssetTabs() {
     let xPos = 10;
@@ -452,6 +447,9 @@ function MapEditorSketch(p) {
         window.selectedTile.rotation = window.currentRotation;
       }
     }
+    else if (p.keyCode === p.ESCAPE) {
+      switchSketch(Mode.TITLE);
+    }
   };
 
   function saveMap() {
@@ -502,12 +500,6 @@ function MapEditorSketch(p) {
     });
   }
 
-  p.keyPressed = function () {
-    if (p.keyCode === p.ESCAPE) {
-      switchSketch(Mode.TITLE);
-    }
-  };
-  
   p.windowResized = function() {
     p.resizeCanvas(p.windowWidth, p.windowHeight);
   };
