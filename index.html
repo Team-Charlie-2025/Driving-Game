@@ -65,5 +65,42 @@
       <h2>Loading...</h2>
     </div>
     <main id="main"></main>
+
+    <script>
+      async function signup() {
+          const username = document.getElementById('username').value;
+          const password = document.getElementById('password').value;
+
+          const response = await fetch('/signup', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ username, password })
+          });
+
+          const result = await response.json();
+          document.getElementById('message').innerText = result.message || result.error;
+      }
+
+      async function login() {
+          const username = document.getElementById('username').value;
+          const password = document.getElementById('password').value;
+
+          const response = await fetch('/login', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ username, password })
+          });
+
+          const result = await response.json();
+          document.getElementById('message').innerText = result.message || result.error;
+      }
+
+      async function logout() {
+          const response = await fetch('/logout', { method: 'POST' });
+          const result = await response.json();
+          document.getElementById('message').innerText = result.message;
+      }
+  </script>
+
   </body>
 </html>
