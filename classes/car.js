@@ -45,6 +45,7 @@ class Car extends GameObject {
     }
 
     this.healthBar = SAVED_STATS.health;
+    this.maxHealth = this.healthBar;
     this.controlDisabled = false;
     this.time = 0.0;
 
@@ -189,6 +190,11 @@ class Car extends GameObject {
       damage = ItemsManager.shieldDamage(damage);
       this.healthBar = Math.max(0, this.healthBar - damage);
     }
+    else if(other instanceof Wrench){
+      let healing = other.collisionEffect;
+      this.healthBar = Math.min(this.maxHealth, this.healthBar + healing);
+
+    }
   }
 
   buildingCollision(){
@@ -199,10 +205,6 @@ class Car extends GameObject {
 
   getHealth(){
     return this.healthBar;
-  }
-
-  healthChange(changeAmount){
-    this.healthBar = changeAmount;
   }
 
 }

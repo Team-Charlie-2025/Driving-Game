@@ -44,11 +44,10 @@ class ItemsManager {
       else
         return 0;
     }
-    static wrenchCollected(car){
+    static wrenchCollected(car, wrench){
       let newHealth = car.getHealth() + wrenchHealthMod;
       console.log("current health: " + car.getHealth());
-      newHealth = Math.min(newHealth, loadPersistentData().stats.health);
-      car.healthChange( newHealth); //no more than max
+      car.onCollisionEnter( wrench);
       console.log("health restored : " + car.getHealth());
     }
 
@@ -57,13 +56,13 @@ class ItemsManager {
       console.log("Bomb Inventory: " + bombInventory);
     }
     static placeBomb(p, car, bombs){
-      //let bombPlaced = new Bomb(p, car.x - 10 , car.y - 10); //adjust location
-      console.log("Bomb Placed: ");
-      //add new bomb with placed properity
+      let bombPlaced = new Bomb(p, car.x - 10 , car.y - 10); //adjust location
+      console.log("Bomb Placed: " + car.x - 10 +", " + car.y - 10);
       //will need to call collision on enemy cars
       
 
     }
+
 
 
   }
@@ -135,6 +134,7 @@ class Wrench extends GameObject {
     this.p = p;
     this.size = size;
     this.collected = false;
+    this.collisionEffect = 10;
     this.collider = new Collider(this, "rectangle", {
       width: this.size,
       height: this.size,
