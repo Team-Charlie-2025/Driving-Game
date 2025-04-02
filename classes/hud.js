@@ -34,7 +34,15 @@ function drawMeters(p,car,scale){
   // Draw Health Bar
   p.fill(50);
   p.rect(10*windowWidthScale, 20*windowHeightScale, 200*windowWidthScale, 25*windowHeightScale);
-  p.fill(0, 255, 0);
+  
+  //color change as health decreases
+  if(car.healthBar < maxHealth/4) //quarter health =  red
+    p.fill(240, 20, 20);
+  else if(car.healthBar < maxHealth /2) //half health =  yellow
+    p.fill(223, 232, 100);
+  else
+    p.fill(0, 255, 0);
+  
   p.rect(10*windowWidthScale, 20*windowHeightScale, (car.healthBar/maxHealth)*200*windowWidthScale, 25*windowHeightScale);
 
   // Draw Boost Meter
