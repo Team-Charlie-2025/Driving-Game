@@ -7,13 +7,18 @@ let shieldElapsedTime = null;
 
 let wrenchHealthMod = 10;    //addition to health on wrench collision
 
-let bombInventory = 0;
+const BombWaitTime = 1000; //bomb place time delay
+let BombPlaceTime = null; 
+let bombInventory = 0; //number of bombs player collected
 
 class ItemsManager {
-    static shieldResetGame(){
+    static ItemResetGame(){
       shieldStartTime = null;
       currentTime = null;
       shieldElapsedTime = null; 
+
+      BombPlaceTime = null;
+      bombInventory = 0;
     }
     static ifShield(){
       if(shieldStartTime == null) return false;
@@ -56,13 +61,23 @@ class ItemsManager {
       console.log("Bomb Inventory: " + bombInventory);
     }
     static placeBomb(p, car, bombs){
-      let bombPlaced = new Bomb(p, car.x - 10 , car.y - 10); //adjust location
-      console.log("Bomb Placed: " + car.x - 10 +", " + car.y - 10);
-      //will need to call collision on enemy cars
-      
+      currentTime = p.millis();
+      if((BombPlaceTime == null || currentTime - BombPlaceTime > BombWaitTime) && bombInventory > 0){
+        bombInventory --;
+        BombPlaceTime = currentTime;
+        let bombSize = 25;
 
+        //////////////////////////adjust location????//////////////////////
+        let bombX = car.position.x - (gridSize * p.cos(car.angle)*2) - (bombSize/1.8 * p.cos(car.angle));
+        let bombY = car.position.y - (gridSize * p.sin(car.angle)*2) - (bombSize/1.8 * p.sin(car.angle));
+
+        let bombPlaced = new Bomb(p, bombX , bombY);
+        bombPlaced.placed = true;
+        console.log("Bomb Placed: " + Math.round(bombPlaced.position.x/gridSize) +", " + Math.round(bombPlaced.position.y/gridSize));
+        console.log("Bomb Inventory: " + bombInventory);
+        bombs.push(bombPlaced);
+      }
     }
-
 
 
   }

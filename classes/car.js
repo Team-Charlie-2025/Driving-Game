@@ -206,5 +206,6 @@ class Car extends GameObject {
   getHealth(){
     return this.healthBar;
   }
+  
 
 }

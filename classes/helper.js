@@ -151,3 +151,14 @@ function checkBombCollisions(bombs, car, p) {
   return bombs.filter(bomb => !bomb.collected);
 }
 
+function checkBombEnemyCollisions(bombs, enemies, p) {
+  if (!car) return bombs;
+  for (let bomb of bombs) {
+    if (!bomb.collected && bomb.collider && bomb.collider.intersects(car.collider)) {
+      bomb.collected = true;
+      ItemsManager.bombCollected(car);
+    }
+  }
+  return bombs.filter(bomb => !bomb.collected);
+}
+

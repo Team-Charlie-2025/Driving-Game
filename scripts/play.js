@@ -59,7 +59,7 @@ function PlaySketch(p) {
     
     physicsEngine.add(car);
 
-    ItemsManager.shieldResetGame(); //fix shield error
+    ItemsManager.ItemResetGame(); //fix shield error
     
     window.LoadingScreen.hide();
     bgMusic(Mode.PLAY, p, "loop");
@@ -269,7 +269,7 @@ function PlaySketch(p) {
 
   p.keyPressed = function() {
     if(p.keyCode === 66){ //////////////////////////////NEEDS KEYBINDS APPLIED
-      console.log("Try bomb placed");
+      //console.log("Try bomb placed");
       ItemsManager.placeBomb(p, car, bombs);
     }
     if (p.keyCode === p.ESCAPE) {
@@ -358,4 +358,5 @@ function PlaySketch(p) {
       }
     }
   }
+
 }
