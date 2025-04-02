@@ -10,6 +10,7 @@ function PlaySketch(p) {
   let coins = [];
   let shields = [];
   let wrenches = [];
+  let bombs = [];
   window.coinsCollected = 0;
   window.enemyDestroyedCount = 0;
   
@@ -73,6 +74,8 @@ function PlaySketch(p) {
     console.log("Wrenches made: " + wrenches.length);
     createCoins(p, coins, map);
     console.log("Coins made: " + coins.length);
+    createBomb(p, bombs, map);
+    console.log("Bombs made: " + bombs.length);
     ///////////////////////////////////////////
 
 
@@ -177,6 +180,8 @@ function PlaySketch(p) {
     coins = checkCoinCollisions(coins, car, p);
     shields = checkShieldCollisions(shields, car, p);
     wrenches = checkWrenchCollisions(wrenches, car, p);
+    bombs = checkBombCollisions(bombs, car, p);
+    
 
     if (!car) {
       const stats = loadPersistentData().stats;
@@ -212,12 +217,15 @@ function PlaySketch(p) {
       coins.forEach(coin => coin.display());
       shields.forEach(shield => shield.display());
       wrenches.forEach(wrench => wrench.display());
+      bombs.forEach(bomb => bomb.display());
   
       if (window.debug) {
+        bombs.forEach(bomb => bomb.collider.drawOutline());
         physicsEngine.objects.forEach(obj => {
           if (obj.collider && typeof obj.collider.drawOutline === "function") {
             obj.collider.drawOutline();
           }
+          
         });
   
         let halfWidth = p.width / (2 * zoomFactor);
@@ -260,6 +268,10 @@ function PlaySketch(p) {
   };
 
   p.keyPressed = function() {
+    if(p.keyCode === 66){ //////////////////////////////NEEDS KEYBINDS APPLIED
+      console.log("Try bomb placed");
+      ItemsManager.placeBomb(p, car, bombs);
+    }
     if (p.keyCode === p.ESCAPE) {
       bgMusic(Mode.PLAY, p, "stop");
       clearInterval(window.enemySpawnInterval);

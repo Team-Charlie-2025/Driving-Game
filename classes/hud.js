@@ -49,7 +49,7 @@ function drawMeters(p,car,scale){
   p.fill(50);
   p.rect(10*windowWidthScale, 67*windowHeightScale, 200*windowWidthScale, 25*windowHeightScale);
   p.fill(255, 165, 0);
-  console.log("boost" + car.boostMeter);
+  //console.log("boost" + car.boostMeter);
   p.rect(10*windowWidthScale, 67*windowHeightScale, car.boostMeter * 2 * windowWidthScale, 25*windowHeightScale);
 
 }

@@ -5,6 +5,10 @@ let shieldStartTime = null; //start time
 let currentTime = null;
 let shieldElapsedTime = null; 
 
+let wrenchHealthMod = 10;    //addition to health on wrench collision
+
+let bombInventory = 0;
+
 class ItemsManager {
     static shieldResetGame(){
       shieldStartTime = null;
@@ -41,11 +45,24 @@ class ItemsManager {
         return 0;
     }
     static wrenchCollected(car){
-      let newHealth = car.getHealth() + 10;
+      let newHealth = car.getHealth() + wrenchHealthMod;
       console.log("current health: " + car.getHealth());
       newHealth = Math.min(newHealth, loadPersistentData().stats.health);
       car.healthChange( newHealth); //no more than max
       console.log("health restored : " + car.getHealth());
+    }
+
+    static bombCollected(car){
+      bombInventory ++;
+      console.log("Bomb Inventory: " + bombInventory);
+    }
+    static placeBomb(p, car, bombs){
+      //let bombPlaced = new Bomb(p, car.x - 10 , car.y - 10); //adjust location
+      console.log("Bomb Placed: ");
+      //add new bomb with placed properity
+      //will need to call collision on enemy cars
+      
+
     }
 
 
@@ -136,6 +153,42 @@ class Wrench extends GameObject {
       p.imageMode(p.CENTER);
       p.noStroke();
       p.image(wrenchImg, 0, 0, this.size, this.size);
+    p.pop();
+  }
+}
+
+class Bomb extends GameObject {
+  constructor(p, x, y, size = 25) {
+    super(x, y);
+    this.p = p;
+    this.size = size;
+    this.collected = false;
+    this.placed = false;
+    this.attackDamage = 10 * window.difficulty; //damage from bombs
+    this.collider = new Collider(this, "rectangle", {
+      width: this.size,
+      height: this.size,
+      offsetX: -this.size / 2,
+      offsetY: -this.size / 2
+    });
+  }
+
+  display() { 
+    const p = this.p;
+    let bombImg = null
+    if(this.placed = true){
+      const frameIndex = Math.floor(p.millis() / frameDuration) % window.animations["bomb"].length;
+      bombImg = window.animations["bomb"][frameIndex];
+    }
+    else{
+      bombImg = window.animations["bomb"][0];
+    }
+
+    p.push();
+      p.translate(this.position.x, this.position.y);
+      p.imageMode(p.CENTER);
+      p.noStroke();
+      p.image(bombImg, 0, 0, this.size, this.size);
     p.pop();
   }
 }
