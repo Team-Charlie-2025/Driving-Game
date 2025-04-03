@@ -187,7 +187,8 @@ class Bomb extends GameObject {
     this.p = p;
     this.size = size;
     this.collected = false;
-    this.placed = false;
+    this.placed = false; //active bomb
+    this.timeHit = null; //EXPLOSION ANIMATION
     this.attackDamage = 30 * window.difficulty; //damage from bombs
     this.collider = new Collider(
       this,
@@ -200,11 +201,16 @@ class Bomb extends GameObject {
   display() { 
     const p = this.p;
     let bombImg = null
-    if(this.placed){ //animate when active
+
+    if (this.timeHit != null){ //EXPLOSION ANIMATION
+      const frameIndex = Math.floor(p.millis() / frameDuration) % window.animations["bombExplosion"].length;
+      bombImg = window.animations["bombExplosion"][frameIndex];
+    }
+    else if(this.placed){ //animate when active
       const frameIndex = Math.floor(p.millis() / frameDuration) % window.animations["bomb"].length;
       bombImg = window.animations["bomb"][frameIndex];
     }
-    else{
+    else{ //inactive bomb
       bombImg = window.animations["bomb"][0];
     }
 

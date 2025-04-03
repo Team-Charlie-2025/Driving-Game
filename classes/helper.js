@@ -148,12 +148,15 @@ function checkBombCollisions(bombs, car, p) {
         bomb.collected = true;
         ItemsManager.bombCollected(car);
       }
-      else{// *active* user placed bomb hit
+      else if (bomb.timeHit == null){// *active* user placed bomb hit
+        bomb.timeHit = p.millis(); //time when hit
         car.onCollisionEnter(bomb);
-        console.log ("BOMB HIT")
-        bomb.collected = true; //clears bomb off page
+        console.log ("BOMB HIT");
+        console.log("Time passed:" + (p.millis() - bomb.timeHit));
       }
     }
+    if(bomb.timeHit != null && p.millis() - bomb.timeHit >= 300)
+        bomb.collected = true; //clears bomb off page
   }
   return bombs.filter(bomb => !bomb.collected);
 }
