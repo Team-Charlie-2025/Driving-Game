@@ -307,5 +307,11 @@ function GarageSketch(p) {
   
     saveConfiguration();
     console.log("Upgrades and car purchases reset.");
-  }
+  }  
+  
+  p.keyPressed = function () {
+    if (p.keyCode === p.ESCAPE) {
+      switchSketch(Mode.TITLE);
+    }
+  };
 }

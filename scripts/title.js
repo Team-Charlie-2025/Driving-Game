@@ -118,6 +118,12 @@ function TitleSketch(p) {
     }, "blue")
   );
 
+  buttons.push(
+    new Button("Signup", p.width*7.4 / 8, p.height - p.height * 0.25, p.width, p.height, function () {
+      switchSketch(Mode.SIGNUP);
+    }, "blue")
+  );
+
   
     /*
     buttons.push(
@@ -127,11 +133,7 @@ function TitleSketch(p) {
         }
       })
     );
-    buttons.push(
-      new Button("Login", p.width / 1.1, p.height - p.height * 0.95, function () {
-        switchSketch(Mode.LOGIN);
-      })
-    );
+   
     buttons.push(
       new Button("Sign Up", p.width / 1.1, p.height - p.height * 0.88, function () {
         switchSketch(Mode.SIGNUP);

@@ -23,7 +23,7 @@ function LeaderboardSketch(p) {
   
     p.draw = function () {
       ExitIcon.display(p);
-      // tbd // needs backend
+
     };
     p.mousePressed = function() {
       if (ExitIcon.isMouseOver(p)) {
