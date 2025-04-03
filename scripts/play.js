@@ -268,7 +268,7 @@ function PlaySketch(p) {
   };
 
   p.keyPressed = function() {
-    if(p.keyCode === 66){ //////////////////////////////NEEDS KEYBINDS APPLIED
+    if(p.keyCode === getKeyForAction("placebomb")){ //////////////////////////////NEEDS KEYBINDS APPLIED
       //console.log("Try bomb placed");
       ItemsManager.placeBomb(p, car, bombs);
     }

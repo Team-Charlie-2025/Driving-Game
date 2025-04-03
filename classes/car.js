@@ -88,11 +88,6 @@ class Car extends GameObject {
       }
     }  
     
-    const boostKey = getKeyForAction("boost");
-    const forwardKey = getKeyForAction("forward");
-    const backwardKey = getKeyForAction("backward");
-    const leftKey = getKeyForAction("left");
-    const rightKey = getKeyForAction("right");
 
     if (p.keyIsDown(getKeyForAction("forward")) && !this.controlDisabled) {
       if (p.keyIsDown(getKeyForAction("boost")) && this.boostMeter > 0) {
