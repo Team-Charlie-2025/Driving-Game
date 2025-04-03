@@ -58,6 +58,25 @@ def login():
             return jsonify({'success': True, 'message': 'Login successful'})
         else:
             return jsonify({'success': False, 'error': 'Invalid username or password'})
+        
+
+@app.route('/update_score', methods=['POST'])
+def update_score():
+    data = request.json
+    username = data.get('username')
+    new_score = data.get('score')
+
+    if not username or new_score is None:
+        return jsonify({'success': False, 'error': 'Missing username or score'})
+
+    with sqlite3.connect('game.db') as conn:
+        cursor = conn.cursor()
+        cursor.execute("UPDATE users SET score = ? WHERE username = ?", (new_score, username))
+        conn.commit()
+
+    return jsonify({'success': True, 'message': 'Score updated successfully'})
+
+
 
 
 

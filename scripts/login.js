@@ -53,7 +53,7 @@ function LoginSketch(p) {
               message.style('color', 'green');
               message.show();
               setTimeout(() => {
-                  switchSketch(Mode.GAME); // Redirect to game or dashboard
+                  switchSketch(Mode.TITLE); // Redirect to game or dashboard
               }, 2000); // Redirect after 2 seconds
           } else {
               message.html("Login failed: " + data.error);
