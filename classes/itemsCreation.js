@@ -1,7 +1,7 @@
-const totalCoins = 750;
+const totalCoins = 500;
 const totalShields = 20;
 const totalWrenches  = 20;
-const totalBombs = 200;
+const totalBombs = 40;
 
 let attempts = 0;
 const maxAttempts = 10000; 
