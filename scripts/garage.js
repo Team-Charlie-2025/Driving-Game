@@ -271,7 +271,7 @@ function GarageSketch(p) {
 
   p.keyPressed = function () {
     if (p.keyCode === p.ESCAPE) {
-      window.bgMusic.stop();
+      bgMusic(Mode.GARAGE, p, "stop");
       switchSketch(Mode.TITLE);
     }
   };

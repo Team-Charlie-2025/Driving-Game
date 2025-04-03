@@ -4,7 +4,8 @@ let keybindConfig = {
   backward: 83,  // 's'
   left: 65,      // 'a'
   right: 68,     // 'd'
-  drift: 16      // Shift
+  drift: 16,      // Shift
+  placebomb: 66  // 'b'
 };
 
 function loadKeybinds() {
