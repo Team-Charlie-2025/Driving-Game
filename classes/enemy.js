@@ -108,36 +108,24 @@ class Enemy extends Car{
   }
   
   onCollisionEnter(other) {
-    //super.onCollisionEnter(other);
     // Only apply damage if the collided object is the player car (not an Enemy)
-    if (other instanceof Car && !(other instanceof Enemy) && Date.now() - this.lastAttack > this.attackCooldown) {
-      let damage = this.attackDamage;
-      
-      // Use ItemsManager's shield damage reduction if available
-      if (typeof ItemsManager !== 'undefined' && ItemsManager.shieldDamage) {
-        damage = ItemsManager.shieldDamage(damage);
-      }
-      
-      other.healthBar = Math.max(0, other.healthBar - damage);
-      this.lastAttack = Date.now();
-      
-      // Add knockback effect for the player car
-      const knockbackForce = 7 * window.difficulty;
-      other.position.x += knockbackForce * this.p.cos(this.angle);
-      other.position.y += knockbackForce * this.p.sin(this.angle);
-    }
     
     // Enemy takes damage when hit by player car
     if (other instanceof Car && !(other instanceof Enemy)) {
-      let damage = 10;
+      let damage = other.attackDamage;
       this.healthBar = Math.max(0, this.healthBar - damage);
     }
     
     // Handle enemy-enemy collisions without damage
-    if (other instanceof Enemy) {
+    else if (other instanceof Enemy) {
       let separation = p5.Vector.sub(this.position, other.position);
       separation.setMag(5);  // Push enemies apart to avoid overlap
       this.position.add(separation);
+    }
+    else if(other instanceof Bomb){
+      let damage = other.attackDamage;
+      this.healthBar = Math.max(0, this.healthBar - damage);
+
     }
   }
   

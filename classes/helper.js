@@ -143,22 +143,19 @@ function checkWrenchCollisions(wrenches, car, p) {
 function checkBombCollisions(bombs, car, p) {
   if (!car) return bombs;
   for (let bomb of bombs) {
-    if (!bomb.collected && bomb.collider && bomb.collider.intersects(car.collider)) {
-      bomb.collected = true;
-      ItemsManager.bombCollected(car);
+    if (!bomb.collected && bomb.collider && bomb.collider.intersects(car.collider)) { 
+      if(!bomb.placed && !(car instanceof Enemy)){ //user car collect bomb obj
+        bomb.collected = true;
+        ItemsManager.bombCollected(car);
+      }
+      else{// *active* user placed bomb hit
+        car.onCollisionEnter(bomb);
+        console.log ("BOMB HIT")
+        bomb.collected = true; //clears bomb off page
+      }
     }
   }
   return bombs.filter(bomb => !bomb.collected);
 }
 
-function checkBombEnemyCollisions(bombs, enemies, p) {
-  if (!car) return bombs;
-  for (let bomb of bombs) {
-    if (!bomb.collected && bomb.collider && bomb.collider.intersects(car.collider)) {
-      bomb.collected = true;
-      ItemsManager.bombCollected(car);
-    }
-  }
-  return bombs.filter(bomb => !bomb.collected);
-}
 

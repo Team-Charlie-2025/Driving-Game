@@ -58,8 +58,7 @@ function PlaySketch(p) {
     );
     
     physicsEngine.add(car);
-
-    ItemsManager.ItemResetGame(); //fix shield error
+    ItemsManager.ItemResetGame();
     
     window.LoadingScreen.hide();
     bgMusic(Mode.PLAY, p, "loop");
@@ -211,6 +210,7 @@ function PlaySketch(p) {
         enemy.update();
         enemy.display();
         checkBuildingCollisions(enemy);
+        checkBombCollisions(bombs, enemy,  p);
       });
 
       /////DISPLAY ALL IN GAME ITEMS//////////

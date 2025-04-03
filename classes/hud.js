@@ -15,6 +15,7 @@ function showHud(p,map,car){
       drawMeters(p,car, scale);
       drawCoinsTimer(p,scale);
       ItemsManager.shieldDisplayBar(p,scale);
+      drawInventory(p, scale);
       
       
       
@@ -81,7 +82,15 @@ function drawCoinsTimer(p,scale){
     p.text(`Coins: ${window.coinsCollected}`, p.width/2 - 10*windowWidthScale, 30*windowHeightScale);
   p.pop();
 }
+function drawInventory(p, scale){
+  p.push(); //Bombs
+    p.textSize(16*windowScale);
+    p.fill(255);
+    p.textAlign(p.RIGHT, p.TOP);
+    p.text(`Bomb Inventory: ${bombInventory}`, p.width - 10*windowWidthScale,  10*windowHeightScale);
+  p.pop();
 
+}
 
 /*
 function drawMinimap(p, map, tileSize) {

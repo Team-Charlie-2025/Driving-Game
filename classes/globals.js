@@ -123,6 +123,7 @@ function loadAnimations(p) {
   window.animations["bomb"] = [];
   window.animations["bomb"].push(p.loadImage("graphics/bombAnimation/bomb1.png"));
   window.animations["bomb"].push(p.loadImage("graphics/bombAnimation/bomb2.png"));
+  window.animations["bomb"].push(p.loadImage("graphics/bombAnimation/bomb3.png"));
 
   console.log("animations loaded");
 }

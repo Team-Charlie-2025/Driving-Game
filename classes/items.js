@@ -9,10 +9,11 @@ let wrenchHealthMod = 10;    //addition to health on wrench collision
 
 const BombWaitTime = 1000; //bomb place time delay
 let BombPlaceTime = null; 
-let bombInventory = 0; //number of bombs player collected
+let bombInventory = 0; //number of bombs player collected 
 
 class ItemsManager {
-    static ItemResetGame(){
+
+    static ItemResetGame(){ //reset times and inventory
       shieldStartTime = null;
       currentTime = null;
       shieldElapsedTime = null; 
@@ -51,31 +52,39 @@ class ItemsManager {
     }
     static wrenchCollected(car, wrench){
       let newHealth = car.getHealth() + wrenchHealthMod;
-      console.log("current health: " + car.getHealth());
       car.onCollisionEnter( wrench);
-      console.log("health restored : " + car.getHealth());
     }
 
     static bombCollected(car){
       bombInventory ++;
-      console.log("Bomb Inventory: " + bombInventory);
     }
     static placeBomb(p, car, bombs){
       currentTime = p.millis();
       if((BombPlaceTime == null || currentTime - BombPlaceTime > BombWaitTime) && bombInventory > 0){
-        bombInventory --;
-        BombPlaceTime = currentTime;
         let bombSize = 25;
-
-        //////////////////////////adjust location????//////////////////////
-        let bombX = car.position.x - (gridSize * p.cos(car.angle)*2) - (bombSize/1.8 * p.cos(car.angle));
-        let bombY = car.position.y - (gridSize * p.sin(car.angle)*2) - (bombSize/1.8 * p.sin(car.angle));
+        //////////////////////////bomb placement behind car//////////////////////
+        let bombX = car.position.x - (gridSize * p.cos(car.angle)*1.5) - (bombSize/1.5 * p.cos(car.angle));
+        let bombY = car.position.y - (gridSize * p.sin(car.angle)*1.5) - (bombSize/1.5 * p.sin(car.angle));
 
         let bombPlaced = new Bomb(p, bombX , bombY);
-        bombPlaced.placed = true;
-        console.log("Bomb Placed: " + Math.round(bombPlaced.position.x/gridSize) +", " + Math.round(bombPlaced.position.y/gridSize));
-        console.log("Bomb Inventory: " + bombInventory);
-        bombs.push(bombPlaced);
+
+        const tileX = Math.floor(bombPlaced.position.x / gridSize);
+        const tileY = Math.floor(bombPlaced.position.y / gridSize);
+        let placeable = true;
+        for (let j = tileY - 1; j <= tileY + 1; j++){
+          for (let i = tileX - 1; i <= tileX + 1; i++){ 
+            if (map[j] && map[j][i] instanceof Building)
+              placeable = false;//position is not building//
+          }
+        }
+        if(placeable){//position is not building//
+          bombPlaced.placed = true;
+          //console.log("Bomb Placed: " + Math.round(bombPlaced.position.x/gridSize) +", " + Math.round(bombPlaced.position.y/gridSize));
+          bombs.push(bombPlaced);
+          bombInventory --;
+          BombPlaceTime = currentTime;
+        }
+        
       }
     }
 
@@ -179,19 +188,19 @@ class Bomb extends GameObject {
     this.size = size;
     this.collected = false;
     this.placed = false;
-    this.attackDamage = 10 * window.difficulty; //damage from bombs
-    this.collider = new Collider(this, "rectangle", {
-      width: this.size,
-      height: this.size,
-      offsetX: -this.size / 2,
-      offsetY: -this.size / 2
-    });
+    this.attackDamage = 30 * window.difficulty; //damage from bombs
+    this.collider = new Collider(
+      this,
+      "polygon",
+      { offsetX: -8, offsetY: -9 },
+      window.animations["bomb"][2]
+    );
   }
 
   display() { 
     const p = this.p;
     let bombImg = null
-    if(this.placed = true){
+    if(this.placed){ //animate when active
       const frameIndex = Math.floor(p.millis() / frameDuration) % window.animations["bomb"].length;
       bombImg = window.animations["bomb"][frameIndex];
     }

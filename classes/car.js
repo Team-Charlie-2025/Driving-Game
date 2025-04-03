@@ -9,6 +9,7 @@ class Car extends GameObject {
     this.speed = 0;
     this.angle = 0;
     this.velocity = new p5.Vector(0, 0);
+    this.attackDamage = 10; //damage done to enemy on hit
 
     const data = loadPersistentData();
     const SAVED_STATS = data.stats;
@@ -193,6 +194,11 @@ class Car extends GameObject {
     else if(other instanceof Wrench){
       let healing = other.collisionEffect;
       this.healthBar = Math.min(this.maxHealth, this.healthBar + healing);
+    }
+    else if(other instanceof Bomb){
+      damage = other.attackDamage;
+      damage = ItemsManager.shieldDamage(damage);
+      this.healthBar = Math.max(0, this.healthBar - damage);
 
     }
   }
