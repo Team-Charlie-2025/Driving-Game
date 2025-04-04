@@ -57,7 +57,7 @@ function PlaySketch(p) {
       if (map[randY] && map[randY][randX] instanceof Road) {
         let coinX = randX * gridSize + gridSize / 2;
         let coinY = randY * gridSize + gridSize / 2;
-        if (window.debug) console.log(`Spawning coin ${coins.length + 1} at tile (${randX}, ${randY}) with world coordinates (${coinX}, ${coinY})`);
+        // if (window.debug) console.log(`Spawning coin ${coins.length + 1} at tile (${randX}, ${randY}) with world coordinates (${coinX}, ${coinY})`);
         coins.push(new Coin(p, coinX, coinY));
       }
       attempts++;
@@ -77,7 +77,7 @@ function PlaySketch(p) {
       if (map[randY] && map[randY][randX] instanceof Road) {
         let shieldX = randX * gridSize + gridSize / 2;
         let shieldY = randY * gridSize + gridSize / 2;
-        if (window.debug) console.log(`Spawning sheild ${shields.length + 1} at tile (${randX}, ${randY}) with world coordinates (${shieldX}, ${shieldY})`);
+        // if (window.debug) console.log(`Spawning sheild ${shields.length + 1} at tile (${randX}, ${randY}) with world coordinates (${shieldX}, ${shieldY})`);
         shields.push(new Shield(p, shieldX, shieldY));
       }
       attempts++;
