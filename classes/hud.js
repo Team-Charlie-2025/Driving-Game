@@ -6,7 +6,9 @@ function showHud(p,map,car){
     p.push();
       
       //drawMinimap(p,map,4)
-      drawDebugInfo(p,car);
+      // Only draws debug if debug is clicked
+      if (window.debug)
+        drawDebugInfo(p,car);
       drawMeters(p,car);
       drawCoinsTimer(p);
       ItemsManager.shieldDisplayBar(p);
