@@ -49,6 +49,17 @@ class Enemy extends Car{
   
   update() {
     if (!this.target || this.controlDisabled) return;
+
+    let terrainType = getTileTypeAt(this.position.x, this.position.y);
+
+    if (window.difficulty <= 1.0 && terrainType === "grass") {
+      this.acceleration = this.baseAcceleration * 0.65;
+      this.maxSpeed = this.baseMaxSpeed * 0.65;
+    } else {
+      this.acceleration = this.baseAcceleration;
+      this.maxSpeed = this.baseMaxSpeed;
+    }
+    //console.log(`Max Speed: ${this.maxSpeed.toFixed(2)}`);
   
     // Calculate desired direction to target
     this.desired = p5.Vector.sub(this.target.position, this.position);
