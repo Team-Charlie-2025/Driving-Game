@@ -7,7 +7,7 @@ class Enemy extends Car{
       health: 100 * window.difficulty,
       friction: 0.03
     };
-    
+
     super(p, x, y, stats);
     this.target = target;
     this.attackDamage = 15 * window.difficulty;
@@ -15,6 +15,9 @@ class Enemy extends Car{
     this.attackCooldown = 1500 / window.difficulty;
     this.currentImage = p.enemyImg;
     this.removeFromWorld = false;
+
+    this.baseAcceleration = stats.acceleration;
+    this.baseMaxSpeed = stats.maxSpeed;
 
     // Movement properties
     this.velocity = p.createVector(0, 0);
@@ -183,6 +186,8 @@ class Truck extends Enemy {
     // Movement properties
     this.acceleration = 0.5 * window.difficulty;  // slow acceleration
     this.maxSpeed = 6 * window.difficulty;       // slow max speed
+    this.baseAcceleration = this.acceleration;
+    this.baseMaxSpeed = this.maxSpeed;
     this.maxForce = 0.2;                           // Less force
     this.turnRadius = 0.8;                        // SMALL turn radius = sharp turns
     this.friction = 0.03;                          // Less friction
@@ -222,6 +227,8 @@ class Motorcycle extends Enemy {
     // Movement properties
     this.acceleration = 0.8 * window.difficulty;   // High acceleration
     this.maxSpeed = 11.0 * window.difficulty;       // High max speed
+    this.baseAcceleration = this.acceleration;
+    this.baseMaxSpeed = this.maxSpeed;
     this.maxForce = 0.5;                           // More force
     this.turnRadius = 0.08;                        // LARGE turn radius = wide turns
     this.friction = 0.05;                          // Medium friction
