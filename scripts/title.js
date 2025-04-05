@@ -6,7 +6,7 @@ function TitleSketch(p) {
   let imgTitle;
   let debugCheckbox; 
   let showInfo = false;
-
+  let windowHeightScale, windowWidthScale, windowScale;
   p.preload = function() {    
     loadMusic(p);
     loadSoundEffects(p);
@@ -66,7 +66,11 @@ function TitleSketch(p) {
 };
 
   p.windowResized = function () {
+    console.log("called");
     p.resizeCanvas(p.windowWidth, p.windowHeight);
+    window.heightScale = p.windowHeight / 1080;
+    window.widthScale = p.windowWidth / 1920;
+    window.scale = (window.widthScale + window.heightScale)/2;
     buttons = [];
     createButtons();
     //debugCheckbox.position(10, 10);

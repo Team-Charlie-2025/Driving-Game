@@ -10,6 +10,9 @@ function loadGlobals(p) {
   loadSoundEffects(p);
   loadButtons(p);
   loadAnimations(p);
+  window.widthScale = p.windowWidth/1920;
+  window.heightScale = p.windowHeight/1080;
+  window.scale = (window.heightScale + window.widthScale) /2 ;
   window.buildingImg = p.loadImage("assets/building.png");
   window.difficulty = 1.0;
   window.debug = false;
@@ -145,7 +148,6 @@ window.loadMapAssets = function(p) {
   window.categoryButtonHeight = 40;
   window.categoryButtonsHeight = window.categories.length * window.categoryButtonHeight + 20;
   window.thumbnailsAreaY = window.categoryButtonsHeight;
-
   window.categoryLayers = {
     'Terrain': 0,
     'Roads': 1,
