@@ -132,8 +132,10 @@ function checkWrenchCollisions(wrenches, car, p) {
   if (!car) return wrenches;
   for (let wrench of wrenches) {
     if (!wrench.collected && wrench.collider && wrench.collider.intersects(car.collider)) {
-        wrench.collected = true;
+      if (ItemsManager.canUseWrench(car)) {
         ItemsManager.wrenchCollected(car);
+        wrench.collected = true;
+      }
     }
   }
   return wrenches.filter(wrench => !wrench.collected);

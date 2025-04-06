@@ -47,8 +47,9 @@ class ItemsManager {
       car.healthChange( newHealth); //no more than max
       console.log("health restored : " + car.getHealth());
     }
-
-
+    static canUseWrench(car) {
+      return car.getHealth() < loadPersistentData().stats.health;
+    }
   }
 
 class Shield extends GameObject {
