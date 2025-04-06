@@ -97,7 +97,6 @@ function loadButtons(p){
   console.log("buttons loaded");
 }
 
-/////////////////////////////////////////////////
 function loadAnimations(p) {
   window.animations = {};
 
@@ -121,7 +120,64 @@ function loadAnimations(p) {
   window.animations["wrench"].push(p.loadImage("graphics/wenchAnimation/wrench3.png"));
   window.animations["wrench"].push(p.loadImage("graphics/wenchAnimation/wrench4.png"));
 
+  window.animations["bomb"] = [];
+  window.animations["bomb"].push(p.loadImage("graphics/bombAnimation/bomb1.png"));
+  window.animations["bomb"].push(p.loadImage("graphics/bombAnimation/bomb2.png"));
+  window.animations["bomb"].push(p.loadImage("graphics/bombAnimation/bomb3.png"));
+  window.animations["bombExplosion"] = [];
+  window.animations["bombExplosion"].push(p.loadImage("graphics/bombAnimation/bomb4.png"));
+  window.animations["bombExplosion"].push(p.loadImage("graphics/bombAnimation/bomb5.png"));
+  window.animations["bombExplosion"].push(p.loadImage("graphics/bombAnimation/bomb6.png"));
+
   console.log("animations loaded");
 }
-//////////////////////////////////////////////////
 
+window.loadMapAssets = function(p) {
+  window.categories = ['Buildings', 'Roads', 'Terrain', 'Decorations', 'Nodes'];
+  window.currentTab = 'Buildings';
+  window.assetManifest = {}; // loads from manifest.txt in each folder
+  window.assets = {};
+  window.thumbnails = [];
+  window.selectedTile = null;
+  window.placedTiles = [];
+  window.thumbnailScroll = 0;
+  window.currentRotation = 0;
+
+  window.gridSize = 32;
+  window.mapFilenames = ["map01.json", "map02.json", "map03.json", "map04.json", "map05.json"];
+  window.mapCols = 32;
+  window.mapRows = 32;
+  window.assetPanelWidth = window.gridSize * 6;
+  window.visibleThumbnailCount = 6;
+  window.thumbnailSize = window.gridSize * 4;
+  window.thumbnailSpacing = 10;
+  window.categoryButtonHeight = 40;
+  window.categoryButtonsHeight = window.categories.length * window.categoryButtonHeight + 20;
+  window.thumbnailsAreaY = window.categoryButtonsHeight;
+
+  window.categoryLayers = {
+    'Terrain': 0,
+    'Roads': 1,
+    'Buildings': 3,
+    'Decorations': 4,
+    'Nodes': 5
+  };
+
+  window.getLayerForCategory = function(category) {
+    return window.categoryLayers[category] ?? 0;
+  };
+
+  window.categories.forEach(cat => {
+    p.loadStrings(`/assets/mapBuilder/${cat}/manifest.txt`, function(fileList) {
+      window.assetManifest[cat] = fileList;
+      window.assets[cat] = new Array(fileList.length);
+      fileList.forEach((filename, i) => {
+        let cleanName = filename.trim();
+        let path = `/assets/mapBuilder/${cat}/${cleanName}`;
+        p.loadImage(path, img => {
+          window.assets[cat][i] = img;
+        });
+      });
+    });
+  });
+};

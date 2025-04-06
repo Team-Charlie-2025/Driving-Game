@@ -1,6 +1,7 @@
-const totalCoins = 750;
+const totalCoins = 500;
 const totalShields = 20;
-const totalWrenches  = 100;
+const totalWrenches  = 20;
+const totalBombs = 40;
 
 let attempts = 0;
 const maxAttempts = 10000; 
@@ -37,7 +38,7 @@ function createShields(p, shields, map){
       let randX = Math.floor(p.random(0, map[0].length));
       let randY = Math.floor(p.random(0, map.length));
       
-      // checks tile, if road, puts coin in center
+      // checks tile, if road, puts shield in center
       if (map[randY] && map[randY][randX] instanceof Road) {
         let shieldX = randX * gridSize + gridSize / 2;
         let shieldY = randY * gridSize + gridSize / 2;
@@ -60,7 +61,7 @@ function createWrenches(p, wrenches, map ){
       let randX = Math.floor(p.random(0, map[0].length));
       let randY = Math.floor(p.random(0, map.length));
       
-      // checks tile, if road, puts coin in center
+      // checks tile, if road, put wrench in center
       if (map[randY] && map[randY][randX] instanceof Road) {
         let wrenchX = randX * gridSize + gridSize / 2;
         let wrenchY = randY * gridSize + gridSize / 2;
@@ -72,4 +73,26 @@ function createWrenches(p, wrenches, map ){
     if (attempts >= maxAttempts && debug) {
       console.log("Max attempts reached while spawning wrenches. wrenches spawned: " + sheilds.length);
     }
+}
+
+
+function createBomb(p, bombs, map){
+  attempts = 0;
+  while (bombs.length < totalBombs && attempts < maxAttempts) {
+    // random map index
+    let randX = Math.floor(p.random(0, map[0].length));
+    let randY = Math.floor(p.random(0, map.length));
+    
+    // checks tile, if road, puts bomb in center
+    if (map[randY] && map[randY][randX] instanceof Road) {
+      let bombX = randX * gridSize + gridSize / 2;
+      let bombY = randY * gridSize + gridSize / 2;
+      if (window.debug) console.log(`Spawning bomb ${bombs.length + 1} at tile (${randX}, ${randY}) with world coordinates (${bombX}, ${bombY})`);
+      bombs.push(new Bomb(p, bombX, bombY));
+    }
+    attempts++;
+  }
+  if (attempts >= maxAttempts && debug) {
+    console.log("Max attempts reached while spawning bombs. Bombs spawned: " + bombs.length);
+  }
 }

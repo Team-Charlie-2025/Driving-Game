@@ -9,6 +9,7 @@ class Car extends GameObject {
     this.speed = 0;
     this.angle = 0;
     this.velocity = new p5.Vector(0, 0);
+    this.attackDamage = 10; //damage done to enemy on hit
 
     const data = loadPersistentData();
     const SAVED_STATS = data.stats;
@@ -45,6 +46,7 @@ class Car extends GameObject {
     }
 
     this.healthBar = SAVED_STATS.health;
+    this.maxHealth = this.healthBar;
     this.controlDisabled = false;
     this.time = 0.0;
 
@@ -86,11 +88,6 @@ class Car extends GameObject {
       }
     }  
     
-    const boostKey = getKeyForAction("boost");
-    const forwardKey = getKeyForAction("forward");
-    const backwardKey = getKeyForAction("backward");
-    const leftKey = getKeyForAction("left");
-    const rightKey = getKeyForAction("right");
 
     if (p.keyIsDown(getKeyForAction("forward")) && !this.controlDisabled) {
       if (p.keyIsDown(getKeyForAction("boost")) && this.boostMeter > 0) {
@@ -189,6 +186,16 @@ class Car extends GameObject {
       damage = ItemsManager.shieldDamage(damage);
       this.healthBar = Math.max(0, this.healthBar - damage);
     }
+    else if(other instanceof Wrench){
+      let healing = other.collisionEffect;
+      this.healthBar = Math.min(this.maxHealth, this.healthBar + healing);
+    }
+    else if(other instanceof Bomb){
+      damage = other.attackDamage;
+      damage = ItemsManager.shieldDamage(damage);
+      this.healthBar = Math.max(0, this.healthBar - damage);
+
+    }
   }
 
   buildingCollision(){
@@ -200,9 +207,6 @@ class Car extends GameObject {
   getHealth(){
     return this.healthBar;
   }
-
-  healthChange(changeAmount){
-    this.healthBar = changeAmount;
-  }
+  
 
 }

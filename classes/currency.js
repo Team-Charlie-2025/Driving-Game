@@ -17,6 +17,21 @@ class CurrencyManager {
       savePersistentData(data);
     }
 
+    static spendCoins(amount) {
+      const data = loadPersistentData();
+      if (typeof data.totalCoins !== 'number') {
+        data.totalCoins = 0;
+      }
+      if (data.totalCoins >= amount) {
+        data.totalCoins -= amount;
+        savePersistentData(data);
+        return true; // successful spend
+      } else {
+        console.log("Not enough coins.");
+        return false; // failed spend
+      }
+    }
+
     // json getter
     static getTotalCoins() {
       const data = loadPersistentData();
