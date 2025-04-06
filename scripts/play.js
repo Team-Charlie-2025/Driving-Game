@@ -1,26 +1,30 @@
-// scripts/play.js
-
 function PlaySketch(p) {
   let gameOverSound = true;
   let car;
+  let hud;
   let physicsEngine;
   let zoomFactor = 2.5;
   let enemies = [];
-  let ENEMY_SPAWN_RATE = 100000; // 1000 = 1 seconds
+  let ENEMY_SPAWN_RATE = 10000 / window.difficulty; // 10 seconds base rate, adjusted by difficulty
   let lastSpawn = 0;
   let coins = [];
-  let shields= [];
+  let shields = [];
+  let wrenches = [];
+  let bombs = [];
   window.coinsCollected = 0;
+  window.enemyDestroyedCount = 0;
   
   p.preload = function() {
     loadMusic(p);
     loadSoundEffects(p);
-    //p.carImg = p.loadImage("assets/car.png");
     p.buildingImg = p.loadImage("assets/building.png");
-    p.enemyImg = p.loadImage("assets/police+car.png"); // Add enemy image
+    p.enemyImg = p.loadImage("assets/police+car.png");   // Regular cop car image
+    p.truckImg = p.loadImage("assets/police+truck.png"); // Truck image
+    p.bikeImg = p.loadImage("assets/police+bike.png");   // Motorcycle image
 
     // will be moved to globals eventually
     grassImg = p.loadImage("assets/mapBuilder/Terrain/grass.png");
+    waterImg = p.loadImage("assets/mapBuilder/Terrain/water.png")
 
   };
 
@@ -34,7 +38,27 @@ function PlaySketch(p) {
     window.runCoinsCalculated = false;
     window.isGameOver = false;
 
-    ItemsManager.shieldResetGame(); //fix shield error
+    // Load player car
+    const savedData = loadPersistentData();
+    const stats = savedData.stats;
+    car = new Car(p, p.width / 2, p.height / 2, stats);
+    
+    // Set car image from selected car color if it exists
+    const selectedCarIndex = savedData.selectedCar || 0;
+    if (window.cars && window.cars[selectedCarIndex]) {
+      car.currentImage = window.cars[selectedCarIndex];
+    }
+    
+    // Update collider with the correct image
+    car.collider = new Collider(
+      car,
+      "polygon",
+      { offsetX: -32, offsetY: -32 },
+      car.currentImage
+    );
+    
+    physicsEngine.add(car);
+    ItemsManager.ItemResetGame();
     
     window.LoadingScreen.hide();
     bgMusic(Mode.PLAY, p, "loop");
@@ -42,51 +66,16 @@ function PlaySketch(p) {
     // Start enemy spawner
     window.enemySpawnInterval = setInterval(() => spawnEnemy(p), ENEMY_SPAWN_RATE);
 
-    // coin creation, positioning, building check, and logs
-    ////////////////////////////////////////////////
-    const totalCoins = 750;
-    const totalSheilds = 200; 
-    let attempts = 0;
-    const maxAttempts = 10000; 
-    while (coins.length < totalCoins && attempts < maxAttempts) {
-      // random map index
-      let randX = Math.floor(p.random(0, map[0].length));
-      let randY = Math.floor(p.random(0, map.length));
-      
-      // checks tile, if road, puts coin in center
-      if (map[randY] && map[randY][randX] instanceof Road) {
-        let coinX = randX * gridSize + gridSize / 2;
-        let coinY = randY * gridSize + gridSize / 2;
-        // if (window.debug) console.log(`Spawning coin ${coins.length + 1} at tile (${randX}, ${randY}) with world coordinates (${coinX}, ${coinY})`);
-        coins.push(new Coin(p, coinX, coinY));
-      }
-      attempts++;
-    }
-    
-    if (attempts >= maxAttempts && debug) {
-      console.log("Max attempts reached while spawning coins. Coins spawned: " + coins.length);
-    }
-    // shield creation, positioning, building check, and logs
-    attempts = 0;
-    while (shields.length < totalSheilds && attempts < maxAttempts) {
-      // random map index
-      let randX = Math.floor(p.random(0, map[0].length));
-      let randY = Math.floor(p.random(0, map.length));
-      
-      // checks tile, if road, puts coin in center
-      if (map[randY] && map[randY][randX] instanceof Road) {
-        let shieldX = randX * gridSize + gridSize / 2;
-        let shieldY = randY * gridSize + gridSize / 2;
-        // if (window.debug) console.log(`Spawning sheild ${shields.length + 1} at tile (${randX}, ${randY}) with world coordinates (${shieldX}, ${shieldY})`);
-        shields.push(new Shield(p, shieldX, shieldY));
-      }
-      attempts++;
-    }
-    
-    if (attempts >= maxAttempts && debug) {
-      console.log("Max attempts reached while spawning shields. Shields spawned: " + sheilds.length);
-    }
-    ////////////////////////////////////////////////
+    //////////MAP ITEM CREATION///////////////
+    createShields(p, shields, map);
+    console.log("Shields made: " + shields.length);
+    createWrenches(p, wrenches, map);
+    console.log("Wrenches made: " + wrenches.length);
+    createCoins(p, coins, map);
+    console.log("Coins made: " + coins.length);
+    createBomb(p, bombs, map);
+    console.log("Bombs made: " + bombs.length);
+    ///////////////////////////////////////////
 
 
     p.showGameOverScreen = function () {
@@ -110,7 +99,7 @@ function PlaySketch(p) {
     };
   };
 
-  // Add spawn function
+  // Enemy spawning function with different types
   function spawnEnemy(p) {
     if (!car || window.isGameOver) return;
 
@@ -119,7 +108,23 @@ function PlaySketch(p) {
     const x = car.position.x + spawnDistance * p.cos(angle);
     const y = car.position.y + spawnDistance * p.sin(angle);
 
-    const enemy = new Enemy(p, x, y, car);
+    // Define spawn probabilities (must sum to 1.0 or 100%)
+    const COP_CAR_CHANCE = 0.6;  // 60% chance for regular Enemy (cop car)
+    const TRUCK_CHANCE = 0.2;    // 20% chance for Truck
+    const BIKE_CHANCE = 0.2;     // 20% chance for Motorcycle
+
+    // Generate a random value between 0 and 1
+    const rand = p.random();
+    let enemy;
+
+    if (rand < COP_CAR_CHANCE) {
+      enemy = new Enemy(p, x, y, car);       // Spawn cop car
+    } else if (rand < COP_CAR_CHANCE + TRUCK_CHANCE) {
+      enemy = new Truck(p, x, y, car);       // Spawn truck
+    } else {
+      enemy = new Motorcycle(p, x, y, car);  // Spawn motorcycle
+    }
+
     physicsEngine.add(enemy);
     enemies.push(enemy);
   }
@@ -158,6 +163,7 @@ function PlaySketch(p) {
       if (car) car.display();
       enemies.forEach(enemy => enemy.display());
       coins.forEach(coin => coin.display());
+      shields.forEach(shield => shield.display());
       p.pop();
         
       p.push();
@@ -172,6 +178,9 @@ function PlaySketch(p) {
     // GAMEPLAY LOGIC
     coins = checkCoinCollisions(coins, car, p);
     shields = checkShieldCollisions(shields, car, p);
+    wrenches = checkWrenchCollisions(wrenches, car, p);
+    bombs = checkBombCollisions(bombs, car, p);
+    
 
     if (!car) {
       const stats = loadPersistentData().stats;
@@ -182,6 +191,7 @@ function PlaySketch(p) {
     enemies = enemies.filter(enemy => {
       if (enemy.removeFromWorld || enemy.healthBar <= 0) {
         physicsEngine.remove(enemy);
+        window.enemyDestroyedCount = (window.enemyDestroyedCount || 0) + 1;
         return false;
       }
       return true;
@@ -200,16 +210,22 @@ function PlaySketch(p) {
         enemy.update();
         enemy.display();
         checkBuildingCollisions(enemy);
+        checkBombCollisions(bombs, enemy,  p);
       });
-  
+
+      /////DISPLAY ALL IN GAME ITEMS//////////
       coins.forEach(coin => coin.display());
       shields.forEach(shield => shield.display());
+      wrenches.forEach(wrench => wrench.display());
+      bombs.forEach(bomb => bomb.display());
   
       if (window.debug) {
+        bombs.forEach(bomb => bomb.collider.drawOutline());
         physicsEngine.objects.forEach(obj => {
           if (obj.collider && typeof obj.collider.drawOutline === "function") {
             obj.collider.drawOutline();
           }
+          
         });
   
         let halfWidth = p.width / (2 * zoomFactor);
@@ -230,57 +246,13 @@ function PlaySketch(p) {
           }
         }
       }
+      
       if(ItemsManager.ifShield()) //draw outline on car for shield
         car.collider.drawOutline(true);
     p.pop();
-  
-    // UI
-    p.push();
-      // Draw Health Bar
-      p.fill(50);
-      p.rect(20, 20, 200, 25);
-      p.fill(0, 255, 0);
-      p.rect(20, 20, car.healthBar * 2, 25);
-  
-      // Draw Boost Meter
-      p.fill(50);
-      p.rect(20, 60, 200, 25);
-      p.fill(255, 165, 0);
-      p.rect(20, 60, car.boostMeter * 2, 25);
-  
-      // Labels
-      p.fill(255);
-      p.textSize(16);
-      p.text("Health", 20, 18);
-      p.text("Boost", 20, 58);
 
-      ItemsManager.shieldDisplayBar(p);
-      
-      // Frame Rate
-      p.textSize(12);
-      p.textAlign(p.RIGHT, p.BOTTOM);
-      p.fill(0);
-      p.fps = p.frameRate();
-      p.text("Frames: " + Math.round(p.fps), 75 ,p.height-22);
-      // debug positional for car
-      if (car) {
-        p.textSize(12);
-        p.textAlign(p.LEFT, p.BOTTOM);
-        p.fill(0);
-        p.text(`Car: (${Math.round(car.position.x/gridSize)}, ${Math.round(car.position.y/gridSize)})`, 10, p.height - 10);
-      }
-      
-      // timer, coins
-      p.push();
-        p.textSize(16);
-        p.fill(255);
-        p.textAlign(p.RIGHT, p.TOP);
-        let secondsElapsed = ((p.millis() - p.startTime) / 1000).toFixed(1);
-        p.text(`Time: ${secondsElapsed} sec`, p.width - 10, 10);
-        p.text(`Coins: ${window.coinsCollected}`, p.width - 10, 30);
-      p.pop();
-    p.pop();
-
+    showHud(p, map, car);
+    
   
     // PHYSICS
     physicsEngine.update();
@@ -296,6 +268,10 @@ function PlaySketch(p) {
   };
 
   p.keyPressed = function() {
+    if(p.keyCode === getKeyForAction("placebomb")){ //////////////////////////////NEEDS KEYBINDS APPLIED
+      //console.log("Try bomb placed");
+      ItemsManager.placeBomb(p, car, bombs);
+    }
     if (p.keyCode === p.ESCAPE) {
       bgMusic(Mode.PLAY, p, "stop");
       clearInterval(window.enemySpawnInterval);
@@ -382,4 +358,5 @@ function PlaySketch(p) {
       }
     }
   }
-} 
+
+}

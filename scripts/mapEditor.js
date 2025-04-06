@@ -45,11 +45,6 @@ function MapEditorSketch(p) {
     window.LoadingScreen.hide();
   };
 
-  p.keyPressed = function () {
-    if (p.keyCode === p.ESCAPE) {
-      switchSketch(Mode.TITLE);
-    }
-  };
 
   function createAssetTabs() {
     let xPos = 10;
@@ -451,6 +446,9 @@ function MapEditorSketch(p) {
       if (window.selectedTile) {
         window.selectedTile.rotation = window.currentRotation;
       }
+    }
+    else if (p.keyCode === p.ESCAPE) {
+      switchSketch(Mode.TITLE);
     }
   };
 

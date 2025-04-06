@@ -15,38 +15,35 @@ class Button { //regular rect button class
   
     display(p) {
       if(this.label == "Play" || this.label == "Garage"){ //label depends on image for title page
-        this.width = this.winx / 4.5;
-        this.height = this.winy / 5.5;
+        this.width = this.winx / 4.8;
+        this.height = this.winy / 5.8;
         let buttonImg;
         if(this.label == "Play")
           buttonImg = window.playButton;
         else  
           buttonImg = window.garageButton;
-        p.image(buttonImg, this.x - this.width / 2, this.y - this.height / 2, this.width, this.height);
+        p.image(buttonImg, this.x - this.width / 2, this.y - this.height / 2, this.width, this.height, );
 
-        /*p.textFont(window.PixelFont);
-        p.textSize(0.15 * this.width);
-        p.textAlign(p.CENTER, p.CENTER);
-        p.text(this.label, this.x, this.y);*/
       }
       else if(this.label == "Settings" ){
         this.width = this.x / 0.6;
-        this.height = this.y / 2.2;
-        p.image(window.setButton, this.x - this.width / 2.2, this.y - this.height / 2, this.width, this.height);
+        this.height = this.y / 4.9;
+        p.image(window.setButton, this.x - this.width / 2, this.y - this.height / 1.4, this.width, this.height * 1.8);
       }
       else if(this.label == "Leaderboard" ){
         this.width = this.x / 3.2;
-        this.height = this.y / 0.6;
-        p.image(window.leaderButton, this.x - this.width / 2, this.y - this.height / 2, this.width, this.height * 2);
+        this.height = this.y / 0.9;
+        p.image(window.leaderButton, this.x - this.width / 2, this.y - this.height / 2, this.width, this.height * 1.8);
       }
       else if(this.label == "ExitIcon" ){
         this.width = 32;
         this.height = 32;
         p.image(window.exitButton, this.x - this.width / 2, this.y - this.height / 2, this.width, this.height);
+
       }
       else if (this.label == "HELP") { // Info button
-        this.width = this.x / 12; 
-        this.height = this.y /0.5; 
+        this.width = this.x / 20; 
+        this.height = this.y / 0.9; 
         let buttonImg  = window.basicButton[this.color];
         p.image(buttonImg, this.x - this.width / 2, this.y - this.height / 2, this.width, this.height);
 
@@ -58,8 +55,8 @@ class Button { //regular rect button class
 
       //basic button options, based on color and overlay text with pixel font
       else if (this.color != "na"){
-        this.height = 192;
-        this.width = 384;
+        this.height = 120;
+        this.width = 320;
         let buttonImg  = window.basicButton[this.color];
 
         p.image(buttonImg, this.x - this.width / 2, this.y - this.height / 2, this.width, this.height);
@@ -74,10 +71,10 @@ class Button { //regular rect button class
   
     isMouseOver(p) {
       return (
-        p.mouseX >= this.x - this.width / 2 &&
-        p.mouseX <= this.x + this.width / 2 &&
-        p.mouseY >= this.y - this.height / 2 &&
-        p.mouseY <= this.y + this.height / 2
+        p.mouseX > this.x - this.width / 2  &&
+        p.mouseX < this.x + this.width / 2  &&
+        p.mouseY > this.y - this.height / 2  &&
+        p.mouseY < this.y + this.height / 2 
       );
     }
   }

@@ -128,21 +128,37 @@ function checkShieldCollisions(shields, car, p) {
   }
   return shields.filter(shield => !shield.collected);
 }
-
-/*
-function isCoinCollidingWithBuilding(coin) {
-  const tileX = Math.floor(coin.position.x / gridSize);
-  const tileY = Math.floor(coin.position.y / gridSize);
-  for (let j = tileY - 1; j <= tileY + 1; j++) {
-    for (let i = tileX - 1; i <= tileX + 1; i++) {
-      if (map[j] && map[j][i] instanceof Building) {
-        let building = map[j][i];
-        if (coin.collider.intersects(building.collider)) {
-          return true;
-        }
-      }
+function checkWrenchCollisions(wrenches, car, p) {
+  if (!car) return wrenches;
+  for (let wrench of wrenches) {
+    if (!wrench.collected && wrench.collider && wrench.collider.intersects(car.collider)) {
+        wrench.collected = true;
+        ItemsManager.wrenchCollected(car, wrench);
     }
   }
-  return false;
+  return wrenches.filter(wrench => !wrench.collected);
 }
-*/
+
+
+function checkBombCollisions(bombs, car, p) {
+  if (!car) return bombs;
+  for (let bomb of bombs) {
+    if (!bomb.collected && bomb.collider && bomb.collider.intersects(car.collider)) { 
+      if(!bomb.placed && !(car instanceof Enemy)){ //user car collect bomb obj
+        bomb.collected = true;
+        ItemsManager.bombCollected(car);
+      }
+      else if (bomb.timeHit == null){// *active* user placed bomb hit
+        bomb.timeHit = p.millis(); //time when hit
+        car.onCollisionEnter(bomb);
+        console.log ("BOMB HIT");
+        console.log("Time passed:" + (p.millis() - bomb.timeHit));
+      }
+    }
+    if(bomb.timeHit != null && p.millis() - bomb.timeHit >= 300)
+        bomb.collected = true; //clears bomb off page
+  }
+  return bombs.filter(bomb => !bomb.collected);
+}
+
+

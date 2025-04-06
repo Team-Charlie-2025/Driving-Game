@@ -30,6 +30,9 @@
     <script src="classes/currency.js"></script>
     <script src="classes/score.js"></script>
     <script src="classes/button.js"></script>
+    <script src="classes/itemsCreation.js"></script>
+    <script src="classes/hud.js"></script>
+    <script src="classes/score.js"></script>
 
     <!-- Game Sketch Scripts (must come last) -->
     <script src="scripts/title.js"></script>
@@ -41,15 +44,52 @@
     <script src="scripts/login.js"></script>
     <script src="scripts/signup.js"></script>
     <script src="scripts/mapEditor.js"></script>
-
-    <!-- Final Entry Point -->
     <script src="scripts/loading.js"></script>
+    
     <script src="main.js"></script>
+
   </head>
   <body>
     <div id="loading-screen">
       <h2>Loading...</h2>
     </div>
     <main id="main"></main>
+
+    <script>
+      async function signup() {
+          const username = document.getElementById('username').value;
+          const password = document.getElementById('password').value;
+
+          const response = await fetch('/signup', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ username, password })
+          });
+
+          const result = await response.json();
+          document.getElementById('message').innerText = result.message || result.error;
+      }
+
+      async function login() {
+          const username = document.getElementById('username').value;
+          const password = document.getElementById('password').value;
+
+          const response = await fetch('/login', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ username, password })
+          });
+
+          const result = await response.json();
+          document.getElementById('message').innerText = result.message || result.error;
+      }
+
+      async function logout() {
+          const response = await fetch('/logout', { method: 'POST' });
+          const result = await response.json();
+          document.getElementById('message').innerText = result.message;
+      }
+  </script>
+
   </body>
 </html>
