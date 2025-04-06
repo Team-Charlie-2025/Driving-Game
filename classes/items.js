@@ -41,11 +41,15 @@ class ItemsManager {
         return 0;
     }
     static wrenchCollected(car){
-      let newHealth = car.getHealth() + 10;
-      console.log("current health: " + car.getHealth());
-      newHealth = Math.min(newHealth, loadPersistentData().stats.health);
-      car.healthChange( newHealth); //no more than max
-      console.log("health restored : " + car.getHealth());
+      const maxHealth = loadPersistentData().stats.health;
+      const currentHealth = car.getHealth();
+      const healPercent = 0.1; //heal 10% of max health
+      const healAmount = Math.floor(maxHealth * healPercent);
+      const newHealth = Math.min(currentHealth + healAmount, maxHealth);
+
+      console.log(`current health: ${currentHealth}`);
+      car.healthChange(newHealth);
+      console.log(`health restored: ${car.getHealth()}`);   
     }
     static canUseWrench(car) {
       return car.getHealth() < loadPersistentData().stats.health;
