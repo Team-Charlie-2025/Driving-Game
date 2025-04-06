@@ -126,10 +126,13 @@ function PlaySketch(p) {
     } else {  //cops, bikes, and trucks
       if (rand < 0.55) {  //cop cars
         enemy = new Enemy(p, x, y, car);
+        //console.log("cop spawning");
       } else if (rand < 0.80) {  //bikes
         enemy = new Motorcycle(p, x, y, car);
+        //console.log("bike spawning");
       } else {
         enemy = new Truck(p, x, y, car);
+        //console.log("truck spawning");
       }
     }
 
