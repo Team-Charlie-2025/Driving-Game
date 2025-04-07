@@ -111,6 +111,7 @@ function TitleSketch(p) {
     }
   };
 
+
   p.windowResized = function () {
     p.resizeCanvas(p.windowWidth, p.windowHeight);
     buttons = [];
@@ -153,6 +154,17 @@ function TitleSketch(p) {
       new Button("Map Editor", p.width * 7.4 / 8, p.height - p.height * 0.05, p.width, p.height, function () {
         switchSketch(Mode.MAP_EDITOR);
       }, "blue")
+    );    
+    buttons.push(
+      new Button("Signup", p.width*7.4 / 8, p.height - p.height * 0.25, p.width, p.height, function () {
+        switchSketch(Mode.SIGNUP);
+      }, "blue")
+    );
+  
+    buttons.push(
+      new Button("Login", p.width*7.4 / 8, p.height - p.height * 0.15, p.width, p.height, function () {
+        switchSketch(Mode.LOGIN);
+      }, "blue")
     );
   }
 
@@ -193,18 +205,6 @@ function TitleSketch(p) {
     ExitIcon = new Button("ExitIcon", p.width - p.width * 0.05, p.height - p.height * 0.95, p.width, p.height, function () {
       showLevelSelection = false;
       bgMusic(Mode.TITLE, p, "loop");
-    });  
-    
-    buttons.push(
-      new Button("Signup", p.width*7.4 / 8, p.height - p.height * 0.25, p.width, p.height, function () {
-        switchSketch(Mode.SIGNUP);
-      }, "blue")
-    );
-  
-    buttons.push(
-      new Button("Login", p.width*7.4 / 8, p.height - p.height * 0.15, p.width, p.height, function () {
-        switchSketch(Mode.LOGIN);
-      }, "blue")
-    );
+    });
   }
 }
