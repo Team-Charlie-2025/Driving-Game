@@ -171,21 +171,34 @@ function PlaySketch(p) {
     const x = car.position.x + spawnDistance * p.cos(angle);
     const y = car.position.y + spawnDistance * p.sin(angle);
 
-    // Define spawn probabilities (must sum to 1.0 or 100%)
-    const COP_CAR_CHANCE = 0.6;  // 60% chance for regular Enemy (cop car)
-    const TRUCK_CHANCE = 0.2;    // 20% chance for Truck
-    const BIKE_CHANCE = 0.2;     // 20% chance for Motorcycle
+    const elapsedTime = p.millis() - p.startTime;
 
-    // Generate a random value between 0 and 1
-    const rand = p.random();
+    const BIKE_UNLOCK_TIME = 40000;  //40 sec
+    const TRUCK_UNLOCK_TIME = 70000;  //70 sec
+
+    //initially just cop cars
     let enemy;
+    const rand = p.random();
 
-    if (rand < COP_CAR_CHANCE) {
-      enemy = new Enemy(p, x, y, car);       // Spawn cop car
-    } else if (rand < COP_CAR_CHANCE + TRUCK_CHANCE) {
-      enemy = new Truck(p, x, y, car);       // Spawn truck
-    } else {
-      enemy = new Motorcycle(p, x, y, car);  // Spawn motorcycle
+    if (elapsedTime < BIKE_UNLOCK_TIME) {
+      enemy = new Enemy(p, x, y, car);
+    } else if (elapsedTime < TRUCK_UNLOCK_TIME) {  //cop cars and bikes
+      if (rand < 0.7) {  //70% cops, 30% bikes
+        enemy = new Enemy(p, x, y, car);
+      } else {
+        enemy = new Motorcycle(p, x, y, car);
+      }
+    } else {  //cops, bikes, and trucks
+      if (rand < 0.55) {  //cop cars
+        enemy = new Enemy(p, x, y, car);
+        //console.log("cop spawning");
+      } else if (rand < 0.80) {  //bikes
+        enemy = new Motorcycle(p, x, y, car);
+        //console.log("bike spawning");
+      } else {
+        enemy = new Truck(p, x, y, car);
+        //console.log("truck spawning");
+      }
     }
 
     physicsEngine.add(enemy);
