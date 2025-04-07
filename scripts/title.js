@@ -143,7 +143,39 @@ function TitleSketch(p) {
       new Button("Settings", p.width / 7, p.height - p.height * 0.15, p.width, p.height, function () {
         switchSketch(Mode.SETTINGS);
       })
-    );
+
+  ); 
+  buttons.push(
+    new Button("Leaderboard", 1600 * window.widthScale, 150*window.heightScale, p.width, p.height, function () {
+      switchSketch(Mode.LEADERBOARD);
+    })
+  );
+  buttons.push(
+    new Button("HELP", 1828*window.widthScale, 32*window.heightScale, p.width, p.height, function () {
+      toggleInfo(); 
+    }, "blue")
+  );
+  buttons.push(
+    new Button("Map Editor", 1750 * window.widthScale, 1040*window.heightScale, p.width, p.height, function () {
+      switchSketch(Mode.MAP_EDITOR);
+    }, "blue")
+  );
+
+  buttons.push(
+    new Button("Signup", 1750*window.widthScale, 780*window.heightScale, p.width, p.height, function () {
+      switchSketch(Mode.SIGNUP);
+    }, "blue")
+  );
+
+  buttons.push(
+    new Button("Login", 1750*window.widthScale, 910*window.heightScale, p.width, p.height, function () {
+      switchSketch(Mode.LOGIN);
+    }, "blue")
+  );
+
+
+  
+    /*
     buttons.push(
       new Button("Leaderboard", p.width / 1.2, p.height - p.height * 0.90, p.width, p.height, function () {
         switchSketch(Mode.LEADERBOARD);
