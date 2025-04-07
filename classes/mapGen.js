@@ -12,7 +12,7 @@ const largeHouseSize = 4;
 let map = []; 
 
 function drawMap(p, center, zoomFactor) {
-  p.background("grey");
+  p.background("black");
   let halfWidth = p.width / (2 * zoomFactor);
   let halfHeight = p.height / (2 * zoomFactor);
   let startX = Math.floor((center.x - halfWidth) / gridSize);
