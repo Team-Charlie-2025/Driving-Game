@@ -146,9 +146,10 @@ function checkBombCollisions(bombs, car, p) {
     if (!bomb.collected && bomb.collider && bomb.collider.intersects(car.collider)) { 
       if(!bomb.placed && !(car instanceof Enemy)){ //user car collect bomb obj
         bomb.collected = true;
+        console.log("Bomb collected");
         ItemsManager.bombCollected(car);
       }
-      else if (bomb.timeHit == null){// *active* user placed bomb hit
+      else if (bomb.placed && bomb.timeHit == null){// *active* user placed bomb hit
         bomb.timeHit = p.millis(); //time when hit
         car.onCollisionEnter(bomb);
         console.log ("BOMB HIT");

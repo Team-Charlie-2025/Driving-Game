@@ -7,7 +7,7 @@ let shieldElapsedTime = null;
 
 let wrenchHealthMod = 10;    //addition to health on wrench collision
 
-const BombWaitTime = 1000; //bomb place time delay
+const BombWaitTime = 500; //bomb place time delay
 let BombPlaceTime = null; 
 let bombInventory = 0; //number of bombs player collected 
 
