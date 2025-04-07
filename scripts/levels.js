@@ -63,25 +63,25 @@ function LevelsSketch(p) {
             new Button("EXTRA HARD", p.width / 2, p.height - p.height * 0.80,p.width, p.height, function () {
                 window.difficulty = 1.5;
                 console.log("Difficulty changed to EXTRA HARD value, " + window.difficulty);
-              switchSketch(Mode.PLAY); //CHANGE TO LEVELS
+              switchSketch(Mode.PLAY); 
             }, "red"));
         buttons.push(
             new Button("HARD", p.width / 2, p.height - p.height * 0.60,p.width, p.height, function () {
                 window.difficulty = 1.25;
                 console.log("Difficulty changed to HARD value, " + window.difficulty);
-                switchSketch(Mode.PLAY); //CHANGE TO LEVELS
+                switchSketch(Mode.PLAY); 
                 }, "orange"));
         buttons.push(
             new Button("MEDIUM", p.width / 2, p.height - p.height * 0.40,p.width, p.height, function () {
                 window.difficulty = 1.0;
                 console.log("Difficulty changed to MEDIUM, value " + window.difficulty);
-                switchSketch(Mode.PLAY); //CHANGE TO LEVELS
+                switchSketch(Mode.PLAY); 
                 }, "yellow"));
         buttons.push(
             new Button("EASY", p.width / 2, p.height - p.height * 0.20,p.width, p.height, function () {
                 window.difficulty = 0.8;
                 console.log("Difficulty changed to EASY, value " + window.difficulty);
-                switchSketch(Mode.PLAY); //CHANGE TO LEVELS
+                switchSketch(Mode.PLAY); 
                 }, "green"));
     };
 
