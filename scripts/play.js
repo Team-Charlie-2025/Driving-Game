@@ -22,6 +22,10 @@ function PlaySketch(p) {
   window.totalPausedTime = 0;
   window.pauseStartTime = 0;
   
+  // Fixed button positions as percentages of screen height/width
+  const RESUME_BUTTON_Y_PERCENT = 0.5; // 50% from top
+  const MAIN_MENU_BUTTON_Y_PERCENT = 0.65; // 65% from top
+  
   p.preload = function() {
     loadMusic(p);
     loadSoundEffects(p);
@@ -85,33 +89,8 @@ function PlaySketch(p) {
     console.log("Bombs made: " + bombs.length);
     ///////////////////////////////////////////
     
-    // Create pause menu buttons with better spacing
-    pauseResumeButton = new Button(
-      "Resume",
-      p.width / 2,
-      p.height / 2 - 100,  // Moved up for better spacing
-      p.width,
-      p.height,
-      function() {
-        togglePause();
-      },
-      "green"
-    );
-    
-    pauseMainMenuButton = new Button(
-      "Main Menu",
-      p.width / 2,
-      p.height / 2 + 150,  
-      p.width,
-      p.height,
-      function() {
-        bgMusic(Mode.PLAY, p, "stop");
-        clearInterval(window.enemySpawnInterval);
-        switchSketch(Mode.TITLE);
-      },
-      "red"
-    );
-
+    // Create pause menu buttons with fixed positioning based on screen percentages
+    createPauseButtons();
 
     p.showGameOverScreen = function () {
         bgMusic(Mode.PLAY, p, "stop");
@@ -133,6 +112,39 @@ function PlaySketch(p) {
         p.pop();
     };
   };
+
+  // Create pause buttons function - separated to be reusable
+  function createPauseButtons() {
+    // Calculate button positions based on percentage of screen dimensions
+    const resumeButtonY = p.height * RESUME_BUTTON_Y_PERCENT;
+    const mainMenuButtonY = p.height * MAIN_MENU_BUTTON_Y_PERCENT;
+    
+    pauseResumeButton = new Button(
+      "Resume",
+      p.width / 2,
+      resumeButtonY,
+      p.width,
+      p.height,
+      function() {
+        togglePause();
+      },
+      "green"
+    );
+    
+    pauseMainMenuButton = new Button(
+      "Main Menu",
+      p.width / 2,
+      mainMenuButtonY,
+      p.width,
+      p.height,
+      function() {
+        bgMusic(Mode.PLAY, p, "stop");
+        clearInterval(window.enemySpawnInterval);
+        switchSketch(Mode.TITLE);
+      },
+      "red"
+    );
+  }
 
   // Toggle pause state function
   function togglePause() {
@@ -336,32 +348,8 @@ function PlaySketch(p) {
     window.widthScale = p.windowWidth / 1920;
     window.scale = (window.widthScale + window.heightScale)/2;
     
-    // Update pause button positions on resize
-    pauseResumeButton = new Button(
-      "Resume",
-      p.width / 2,
-      p.height / 2 - 100,  // Maintain improved spacing
-      p.width,
-      p.height,
-      function() {
-        togglePause();
-      },
-      "green"
-    );
-    
-    pauseMainMenuButton = new Button(
-      "Main Menu",
-      p.width / 2,
-      p.height / 2 + 150,  // Maintain improved spacing
-      p.width,
-      p.height,
-      function() {
-        bgMusic(Mode.PLAY, p, "stop");
-        clearInterval(window.enemySpawnInterval);
-        switchSketch(Mode.TITLE);
-      },
-      "red"
-    );
+    // Update pause button positions on resize using our percentage-based approach
+    createPauseButtons();
   };
 
   p.keyPressed = function() {
