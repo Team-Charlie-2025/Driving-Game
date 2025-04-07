@@ -1,4 +1,4 @@
-// classes/helper.js
+// classes/_helper.js
 
 function pointInPolygon(point, polygon) {
     let inside = false;
