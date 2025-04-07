@@ -14,6 +14,14 @@ function PlaySketch(p) {
   window.coinsCollected = 0;
   window.enemyDestroyedCount = 0;
   
+  // Pause related variables
+  let isPaused = false;
+  let pauseResumeButton;
+  let pauseMainMenuButton;
+  // Initialize global pause tracking variables
+  window.totalPausedTime = 0;
+  window.pauseStartTime = 0;
+  
   p.preload = function() {
     loadMusic(p);
     loadSoundEffects(p);
@@ -76,6 +84,33 @@ function PlaySketch(p) {
     createBomb(p, bombs, map);
     console.log("Bombs made: " + bombs.length);
     ///////////////////////////////////////////
+    
+    // Create pause menu buttons with better spacing
+    pauseResumeButton = new Button(
+      "Resume",
+      p.width / 2,
+      p.height / 2 - 100,  // Moved up for better spacing
+      p.width,
+      p.height,
+      function() {
+        togglePause();
+      },
+      "green"
+    );
+    
+    pauseMainMenuButton = new Button(
+      "Main Menu",
+      p.width / 2,
+      p.height / 2 + 150,  
+      p.width,
+      p.height,
+      function() {
+        bgMusic(Mode.PLAY, p, "stop");
+        clearInterval(window.enemySpawnInterval);
+        switchSketch(Mode.TITLE);
+      },
+      "red"
+    );
 
 
     p.showGameOverScreen = function () {
@@ -99,9 +134,25 @@ function PlaySketch(p) {
     };
   };
 
+  // Toggle pause state function
+  function togglePause() {
+    isPaused = !isPaused;
+    if (isPaused) {
+      // Record when we started this pause session
+      window.pauseStartTime = p.millis();
+      // Pause game music
+      window.music[Mode.PLAY].pause();
+    } else {
+      // Calculate how long this pause session lasted and add to total
+      window.totalPausedTime += (p.millis() - window.pauseStartTime);
+      // Resume game music
+      window.music[Mode.PLAY].play();
+    }
+  }
+
   // Enemy spawning function with different types
   function spawnEnemy(p) {
-    if (!car || window.isGameOver) return;
+    if (!car || window.isGameOver || isPaused) return;
 
     const spawnDistance = 1000;
     const angle = p.random(p.TWO_PI);
@@ -132,6 +183,31 @@ function PlaySketch(p) {
   p.draw = function () {
     p.background(255);
   
+    // Handle pause overlay and drawing
+    if (isPaused && !window.isGameOver) {
+      // Still draw the game scene in the background
+      drawGameScene();
+      
+      // Draw pause overlay
+      p.push();
+      p.fill(0, 0, 0, 150); // Semi-transparent black overlay
+      p.rect(0, 0, p.width, p.height);
+      
+      p.textFont(window.PixelFont);
+      p.textSize(60 * window.scale);
+      p.fill(255);
+      p.textAlign(p.CENTER, p.CENTER);
+      p.text("PAUSED", p.width / 2, p.height / 3);
+      
+      // Draw pause menu buttons
+      pauseResumeButton.display(p);
+      pauseMainMenuButton.display(p);
+      p.pop();
+      
+      showHud(p, map, car, isPaused);
+      return;
+    }
+  
     // GAME OVER
     if (window.isGameOver) {
       ////////////////////////////////////////////
@@ -139,7 +215,7 @@ function PlaySketch(p) {
         // calculate coins, scores
         const runCoinReward = CurrencyManager.computeCoinsEarned(window.coinsCollected);
         CurrencyManager.updateTotalCoins(runCoinReward);
-        const elapsedTime = (p.millis() - p.startTime) / 1000;
+        const elapsedTime = (p.millis() - p.startTime - window.totalPausedTime) / 1000; // Account for paused time
         const enemyDestroyed = window.enemyDestroyedCount || 0;
         const computedScore = ScoreManager.computeScore(elapsedTime, enemyDestroyed, window.coinsCollected);
         
@@ -155,79 +231,44 @@ function PlaySketch(p) {
       }
       ////////////////////////////////////////////
       
-      p.push();
-      p.translate(p.width / 2, p.height / 2);
-      p.scale(zoomFactor);
-      if (car) p.translate(-car.position.x, -car.position.y);
-      drawMap(p, car ? car.position : {x: 0, y: 0}, zoomFactor);
-      if (car) car.display();
-      enemies.forEach(enemy => enemy.display());
-      coins.forEach(coin => coin.display());
-      shields.forEach(shield => shield.display());
-      p.pop();
-        
-      p.push();
-      p.fill(150, 0, 0, 180); // Semi-transparent red overlay
-      p.rect(0, 0, p.width, p.height);
-      p.pop();
-      
+      drawGameScene();
       p.showGameOverScreen();
       return;
     }
   
-    // GAMEPLAY LOGIC
-    coins = checkCoinCollisions(coins, car, p);
-    shields = checkShieldCollisions(shields, car, p);
-    wrenches = checkWrenchCollisions(wrenches, car, p);
-    bombs = checkBombCollisions(bombs, car, p);
-    
-
-    if (!car) {
-      const stats = loadPersistentData().stats;
-      car = new Car(p, p.width / 2, p.height / 2, stats);
-      physicsEngine.add(car);
-    }
-    
-    enemies = enemies.filter(enemy => {
-      if (enemy.removeFromWorld || enemy.healthBar <= 0) {
-        physicsEngine.remove(enemy);
-        window.enemyDestroyedCount = (window.enemyDestroyedCount || 0) + 1;
-        return false;
-      }
-      return true;
-    });
+    // Normal gameplay when not paused
+    updateGame();
+    drawGameScene();
+    showHud(p, map, car);
+  };
   
-    // GAME RENDERING
+  // Function to draw game scene without updating
+  function drawGameScene() {
     p.push();
-      p.translate(p.width / 2, p.height / 2);
-      p.scale(zoomFactor);
-      p.translate(-car.position.x, -car.position.y);
-  
-      drawMap(p, car.position, zoomFactor);
-      car.display();
-  
-      enemies.forEach(enemy => {
-        enemy.update();
-        enemy.display();
-        checkBuildingCollisions(enemy);
-        checkBombCollisions(bombs, enemy,  p);
+    p.translate(p.width / 2, p.height / 2);
+    p.scale(zoomFactor);
+    if (car) p.translate(-car.position.x, -car.position.y);
+    
+    drawMap(p, car ? car.position : {x: 0, y: 0}, zoomFactor);
+    if (car) car.display();
+    enemies.forEach(enemy => enemy.display());
+    
+    // Pass isPaused to display methods to freeze animations
+    coins.forEach(coin => coin.display(isPaused));
+    shields.forEach(shield => shield.display(isPaused));
+    wrenches.forEach(wrench => wrench.display(isPaused));
+    bombs.forEach(bomb => bomb.display(isPaused));
+    
+    if (window.debug) {
+      bombs.forEach(bomb => bomb.collider.drawOutline());
+      physicsEngine.objects.forEach(obj => {
+        if (obj.collider && typeof obj.collider.drawOutline === "function") {
+          obj.collider.drawOutline();
+        }
       });
-
-      /////DISPLAY ALL IN GAME ITEMS//////////
-      coins.forEach(coin => coin.display());
-      shields.forEach(shield => shield.display());
-      wrenches.forEach(wrench => wrench.display());
-      bombs.forEach(bomb => bomb.display());
-  
-      if (window.debug) {
-        bombs.forEach(bomb => bomb.collider.drawOutline());
-        physicsEngine.objects.forEach(obj => {
-          if (obj.collider && typeof obj.collider.drawOutline === "function") {
-            obj.collider.drawOutline();
-          }
-          
-        });
-  
+      
+      // Debug building outlines
+      if (car) {
         let halfWidth = p.width / (2 * zoomFactor);
         let halfHeight = p.height / (2 * zoomFactor);
         let center = car.position;
@@ -249,36 +290,102 @@ function PlaySketch(p) {
       
       if(ItemsManager.ifShield()) //draw outline on car for shield
         car.collider.drawOutline(true);
+    }
     p.pop();
-
-    showHud(p, map, car);
-    
+  }
   
-    // PHYSICS
+  // Function to update game state
+  function updateGame() {
+    if (isPaused) return; // Skip all updates when paused
+    
+    coins = checkCoinCollisions(coins, car, p);
+    shields = checkShieldCollisions(shields, car, p);
+    wrenches = checkWrenchCollisions(wrenches, car, p);
+    bombs = checkBombCollisions(bombs, car, p);
+    
+    if (!car) {
+      const stats = loadPersistentData().stats;
+      car = new Car(p, p.width / 2, p.height / 2, stats);
+      physicsEngine.add(car);
+    }
+    
+    enemies = enemies.filter(enemy => {
+      if (enemy.removeFromWorld || enemy.healthBar <= 0) {
+        physicsEngine.remove(enemy);
+        window.enemyDestroyedCount = (window.enemyDestroyedCount || 0) + 1;
+        return false;
+      }
+      return true;
+    });
+    
+    enemies.forEach(enemy => {
+      enemy.update();
+      checkBuildingCollisions(enemy);
+      checkBombCollisions(bombs, enemy, p);
+    });
+    
     physicsEngine.update();
     car.update();
     checkBuildingCollisions(car);
     checkCarCollisions(car, enemies);
-  };
+  }
   
-  
-
   p.windowResized = function() {
     p.resizeCanvas(p.windowWidth, p.windowHeight);
     window.heightScale = p.windowHeight / 1080;
     window.widthScale = p.windowWidth / 1920;
     window.scale = (window.widthScale + window.heightScale)/2;
+    
+    // Update pause button positions on resize
+    pauseResumeButton = new Button(
+      "Resume",
+      p.width / 2,
+      p.height / 2 - 100,  // Maintain improved spacing
+      p.width,
+      p.height,
+      function() {
+        togglePause();
+      },
+      "green"
+    );
+    
+    pauseMainMenuButton = new Button(
+      "Main Menu",
+      p.width / 2,
+      p.height / 2 + 150,  // Maintain improved spacing
+      p.width,
+      p.height,
+      function() {
+        bgMusic(Mode.PLAY, p, "stop");
+        clearInterval(window.enemySpawnInterval);
+        switchSketch(Mode.TITLE);
+      },
+      "red"
+    );
   };
 
   p.keyPressed = function() {
-    if(p.keyCode === getKeyForAction("placebomb")){ //////////////////////////////NEEDS KEYBINDS APPLIED
-      //console.log("Try bomb placed");
-      ItemsManager.placeBomb(p, car, bombs);
+    // Toggle pause with P key (or custom keybind)
+    if (p.keyCode === getKeyForAction("pause")) {
+      togglePause();
+      return;
     }
+    
+    // Only handle gameplay inputs when not paused
+    if (!isPaused) {
+      if(p.keyCode === getKeyForAction("placebomb")){ 
+        ItemsManager.placeBomb(p, car, bombs, isPaused);
+      }
+    }
+    
     if (p.keyCode === p.ESCAPE) {
-      bgMusic(Mode.PLAY, p, "stop");
-      clearInterval(window.enemySpawnInterval);
-      switchSketch(Mode.TITLE);
+      if (isPaused) {
+        togglePause(); // Unpause if paused
+      } else {
+        bgMusic(Mode.PLAY, p, "stop");
+        clearInterval(window.enemySpawnInterval);
+        switchSketch(Mode.TITLE);
+      }
     }
 
     if (window.isGameOver) {
@@ -290,10 +397,16 @@ function PlaySketch(p) {
         switchSketch(Mode.TITLE); // Go back to main menu
       }
     }
-    if (p.keyCode === p.ESCAPE) {
-        bgMusic(Mode.PLAY, p, "stop");
-        clearInterval(window.enemySpawnInterval);
-        switchSketch(Mode.TITLE);
+  };
+  
+  // Add mousePressed function to handle pause menu clicks
+  p.mousePressed = function() {
+    if (isPaused) {
+      if (pauseResumeButton.isMouseOver(p)) {
+        pauseResumeButton.callback();
+      } else if (pauseMainMenuButton.isMouseOver(p)) {
+        pauseMainMenuButton.callback();
+      }
     }
   };
 
@@ -361,5 +474,4 @@ function PlaySketch(p) {
       }
     }
   }
-
 }
