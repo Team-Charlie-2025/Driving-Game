@@ -312,3 +312,79 @@ class Enemy extends Car {
       }
     }
   }
+  // Truck: Slower, sharper turns, more damage
+class Truck extends Enemy {
+  constructor(p, x, y, target) {
+    super(p, x, y, target);
+    
+    // Movement properties
+    this.acceleration = 0.5 * window.difficulty;  // slow acceleration
+    this.maxSpeed = 6 * window.difficulty;       // slow max speed
+    this.maxForce = 0.2;                           // Less force
+    this.turnRadius = 0.8;                        // SMALL turn radius = sharp turns
+    this.friction = 0.03;                          // Less friction
+    
+    // Combat properties
+    this.healthBar = 250 * window.difficulty;      // Much more health
+    this.attackDamage = 25 * window.difficulty;    // Much more damage
+    this.attackCooldown = 2000 / window.difficulty; // Slower attack rate
+    
+    this.currentImage = p.truckImg;
+    
+    // Adjust width and height separately for truck proportions
+    // Make the truck longer than it is wide
+    if (this.currentImage) {
+      this.width = 146 // Wider/longer
+      this.height = 59 // Less tall
+      
+      // Update collider to match new dimensions
+      this.collider = new Collider(
+        this,
+        "polygon",
+        { 
+          offsetX: -this.width / 2, 
+          offsetY: -this.height / 2 
+        },
+        this.currentImage
+      );
+    }
+  }
+}
+
+// Motorcycle: Faster, wider turns, less damage
+class Motorcycle extends Enemy {
+  constructor(p, x, y, target) {
+    super(p, x, y, target);
+    
+    // Movement properties
+    this.acceleration = 0.8 * window.difficulty;   // High acceleration
+    this.maxSpeed = 11.0 * window.difficulty;       // High max speed
+    this.maxForce = 0.5;                           // More force
+    this.turnRadius = 0.08;                        // LARGE turn radius = wide turns
+    this.friction = 0.05;                          // Medium friction
+    
+    // Combat properties
+    this.healthBar = 60 * window.difficulty;       // Less health
+    this.attackDamage = 8 * window.difficulty;     // Less damage
+    this.attackCooldown = 1000 / window.difficulty; // Faster attack rate
+    
+    this.currentImage = p.bikeImg;
+    
+    // Update collider to match new size
+    if (this.currentImage) {
+      this.width = 70 // Wider/longer
+      this.height = 36 // Less tall
+      
+      // Update collider to match new dimensions
+      this.collider = new Collider(
+        this,
+        "polygon",
+        { 
+          offsetX: -this.width / 2, 
+          offsetY: -this.height / 2 
+        },
+        this.currentImage
+      );
+    }
+  }
+}
