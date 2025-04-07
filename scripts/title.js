@@ -9,8 +9,9 @@ function TitleSketch(p) {
   let showInfo = false;
   let showLevelSelection = false;
   let ExitIcon;
+  let windowHeightScale, windowWidthScale, windowScale;
 
-  p.preload = function () {
+  p.preload = function() {    
     loadMusic(p);
     loadSoundEffects(p);
     bgImage = p.loadImage("graphics/titleBackground.png");
@@ -29,7 +30,7 @@ function TitleSketch(p) {
       window.debug = false;
     }
     debugCheckbox = p.createCheckbox("Debug", window.debug);
-    debugCheckbox.position(10, 10);
+    debugCheckbox.position(10*window.widthScale, 10*window.heightScale);
     debugCheckbox.changed(() => {
       window.debug = debugCheckbox.checked();
       console.log("Debug mode set to:", window.debug);
@@ -114,6 +115,9 @@ function TitleSketch(p) {
 
   p.windowResized = function () {
     p.resizeCanvas(p.windowWidth, p.windowHeight);
+    window.heightScale = p.windowHeight / 1080;
+    window.widthScale = p.windowWidth / 1920;
+    window.scale = (window.widthScale + window.heightScale)/2;
     buttons = [];
     levelButtons = [];
     createTitleButtons();
