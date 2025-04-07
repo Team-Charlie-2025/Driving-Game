@@ -17,5 +17,5 @@ jobs:
         uses: actions/checkout@v2
       - name: Deploy
         run: |
-          # ssh ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} "cd ${{ secrets.WORK_DIR }} && git checkout ${{ secrets.MAIN_BRANCH }} && git pull"
-          ssh ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} "git checkout ${{ secrets.MAIN_BRANCH }} && git pull"
+          ssh ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} "cd ${{ secrets.WORK_DIR }} && git checkout ${{ secrets.MAIN_BRANCH }} && git pull"
+          
