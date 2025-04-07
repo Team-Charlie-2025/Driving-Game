@@ -50,9 +50,19 @@ class ItemsManager {
       else
         return 0;
     }
-    static wrenchCollected(car, wrench){
-      let newHealth = car.getHealth() + wrenchHealthMod;
-      car.onCollisionEnter( wrench);
+    static wrenchCollected(car){
+      const maxHealth = loadPersistentData().stats.health;
+      const currentHealth = car.getHealth();
+      const healPercent = 0.1; //heal 10% of max health
+      const healAmount = Math.floor(maxHealth * healPercent);
+      const newHealth = Math.min(currentHealth + healAmount, maxHealth);
+
+      console.log(`current health: ${currentHealth}`);
+      car.healthChange(newHealth);
+      console.log(`health restored: ${car.getHealth()}`);   
+    }
+     static canUseWrench(car) {
+      return car.getHealth() < loadPersistentData().stats.health;
     }
 
     static bombCollected(car){
@@ -84,11 +94,8 @@ class ItemsManager {
           bombInventory --;
           BombPlaceTime = currentTime;
         }
-        
       }
     }
-
-
   }
 
 

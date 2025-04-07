@@ -16,6 +16,9 @@ class Enemy extends Car{
     this.currentImage = p.enemyImg;
     this.removeFromWorld = false;
 
+    this.baseAcceleration = stats.acceleration;
+    this.baseMaxSpeed = stats.maxSpeed;
+
     // Movement properties
     this.velocity = p.createVector(0, 0);
     this.maxForce = 0.8;         // How quickly it can change direction
@@ -49,6 +52,17 @@ class Enemy extends Car{
   
   update() {
     if (!this.target || this.controlDisabled) return;
+
+    let terrainType = getTileTypeAt(this.position.x, this.position.y);
+
+    if (window.difficulty <= 1.0 && terrainType === "grass") {
+      this.acceleration = this.baseAcceleration * 0.65;
+      this.maxSpeed = this.baseMaxSpeed * 0.65;
+    } else {
+      this.acceleration = this.baseAcceleration;
+      this.maxSpeed = this.baseMaxSpeed;
+    }
+    //console.log(`Max Speed: ${this.maxSpeed.toFixed(2)}`);
   
     // Calculate desired direction to target
     this.desired = p5.Vector.sub(this.target.position, this.position);
@@ -160,6 +174,8 @@ class Truck extends Enemy {
     // Movement properties
     this.acceleration = 0.5 * window.difficulty;  // slow acceleration
     this.maxSpeed = 6 * window.difficulty;       // slow max speed
+    this.baseAcceleration = this.acceleration;
+    this.baseMaxSpeed = this.maxSpeed;
     this.maxForce = 0.2;                           // Less force
     this.turnRadius = 0.8;                        // SMALL turn radius = sharp turns
     this.friction = 0.03;                          // Less friction
@@ -199,6 +215,8 @@ class Motorcycle extends Enemy {
     // Movement properties
     this.acceleration = 0.8 * window.difficulty;   // High acceleration
     this.maxSpeed = 11.0 * window.difficulty;       // High max speed
+    this.baseAcceleration = this.acceleration;
+    this.baseMaxSpeed = this.maxSpeed;
     this.maxForce = 0.5;                           // More force
     this.turnRadius = 0.08;                        // LARGE turn radius = wide turns
     this.friction = 0.05;                          // Medium friction
