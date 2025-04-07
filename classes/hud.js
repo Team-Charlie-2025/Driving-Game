@@ -1,6 +1,6 @@
 //scripts/hud.js
 let windowHeightScale, windowWidthScale, windowScale;
-function showHud(p,map,car){
+function showHud(p, map, car, isPaused = false){
 
     // UI
     p.push();
@@ -11,13 +11,12 @@ function showHud(p,map,car){
       if (window.debug)
         drawDebugInfo(p,car);
       drawMeters(p,car);
-      drawCoinsTimer(p);
-      ItemsManager.shieldDisplayBar(p);
+      drawCoinsTimer(p, isPaused);
+      ItemsManager.shieldDisplayBar(p, isPaused);
       drawInventory(p, scale);
-
       
+      // We're removing the pause indicator from the HUD since it's already shown in the main overlay
       
-
     p.pop();
 
 }
@@ -75,12 +74,25 @@ function drawDebugInfo(p,car){
     }
 }
 
-function drawCoinsTimer(p){
+function drawCoinsTimer(p, isPaused = false){
   p.push();
     p.textSize(16*window.scale);
     p.fill(255);
     p.textAlign(p.CENTER, p.TOP);
-    let secondsElapsed = ((p.millis() - p.startTime) / 1000).toFixed(1);
+    
+    // Calculate effective game time considering pauses
+    let effectiveTime;
+    if (isPaused) {
+      // When paused, use the time when pause started minus total previous paused time
+      effectiveTime = (window.pauseStartTime - p.startTime - window.totalPausedTime) / 1000;
+    } else {
+      // When active, use current time minus start time minus total paused time
+      effectiveTime = (p.millis() - p.startTime - window.totalPausedTime) / 1000;
+    }
+    
+    // Format to one decimal place
+    let secondsElapsed = effectiveTime.toFixed(1);
+    
     p.text(`Time: ${secondsElapsed} sec`, p.width/2 - 10*window.widthScale, 10*window.heightScale);
     p.text(`Coins: ${window.coinsCollected}`, p.width/2 - 10*window.widthScale, 30*window.heightScale);
   p.pop();
@@ -92,7 +104,6 @@ function drawInventory(p, scale){
     p.textAlign(p.RIGHT, p.TOP);
     p.text(`Bomb Inventory: ${bombInventory}`, p.width - 10*windowWidthScale,  10*windowHeightScale);
   p.pop();
-
 }
 
 /*

@@ -4,6 +4,8 @@ const shieldMaxTime = 10000; //max time, milliseconds
 let shieldStartTime = null; //start time
 let currentTime = null;
 let shieldElapsedTime = null; 
+let shieldPauseTime = 0;
+let shieldTotalPausedTime = 0;
 
 let wrenchHealthMod = 10;    //addition to health on wrench collision
 
@@ -17,6 +19,8 @@ class ItemsManager {
       shieldStartTime = null;
       currentTime = null;
       shieldElapsedTime = null; 
+      shieldPauseTime = 0;
+      shieldTotalPausedTime = 0;
 
       BombPlaceTime = null;
       bombInventory = 0;
@@ -25,11 +29,35 @@ class ItemsManager {
       if(shieldStartTime == null) return false;
       return shieldElapsedTime <= shieldMaxTime;
     }
-    static shieldDisplayBar(p,scale){
-      currentTime = p.millis();
-      shieldElapsedTime = (currentTime - shieldStartTime);
+    static shieldDisplayBar(p, isPaused = false){
+      if (isPaused) {
+        // If paused, we use the time when the pause started
+        if (shieldPauseTime === 0 && shieldStartTime !== null) {
+          // Record when shield was paused
+          shieldPauseTime = p.millis();
+        }
+        
+        // Use stored values during pause
+        if (currentTime !== null) {
+          shieldElapsedTime = (shieldPauseTime - shieldStartTime) - shieldTotalPausedTime;
+        }
+      } else {
+        // If we're unpausing
+        if (shieldPauseTime !== 0) {
+          // Add the pause duration to total paused time
+          shieldTotalPausedTime += (p.millis() - shieldPauseTime);
+          shieldPauseTime = 0;
+        }
+        
+        currentTime = p.millis();
+        if (shieldStartTime !== null) {
+          shieldElapsedTime = (currentTime - shieldStartTime) - shieldTotalPausedTime;
+        }
+      }
+      
       if(!this.ifShield())
-        return; //dont display if zero?
+        return; // don't display if zero
+        
       p.fill(50);
       p.rect(260*windowWidthScale, 20*windowHeightScale, (shieldMaxTime * 10 /1000)*windowWidthScale, 25*windowHeightScale);
       p.fill(143, 233, 250);
@@ -38,10 +66,11 @@ class ItemsManager {
       p.fill(255);
       p.textSize(16*windowScale);
       p.text("Shield", 300*windowWidthScale, 20*windowHeightScale);
-
     }
+    
     static shieldCollected(){ //a shield has been collected
       shieldStartTime = currentTime; //new start time
+      shieldTotalPausedTime = 0; // Reset paused time for a new shield
     }
     static shieldDamage(damageTaken){
       if (!this.ifShield()){
@@ -68,7 +97,9 @@ class ItemsManager {
     static bombCollected(car){
       bombInventory ++;
     }
-    static placeBomb(p, car, bombs){
+    static placeBomb(p, car, bombs, isPaused = false){
+      if (isPaused) return; // Don't place bombs when paused
+      
       currentTime = p.millis();
       if((BombPlaceTime == null || currentTime - BombPlaceTime > BombWaitTime) && bombInventory > 0){
         let bombSize = 25;
@@ -111,15 +142,16 @@ class Coin extends GameObject {
         offsetX: -this.size / 2,
         offsetY: -this.size / 2
       });
+      this.animationStartTime = p.millis();
     }
   
     update() {
     }
   
-    display() {
+    display(isPaused = false) {
       const p = this.p;
-      const frameDuration = 150; // 5fps
-      const frameIndex = Math.floor(p.millis() / frameDuration) % window.animations["coin"].length;
+      let animationTime = isPaused ? this.animationStartTime : p.millis();
+      const frameIndex = Math.floor(animationTime / frameDuration) % window.animations["coin"].length;
       const coinImg = window.animations["coin"][frameIndex];
   
       p.push();
@@ -128,6 +160,10 @@ class Coin extends GameObject {
         p.noStroke();
         p.image(coinImg, 0, 0, this.size, this.size);
       p.pop();
+      
+      if (!isPaused) {
+        this.animationStartTime = p.millis();
+      }
     }
   }  
 
@@ -143,11 +179,13 @@ class Shield extends GameObject {
         offsetX: -this.size / 2,
         offsetY: -this.size / 2
       });
+      this.animationStartTime = p.millis();
     }
   
-    display() { 
+    display(isPaused = false) { 
       const p = this.p;
-      const frameIndex = Math.floor(p.millis() / frameDuration) % window.animations["shield"].length;
+      let animationTime = isPaused ? this.animationStartTime : p.millis();
+      const frameIndex = Math.floor(animationTime / frameDuration) % window.animations["shield"].length;
       const shieldImg = window.animations["shield"][frameIndex];
   
       p.push();
@@ -156,6 +194,10 @@ class Shield extends GameObject {
         p.noStroke();
         p.image(shieldImg, 0, 0, this.size, this.size);
       p.pop();
+      
+      if (!isPaused) {
+        this.animationStartTime = p.millis();
+      }
     }
   }
 
@@ -172,11 +214,13 @@ class Wrench extends GameObject {
       offsetX: -this.size / 2,
       offsetY: -this.size / 2
     });
+    this.animationStartTime = p.millis();
   }
 
-  display() { 
+  display(isPaused = false) { 
     const p = this.p;
-    const frameIndex = Math.floor(p.millis() / frameDuration) % window.animations["wrench"].length;
+    let animationTime = isPaused ? this.animationStartTime : p.millis();
+    const frameIndex = Math.floor(animationTime / frameDuration) % window.animations["wrench"].length;
     const wrenchImg = window.animations["wrench"][frameIndex];
 
     p.push();
@@ -185,6 +229,10 @@ class Wrench extends GameObject {
       p.noStroke();
       p.image(wrenchImg, 0, 0, this.size, this.size);
     p.pop();
+    
+    if (!isPaused) {
+      this.animationStartTime = p.millis();
+    }
   }
 }
 
@@ -203,18 +251,32 @@ class Bomb extends GameObject {
       { offsetX: -8, offsetY: -9 },
       window.animations["bomb"][2]
     );
+    this.animationStartTime = p.millis();
+    this.explosionStartTime = null;
   }
 
-  display() { 
+  display(isPaused = false) { 
     const p = this.p;
-    let bombImg = null
+    let animationTime = isPaused ? this.animationStartTime : p.millis();
+    let bombImg = null;
 
-    if (this.timeHit != null){ //EXPLOSION ANIMATION
-      const frameIndex = Math.floor(p.millis() / frameDuration) % window.animations["bombExplosion"].length;
+    if (this.timeHit != null) { //EXPLOSION ANIMATION
+      // For explosion, track a separate animation time
+      if (this.explosionStartTime === null) {
+        this.explosionStartTime = p.millis();
+      }
+      
+      let explosionTime = isPaused ? this.explosionStartTime : p.millis();
+      const frameIndex = Math.floor((explosionTime - this.timeHit) / frameDuration) % window.animations["bombExplosion"].length;
       bombImg = window.animations["bombExplosion"][frameIndex];
+      
+      // Update explosion animation time if not paused
+      if (!isPaused && this.timeHit !== null) {
+        this.explosionStartTime = p.millis();
+      }
     }
     else if(this.placed){ //animate when active
-      const frameIndex = Math.floor(p.millis() / frameDuration) % window.animations["bomb"].length;
+      const frameIndex = Math.floor(animationTime / frameDuration) % window.animations["bomb"].length;
       bombImg = window.animations["bomb"][frameIndex];
     }
     else{ //inactive bomb
@@ -227,5 +289,9 @@ class Bomb extends GameObject {
       p.noStroke();
       p.image(bombImg, 0, 0, this.size, this.size);
     p.pop();
+    
+    if (!isPaused) {
+      this.animationStartTime = p.millis();
+    }
   }
 }

@@ -349,6 +349,7 @@ class Enemy extends Car{
       separation.setMag(5);  // Push enemies apart to avoid overlap
       this.position.add(separation);
     }
+
     else if(other instanceof Bomb){
       let damage = other.attackDamage;
       this.healthBar = Math.max(0, this.healthBar - damage);
