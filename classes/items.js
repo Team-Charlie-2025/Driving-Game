@@ -31,13 +31,13 @@ class ItemsManager {
       if(!this.ifShield())
         return; //dont display if zero?
       p.fill(50);
-      p.rect(260*windowWidthScale, 20*windowHeightScale, (shieldMaxTime * 10 /1000)*windowWidthScale, 25*windowHeightScale);
+      p.rect(260*window.widthScale, 20*window.heightScale, (shieldMaxTime * 10 /1000)*window.widthScale, 25*window.heightScale);
       p.fill(143, 233, 250);
-      p.rect(260*windowWidthScale, 20*windowHeightScale, ((shieldMaxTime * 10 /1000) - (shieldElapsedTime * 10 /1000)) * windowWidthScale , 25*windowHeightScale);
+      p.rect(260*window.widthScale, 20*window.heightScale, ((shieldMaxTime * 10 /1000) - (shieldElapsedTime * 10 /1000)) * window.widthScale , 25*window.heightScale);
 
       p.fill(255);
-      p.textSize(16*windowScale);
-      p.text("Shield", 300*windowWidthScale, 20*windowHeightScale);
+      p.textSize(16*window.scale);
+      p.text("Shield", 300*window.widthScale, 20*window.heightScale);
 
     }
     static shieldCollected(){ //a shield has been collected
