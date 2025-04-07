@@ -6,13 +6,15 @@ function showHud(p,map,car){
     p.push();
       
       //drawMinimap(p,map,4)
+
       // Only draws debug if debug is clicked
       if (window.debug)
         drawDebugInfo(p,car);
       drawMeters(p,car);
       drawCoinsTimer(p);
       ItemsManager.shieldDisplayBar(p);
-      
+      drawInventory(p, scale);
+
       
       
 
@@ -30,16 +32,29 @@ function drawMeters(p,car){
   let maxHealth = (loadPersistentData().stats.health);  
   // Draw Health Bar
   p.fill(50);
+
+
   p.rect(10*window.widthScale, 20*window.heightScale, 200*window.widthScale, 25*window.heightScale);
-  p.fill(0, 255, 0);
+  
+  //color change as health decreases
+  if(car.healthBar < maxHealth/4) //quarter health =  red
+    p.fill(240, 20, 20);
+  else if(car.healthBar < maxHealth /2) //half health =  yellow
+    p.fill(223, 232, 100);
+  else
+    p.fill(0, 255, 0);
+  
   p.rect(10*window.widthScale, 20*window.heightScale, (car.healthBar/maxHealth)*200*window.widthScale, 25*window.heightScale);
 
   // Draw Boost Meter
   p.fill(50);
   p.rect(10*window.widthScale, 67*window.heightScale, 200*window.widthScale, 25*window.heightScale);
   p.fill(255, 165, 0);
-  console.log("boost" + car.boostMeter);
+
+
+  //console.log("boost" + car.boostMeter);
   p.rect(10*window.widthScale, 67*window.heightScale, car.boostMeter * 2 * window.widthScale, 25*window.heightScale);
+
 
 }
 
@@ -70,7 +85,15 @@ function drawCoinsTimer(p){
     p.text(`Coins: ${window.coinsCollected}`, p.width/2 - 10*window.widthScale, 30*window.heightScale);
   p.pop();
 }
+function drawInventory(p, scale){
+  p.push(); //Bombs
+    p.textSize(16*windowScale);
+    p.fill(255);
+    p.textAlign(p.RIGHT, p.TOP);
+    p.text(`Bomb Inventory: ${bombInventory}`, p.width - 10*windowWidthScale,  10*windowHeightScale);
+  p.pop();
 
+}
 
 /*
 function drawMinimap(p, map, tileSize) {

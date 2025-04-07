@@ -123,6 +123,15 @@ function loadAnimations(p) {
   window.animations["wrench"].push(p.loadImage("graphics/wenchAnimation/wrench3.png"));
   window.animations["wrench"].push(p.loadImage("graphics/wenchAnimation/wrench4.png"));
 
+  window.animations["bomb"] = [];
+  window.animations["bomb"].push(p.loadImage("graphics/bombAnimation/bomb1.png"));
+  window.animations["bomb"].push(p.loadImage("graphics/bombAnimation/bomb2.png"));
+  window.animations["bomb"].push(p.loadImage("graphics/bombAnimation/bomb3.png"));
+  window.animations["bombExplosion"] = [];
+  window.animations["bombExplosion"].push(p.loadImage("graphics/bombAnimation/bomb4.png"));
+  window.animations["bombExplosion"].push(p.loadImage("graphics/bombAnimation/bomb5.png"));
+  window.animations["bombExplosion"].push(p.loadImage("graphics/bombAnimation/bomb6.png"));
+
   console.log("animations loaded");
 }
 

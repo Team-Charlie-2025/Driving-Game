@@ -1,99 +1,91 @@
-// scripts/login.js
-
 function LoginSketch(p) {
-  let usernameID;
-  let passwordID;
-  let submitLoginBtn;
-  let loginElementsCreated = false;
+  let usernameInput, passwordInput, loginButton, message;
 
   p.setup = function () {
-    p.createCanvas(p.windowWidth, p.windowHeight);
-    p.textAlign(p.CENTER, p.CENTER);
-    if (!loginElementsCreated) {
-      createLoginElements();
-      loginElementsCreated = true;
-    }
-    ExitIcon = new Button("ExitIcon", p.width - p .width * 0.05, p.height - p.height * 0.95, p.width, p.height, function () { 
-      switchSketch(Mode.TITLE);
-    });
-    // stop loading
-    window.LoadingScreen.hide();
+      p.createCanvas(p.windowWidth, p.windowHeight);
+      p.background(230);
+      p.textAlign(p.CENTER, p.CENTER);
+      p.textSize(48);
+      p.fill(50);
+    
+      ExitIcon = new Button("ExitIcon", p.width - p.width * 0.05, p.height - p.height * 0.95, p.width, p.height, function () { 
+          switchSketch(Mode.TITLE);
+      });
+
+      // Username input
+      usernameInput = p.createInput();
+      usernameInput.position(p.width / 2 - 100, p.height / 2 - 30);
+      usernameInput.attribute('placeholder', 'Username');
+
+      // Password input
+      passwordInput = p.createInput('', 'password');
+      passwordInput.position(p.width / 2 - 100, p.height / 2);
+      passwordInput.attribute('placeholder', 'Password');
+
+      // Login button
+      loginButton = p.createButton('Login');
+      loginButton.position(p.width / 2 - 50, p.height / 2 + 40);
+      loginButton.mousePressed(sendLoginData);
+
+      // Message element
+      message = p.createP('');
+      message.position(p.width / 2 - 100, p.height / 2 + 80);
+      message.style('color', 'green');
+      message.hide(); // Hide message initially
+
+      // Stop loading
+      window.LoadingScreen.hide();
   };
+
+  function sendLoginData() {
+      let username = usernameInput.value();
+      let password = passwordInput.value();
+
+      fetch('http://127.0.0.1:5000/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ username: username, password: password })
+      })
+      .then(response => response.json())
+      .then(data => {
+          if (data.success) {
+              message.html("Login successful! Redirecting...");
+              message.style('color', 'green');
+              message.show();
+              setTimeout(() => {
+                  switchSketch(Mode.TITLE); // Redirect to game or dashboard
+              }, 2000); // Redirect after 2 seconds
+          } else {
+              message.html("Login failed: " + data.error);
+              message.style('color', 'red');
+              message.show();
+          }
+      })
+      .catch(error => {
+          console.error("Error:", error);
+          message.html("Error connecting to server.");
+          message.style('color', 'red');
+          message.show();
+      });
+  }
 
   p.draw = function () {
-    p.background(230);
-    p.fill(50);
-    p.textSize(48);
-    p.textFont("Comic Sans MS");
-    p.text("Login", p.width / 2, 150);
-    
-    ExitIcon.display(p);
+      ExitIcon.display(p);
+      p.textSize(100);
+      p.fill(50);
+      p.text("Login", p.width / 2, p.height / 2 - 100);
   };
 
-  function createLoginElements() {
-    usernameID = p.createInput("");
-    usernameID.attribute("placeholder", "Username");
-    usernameID.position(p.width / 2 - 100, 300);
-    usernameID.size(200);
-
-    passwordID = p.createInput("", "password");
-    passwordID.attribute("placeholder", "Password");
-    passwordID.position(p.width / 2 - 100, 350);
-    passwordID.size(200);
-
-    submitLoginBtn = p.createButton("Login");
-    submitLoginBtn.position(p.width / 2 - 50, 400);
-    submitLoginBtn.mousePressed(handleLogin);
-  }
-
-  function handleLogin() {
-    let username = usernameID.value();
-    let password = passwordID.value();
-    console.log("Login attempted with:", username, password);
-    switchSketch(Mode.TITLE);
-    removeLoginElements();
-  }
-
-  function removeLoginElements() {
-    if (usernameID) {
-      usernameID.remove();
-      usernameID = null;
-    }
-    if (passwordID) {
-      passwordID.remove();
-      passwordID = null;
-    }
-    if (submitLoginBtn) {
-      submitLoginBtn.remove();
-      submitLoginBtn = null;
-    }
-    loginElementsCreated = false;
-  }
-  p.mousePressed = function() {
-    if (ExitIcon.isMouseOver(p)) {
-      bgMusic.stop();
-      ExitIcon.callback();
-    }
-  }
-
-  p.windowResized = function () {
-    p.resizeCanvas(p.windowWidth, p.windowHeight);
-    if (usernameID) {
-      usernameID.position(p.width / 2 - 100, 300);
-    }
-    if (passwordID) {
-      passwordID.position(p.width / 2 - 100, 350);
-    }
-    if (submitLoginBtn) {
-      submitLoginBtn.position(p.width / 2 - 50, 400);
-    }
+  p.mousePressed = function () {
+      if (ExitIcon.isMouseOver(p)) {
+          bgMusic.stop();
+          ExitIcon.callback();
+      }
   };
 
   p.keyPressed = function () {
-    if (p.keyCode === p.ESCAPE) {
-      switchSketch(Mode.TITLE);
-    }
+      if (p.keyCode === p.ESCAPE) {
+          switchSketch(Mode.TITLE);
+      }
   };
 }
-
-
