@@ -1,5 +1,5 @@
 let keybindConfig = {
-  boost: 70,     // 'f'
+  boost: 32,     // 'space'
   forward: 87,   // 'w'
   backward: 83,  // 's'
   left: 65,      // 'a'
