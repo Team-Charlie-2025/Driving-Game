@@ -6,7 +6,7 @@ function TitleSketch(p) {
   let imgTitle;
   let debugCheckbox; 
   let showInfo = false;
-
+  let windowHeightScale, windowWidthScale, windowScale;
   p.preload = function() {    
     loadMusic(p);
     loadSoundEffects(p);
@@ -23,7 +23,7 @@ function TitleSketch(p) {
       window.debug = false;
     }
     debugCheckbox = p.createCheckbox("Debug", window.debug);
-    debugCheckbox.position(10, 10);
+    debugCheckbox.position(10*window.widthScale, 10*window.heightScale);
     debugCheckbox.changed(() => {
       window.debug = debugCheckbox.checked();
       console.log("Debug mode set to:", window.debug);
@@ -67,6 +67,9 @@ function TitleSketch(p) {
 
   p.windowResized = function () {
     p.resizeCanvas(p.windowWidth, p.windowHeight);
+    window.heightScale = p.windowHeight / 1080;
+    window.widthScale = p.windowWidth / 1920;
+    window.scale = (window.widthScale + window.heightScale)/2;
     buttons = [];
     createButtons();
     //debugCheckbox.position(10, 10);
@@ -98,25 +101,38 @@ function TitleSketch(p) {
       }, "blue")
     );
     buttons.push(
-      new Button("Settings", p.width / 7, p.height - p.height * 0.15, p.width, p.height, function () {
+      new Button("Settings", 200 * window.widthScale, 890*window.heightScale, p.width, p.height, function () {
           switchSketch(Mode.SETTINGS);
       })
   ); 
   buttons.push(
-    new Button("Leaderboard", p.width / 1.2, p.height - p.height * 0.85, p.width, p.height, function () {
+    new Button("Leaderboard", 1600 * window.widthScale, 150*window.heightScale, p.width, p.height, function () {
       switchSketch(Mode.LEADERBOARD);
     })
   );
   buttons.push(
-    new Button("HELP", p.width / 1.05, p.height - p.height * 0.97, p.width, p.height, function () {
+    new Button("HELP", 1828*window.widthScale, 32*window.heightScale, p.width, p.height, function () {
       toggleInfo(); 
     }, "blue")
   );
   buttons.push(
-    new Button("Map Editor", p.width*7.4 / 8, p.height - p.height * 0.05, p.width, p.height, function () {
+    new Button("Map Editor", 1750 * window.widthScale, 969*window.heightScale, p.width, p.height, function () {
       switchSketch(Mode.MAP_EDITOR);
     }, "blue")
   );
+
+  buttons.push(
+    new Button("Signup", 1750*window.widthScale, 810*window.heightScale, p.width, p.height, function () {
+      switchSketch(Mode.SIGNUP);
+    }, "blue")
+  );
+
+  buttons.push(
+    new Button("Login", p.width*7.4 / 8, p.height - p.height * 0.15, p.width, p.height, function () {
+      switchSketch(Mode.LOGIN);
+    }, "blue")
+  );
+
 
   
     /*
@@ -127,11 +143,7 @@ function TitleSketch(p) {
         }
       })
     );
-    buttons.push(
-      new Button("Login", p.width / 1.1, p.height - p.height * 0.95, function () {
-        switchSketch(Mode.LOGIN);
-      })
-    );
+   
     buttons.push(
       new Button("Sign Up", p.width / 1.1, p.height - p.height * 0.88, function () {
         switchSketch(Mode.SIGNUP);

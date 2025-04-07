@@ -10,6 +10,7 @@ function PlaySketch(p) {
   let coins = [];
   let shields = [];
   let wrenches = [];
+  let bombs = [];
   window.coinsCollected = 0;
   window.enemyDestroyedCount = 0;
   
@@ -57,8 +58,7 @@ function PlaySketch(p) {
     );
     
     physicsEngine.add(car);
-
-    ItemsManager.shieldResetGame(); //fix shield error
+    ItemsManager.ItemResetGame();
     
     window.LoadingScreen.hide();
     bgMusic(Mode.PLAY, p, "loop");
@@ -73,6 +73,8 @@ function PlaySketch(p) {
     console.log("Wrenches made: " + wrenches.length);
     createCoins(p, coins, map);
     console.log("Coins made: " + coins.length);
+    createBomb(p, bombs, map);
+    console.log("Bombs made: " + bombs.length);
     ///////////////////////////////////////////
 
 
@@ -190,6 +192,8 @@ function PlaySketch(p) {
     coins = checkCoinCollisions(coins, car, p);
     shields = checkShieldCollisions(shields, car, p);
     wrenches = checkWrenchCollisions(wrenches, car, p);
+    bombs = checkBombCollisions(bombs, car, p);
+    
 
     if (!car) {
       const stats = loadPersistentData().stats;
@@ -219,18 +223,22 @@ function PlaySketch(p) {
         enemy.update();
         enemy.display();
         checkBuildingCollisions(enemy);
+        checkBombCollisions(bombs, enemy,  p);
       });
 
       /////DISPLAY ALL IN GAME ITEMS//////////
       coins.forEach(coin => coin.display());
       shields.forEach(shield => shield.display());
       wrenches.forEach(wrench => wrench.display());
+      bombs.forEach(bomb => bomb.display());
   
       if (window.debug) {
+        bombs.forEach(bomb => bomb.collider.drawOutline());
         physicsEngine.objects.forEach(obj => {
           if (obj.collider && typeof obj.collider.drawOutline === "function") {
             obj.collider.drawOutline();
           }
+          
         });
   
         let halfWidth = p.width / (2 * zoomFactor);
@@ -270,9 +278,16 @@ function PlaySketch(p) {
 
   p.windowResized = function() {
     p.resizeCanvas(p.windowWidth, p.windowHeight);
+    window.heightScale = p.windowHeight / 1080;
+    window.widthScale = p.windowWidth / 1920;
+    window.scale = (window.widthScale + window.heightScale)/2;
   };
 
   p.keyPressed = function() {
+    if(p.keyCode === getKeyForAction("placebomb")){ //////////////////////////////NEEDS KEYBINDS APPLIED
+      //console.log("Try bomb placed");
+      ItemsManager.placeBomb(p, car, bombs);
+    }
     if (p.keyCode === p.ESCAPE) {
       bgMusic(Mode.PLAY, p, "stop");
       clearInterval(window.enemySpawnInterval);
@@ -359,4 +374,5 @@ function PlaySketch(p) {
       }
     }
   }
+
 }

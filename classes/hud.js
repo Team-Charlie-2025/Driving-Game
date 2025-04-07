@@ -2,20 +2,19 @@
 let windowHeightScale, windowWidthScale, windowScale;
 function showHud(p,map,car){
 
-    // Im counting a "standard" window as 1920x1080, which realistically the game plays at 1920x860 or 1731x3840 when zoomed out
-    windowWidthScale = p.windowWidth/1920;
-    windowHeightScale = p.windowHeight/1080;
-    windowScale = (windowHeightScale + windowWidthScale) / 2 ; // Hopefully this works for text size
-    let scale = {scale: windowScale, width: windowWidthScale, height: windowHeightScale};
     // UI
     p.push();
       
       //drawMinimap(p,map,4)
-      drawDebugInfo(p,car,scale);
-      drawMeters(p,car, scale);
-      drawCoinsTimer(p,scale);
-      ItemsManager.shieldDisplayBar(p,scale);
-      
+
+      // Only draws debug if debug is clicked
+      if (window.debug)
+        drawDebugInfo(p,car);
+      drawMeters(p,car);
+      drawCoinsTimer(p);
+      ItemsManager.shieldDisplayBar(p);
+      drawInventory(p, scale);
+
       
       
 
@@ -24,56 +23,77 @@ function showHud(p,map,car){
 }
 
 // Draws boost and health meters
-function drawMeters(p,car,scale){
+function drawMeters(p,car){
   // Labels
   p.fill(255);
-  p.textSize(16*windowScale);
-  p.text("Health", 10*windowWidthScale, 18*windowHeightScale);
-  p.text("Boost", 10*windowWidthScale, 65*windowHeightScale);
+  p.textSize(16*window.scale);
+  p.text("Health", 10*window.widthScale, 18*window.heightScale);
+  p.text("Boost", 10*window.widthScale, 65*window.heightScale);
   let maxHealth = (loadPersistentData().stats.health);  
   // Draw Health Bar
   p.fill(50);
-  p.rect(10*windowWidthScale, 20*windowHeightScale, 200*windowWidthScale, 25*windowHeightScale);
-  p.fill(0, 255, 0);
-  p.rect(10*windowWidthScale, 20*windowHeightScale, (car.healthBar/maxHealth)*200*windowWidthScale, 25*windowHeightScale);
+
+
+  p.rect(10*window.widthScale, 20*window.heightScale, 200*window.widthScale, 25*window.heightScale);
+  
+  //color change as health decreases
+  if(car.healthBar < maxHealth/4) //quarter health =  red
+    p.fill(240, 20, 20);
+  else if(car.healthBar < maxHealth /2) //half health =  yellow
+    p.fill(223, 232, 100);
+  else
+    p.fill(0, 255, 0);
+  
+  p.rect(10*window.widthScale, 20*window.heightScale, (car.healthBar/maxHealth)*200*window.widthScale, 25*window.heightScale);
 
   // Draw Boost Meter
   p.fill(50);
-  p.rect(10*windowWidthScale, 67*windowHeightScale, 200*windowWidthScale, 25*windowHeightScale);
+  p.rect(10*window.widthScale, 67*window.heightScale, 200*window.widthScale, 25*window.heightScale);
   p.fill(255, 165, 0);
-  console.log("boost" + car.boostMeter);
-  p.rect(10*windowWidthScale, 67*windowHeightScale, car.boostMeter * 2 * windowWidthScale, 25*windowHeightScale);
+
+
+  //console.log("boost" + car.boostMeter);
+  p.rect(10*window.widthScale, 67*window.heightScale, car.boostMeter * 2 * window.widthScale, 25*window.heightScale);
+
 
 }
 
 // Draws the framerate and car position
-function drawDebugInfo(p,car,scale){
+function drawDebugInfo(p,car){
   // Frame Rate
-  p.textSize(14*windowScale);
+  p.textSize(14*window.scale);
   p.textAlign(p.LEFT, p.BOTTOM);
   p.fill(0);
   p.fps = p.frameRate();
-  p.text("Frames: " + Math.round(p.fps), 10*windowWidthScale ,p.height-22*windowHeightScale);
+  p.text("Frames: " + Math.round(p.fps), 10*window.widthScale ,p.height-22*window.heightScale);
   // debug positional for car
   if (car) {
-    p.textSize(12*windowScale);
+    p.textSize(12*window.scale);
     p.textAlign(p.LEFT, p.BOTTOM);
     p.fill(0);
-    p.text(`Car: (${Math.round(car.position.x/gridSize)}, ${Math.round(car.position.y/gridSize)})`, 10*windowWidthScale, p.height - 10*windowHeightScale);
+    p.text(`Car: (${Math.round(car.position.x/gridSize)}, ${Math.round(car.position.y/gridSize)})`, 10*window.widthScale, p.height - 10*window.heightScale);
     }
 }
 
-function drawCoinsTimer(p,scale){
+function drawCoinsTimer(p){
   p.push();
-    p.textSize(16*windowScale);
+    p.textSize(16*window.scale);
     p.fill(255);
     p.textAlign(p.CENTER, p.TOP);
     let secondsElapsed = ((p.millis() - p.startTime) / 1000).toFixed(1);
-    p.text(`Time: ${secondsElapsed} sec`, p.width/2 - 10*windowWidthScale, 10*windowHeightScale);
-    p.text(`Coins: ${window.coinsCollected}`, p.width/2 - 10*windowWidthScale, 30*windowHeightScale);
+    p.text(`Time: ${secondsElapsed} sec`, p.width/2 - 10*window.widthScale, 10*window.heightScale);
+    p.text(`Coins: ${window.coinsCollected}`, p.width/2 - 10*window.widthScale, 30*window.heightScale);
   p.pop();
 }
+function drawInventory(p, scale){
+  p.push(); //Bombs
+    p.textSize(16*windowScale);
+    p.fill(255);
+    p.textAlign(p.RIGHT, p.TOP);
+    p.text(`Bomb Inventory: ${bombInventory}`, p.width - 10*windowWidthScale,  10*windowHeightScale);
+  p.pop();
 
+}
 
 /*
 function drawMinimap(p, map, tileSize) {

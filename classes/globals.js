@@ -10,6 +10,9 @@ function loadGlobals(p) {
   loadSoundEffects(p);
   loadButtons(p);
   loadAnimations(p);
+  window.widthScale = p.windowWidth/1920;
+  window.heightScale = p.windowHeight/1080;
+  window.scale = (window.heightScale + window.widthScale) /2 ;
   window.buildingImg = p.loadImage("assets/building.png");
   window.difficulty = 1.0;
   window.debug = false;
@@ -120,6 +123,15 @@ function loadAnimations(p) {
   window.animations["wrench"].push(p.loadImage("graphics/wenchAnimation/wrench3.png"));
   window.animations["wrench"].push(p.loadImage("graphics/wenchAnimation/wrench4.png"));
 
+  window.animations["bomb"] = [];
+  window.animations["bomb"].push(p.loadImage("graphics/bombAnimation/bomb1.png"));
+  window.animations["bomb"].push(p.loadImage("graphics/bombAnimation/bomb2.png"));
+  window.animations["bomb"].push(p.loadImage("graphics/bombAnimation/bomb3.png"));
+  window.animations["bombExplosion"] = [];
+  window.animations["bombExplosion"].push(p.loadImage("graphics/bombAnimation/bomb4.png"));
+  window.animations["bombExplosion"].push(p.loadImage("graphics/bombAnimation/bomb5.png"));
+  window.animations["bombExplosion"].push(p.loadImage("graphics/bombAnimation/bomb6.png"));
+
   console.log("animations loaded");
 }
 
@@ -145,7 +157,6 @@ window.loadMapAssets = function(p) {
   window.categoryButtonHeight = 40;
   window.categoryButtonsHeight = window.categories.length * window.categoryButtonHeight + 20;
   window.thumbnailsAreaY = window.categoryButtonsHeight;
-
   window.categoryLayers = {
     'Terrain': 0,
     'Roads': 1,
