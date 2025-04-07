@@ -116,19 +116,19 @@ function TitleSketch(p) {
     }, "blue")
   );
   buttons.push(
-    new Button("Map Editor", 1750 * window.widthScale, 969*window.heightScale, p.width, p.height, function () {
+    new Button("Map Editor", 1750 * window.widthScale, 1040*window.heightScale, p.width, p.height, function () {
       switchSketch(Mode.MAP_EDITOR);
     }, "blue")
   );
 
   buttons.push(
-    new Button("Signup", 1750*window.widthScale, 810*window.heightScale, p.width, p.height, function () {
+    new Button("Signup", 1750*window.widthScale, 780*window.heightScale, p.width, p.height, function () {
       switchSketch(Mode.SIGNUP);
     }, "blue")
   );
 
   buttons.push(
-    new Button("Login", p.width*7.4 / 8, p.height - p.height * 0.15, p.width, p.height, function () {
+    new Button("Login", 1750*window.widthScale, 910*window.heightScale, p.width, p.height, function () {
       switchSketch(Mode.LOGIN);
     }, "blue")
   );

@@ -76,6 +76,17 @@ function generateGenMap(p, rows, cols) {
   drawBezierRoad(p,20,105,80,100,75,75,roadSizes.normal)
 }
 
+function generateCityMap(p, rows, cols) {
+  // Initialize the map with Grass.
+  // grassImg = p.loadImage("assets/mapBuildier/Terrain/terr04.png");
+  for (let y = 0; y < rows; y++) {
+    map[y] = [];
+    for (let x = 0; x < cols; x++) {
+      map[y][x] = new Grass(p, x * gridSize + gridSize / 2, y * gridSize+ gridSize / 2, gridSize, gridSize, null);
+    }
+  }
+
+}
 
 function drawLake(p, xStart, yStart, xEnd, yEnd) {
   if(!canPlaceBuilding(p,xStart,yStart,xEnd,yEnd)) return;
@@ -274,13 +285,16 @@ function fillShopsDynamically(p, xPosStart, yPosStart, xPosEnd, yPosEnd) {
   // Check if a tile is adjacent to a road but maintains a 1-tile gap
 function isAdjacentToRoad(p, x, y) {
   return (
-    (map[y - 2] && map[y - 2][x] instanceof Road) ||
-    (map[y + 2] && map[y + 2][x] instanceof Road) ||
-    (map[y][x - 2] && map[y][x - 2] instanceof Road) ||
-    (map[y][x + 2] && map[y][x + 2] instanceof Road)
+    (map[y - 1] && map[y - 1][x] instanceof Road) || // Above
+    (map[y + 1] && map[y + 1][x] instanceof Road) || // Below
+    (map[y][x - 1] && map[y][x - 1] instanceof Road) || // Left
+    (map[y][x + 1] && map[y][x + 1] instanceof Road) || // Right
+    (map[y - 2] && map[y - 2][x] instanceof Road) || // Two tiles above
+    (map[y + 2] && map[y + 2][x] instanceof Road) || // Two tiles below
+    (map[y][x - 2] && map[y][x - 2] instanceof Road) || // Two tiles left
+    (map[y][x + 2] && map[y][x + 2] instanceof Road) // Two tiles right
   );
 }
-
   // Ensure space is free for the building, considering gaps
 function canPlaceBuilding(p, xStart, yStart, xEnd, yEnd) {
   for (let y = yStart - 1; y <= yEnd; y++) {

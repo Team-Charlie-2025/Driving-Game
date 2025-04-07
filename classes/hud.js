@@ -87,10 +87,10 @@ function drawCoinsTimer(p){
 }
 function drawInventory(p, scale){
   p.push(); //Bombs
-    p.textSize(16*windowScale);
+    p.textSize(16*window.scale);
     p.fill(255);
     p.textAlign(p.RIGHT, p.TOP);
-    p.text(`Bomb Inventory: ${bombInventory}`, p.width - 10*windowWidthScale,  10*windowHeightScale);
+    p.text(`Bomb Inventory: ${bombInventory}`, p.width - 10*window.widthScale,  10*window.heightScale);
   p.pop();
 
 }
