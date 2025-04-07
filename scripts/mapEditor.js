@@ -1,6 +1,13 @@
 // mapEditor.js
 
 function MapEditorSketch(p) {
+
+  function getEffectiveDimensions(img, rotation) {
+    const origW = Math.ceil(img.width / window.gridSize) * window.gridSize;
+    const origH = Math.ceil(img.height / window.gridSize) * window.gridSize;
+    return { w: origW, h: origH };
+  }
+
   p.preload = function() {
     window.loadMapAssets(p);
   };
@@ -9,6 +16,12 @@ function MapEditorSketch(p) {
     p.createCanvas(p.windowWidth, p.windowHeight);
     createAssetTabs();
     updateThumbnails();
+
+    window.onlyShowLayerCheckbox = p.createCheckbox("Only Show Selected Layer", false);
+    window.onlyShowLayerCheckbox.position(window.assetPanelWidth + 10, 10);
+    window.onlyShowLayerCheckbox.changed(() => {
+      window.onlyShowCurrentLayer = window.onlyShowLayerCheckbox.checked();
+    });
 
     window.hasColliderCheckbox = p.createCheckbox("hasCollider", false);
     window.hasColliderCheckbox.position(window.assetPanelWidth + 10, 40);
@@ -45,7 +58,6 @@ function MapEditorSketch(p) {
     window.LoadingScreen.hide();
   };
 
-
   function createAssetTabs() {
     let xPos = 10;
     let yPos = 10;
@@ -65,55 +77,6 @@ function MapEditorSketch(p) {
     window.thumbnails = window.assets[window.currentTab];
     window.selectedTile = null;
   }
-  
-  function getEffectiveDimensions(img, rotation) {
-    const origW = Math.ceil(img.width / window.gridSize) * window.gridSize;
-    const origH = Math.ceil(img.height / window.gridSize) * window.gridSize;
-    if (rotation % 180 !== 0) {
-      return { w: origH, h: origW };
-    }
-    return { w: origW, h: origH };
-  }
-
-  p.draw = function() {
-    p.background(220);
-    drawGrid();
-    drawPlacedTiles();
-    drawMouseOver();
-    drawAssetPanel();
-
-    if (window.selectedTile) {
-      let { w: previewW, h: previewH } = getEffectiveDimensions(window.selectedTile.img, window.selectedTile.rotation);
-      p.push();
-      p.translate(p.mouseX + 10 + previewW / 2, p.mouseY + 10 + previewH / 2);
-      p.rotate(window.selectedTile.rotation * p.PI / 180);
-      p.tint(255, 200);
-      p.image(window.selectedTile.img, -previewW / 2, -previewH / 2, previewW, previewH);
-      p.pop();
-    }
-  };
-
-  function drawMouseOver(){
-    if (window.selectedTile) {
-      let offset = getGridOffset();
-      if (
-        p.mouseX >= offset.x &&
-        p.mouseX <= offset.x + offset.gridWidth &&
-        p.mouseY >= offset.y &&
-        p.mouseY <= offset.y + offset.gridHeight
-      ) {
-        const snappedX = offset.x + Math.floor((p.mouseX - offset.x) / window.gridSize) * window.gridSize;
-        const snappedY = offset.y + Math.floor((p.mouseY - offset.y) / window.gridSize) * window.gridSize;
-        let { w: shadowW, h: shadowH } = getEffectiveDimensions(window.selectedTile.img, window.selectedTile.rotation);
-        p.push();
-        p.translate(snappedX + shadowW / 2, snappedY + shadowH / 2);
-        p.rotate(window.selectedTile.rotation * p.PI / 180);
-        p.tint(255, 100); 
-        p.image(window.selectedTile.img, -shadowW / 2, -shadowH / 2, shadowW, shadowH);
-        p.pop();
-      }
-    }
-  }
 
   function getGridOffset() {
     const gridWidth = window.mapCols * window.gridSize;
@@ -129,10 +92,12 @@ function MapEditorSketch(p) {
   function drawGrid() {
     let offset = getGridOffset();
     p.stroke(180);
-    for (let x = offset.x; x <= offset.x + offset.gridWidth; x += window.gridSize)
+    for (let x = offset.x; x <= offset.x + offset.gridWidth; x += window.gridSize) {
       p.line(x, offset.y, x, offset.y + offset.gridHeight);
-    for (let y = offset.y; y <= offset.y + offset.gridHeight; y += window.gridSize)
+    }
+    for (let y = offset.y; y <= offset.y + offset.gridHeight; y += window.gridSize) {
       p.line(offset.x, y, offset.x + offset.gridWidth, y);
+    }
     p.noFill();
     p.stroke(0);
     p.rect(offset.x, offset.y, offset.gridWidth, offset.gridHeight);
@@ -140,6 +105,9 @@ function MapEditorSketch(p) {
 
   function drawPlacedTiles() {
     window.placedTiles.sort((a, b) => a.layer - b.layer).forEach(tile => {
+      if (window.onlyShowCurrentLayer && tile.layer !== window.getLayerForCategory(window.currentTab)) {
+        return;
+      }
       p.push();
       p.translate(tile.x + tile.w / 2, tile.y + tile.h / 2);
       p.rotate(tile.rotation * p.PI / 180);
@@ -152,6 +120,46 @@ function MapEditorSketch(p) {
       p.pop();
     });
   }
+
+  function drawMouseOver() {
+    if (window.selectedTile) {
+      let offset = getGridOffset();
+      if (
+        p.mouseX >= offset.x &&
+        p.mouseX <= offset.x + offset.gridWidth &&
+        p.mouseY >= offset.y &&
+        p.mouseY <= offset.y + offset.gridHeight
+      ) {
+        const snappedX = offset.x + Math.floor((p.mouseX - offset.x) / window.gridSize) * window.gridSize;
+        const snappedY = offset.y + Math.floor((p.mouseY - offset.y) / window.gridSize) * window.gridSize;
+        let { w: effectiveW, h: effectiveH } = getEffectiveDimensions(window.selectedTile.img, window.selectedTile.rotation);
+        p.push();
+        p.translate(snappedX + effectiveW / 2, snappedY + effectiveH / 2);
+        p.rotate(window.selectedTile.rotation * p.PI / 180);
+        p.tint(255, 100);
+        p.image(window.selectedTile.img, -effectiveW / 2, -effectiveH / 2, effectiveW, effectiveH);
+        p.pop();
+      }
+    }
+  }
+
+  p.draw = function() {
+    p.background(220);
+    drawGrid();
+    drawPlacedTiles();
+    drawMouseOver();
+    drawAssetPanel();
+
+    if (window.selectedTile) {
+      let { w: effectiveW, h: effectiveH } = getEffectiveDimensions(window.selectedTile.img, window.selectedTile.rotation);
+      p.push();
+      p.translate(p.mouseX + 10 + effectiveW / 2, p.mouseY + 10 + effectiveH / 2);
+      p.rotate(window.selectedTile.rotation * p.PI / 180);
+      p.tint(255, 200);
+      p.image(window.selectedTile.img, -effectiveW / 2, -effectiveH / 2, effectiveW, effectiveH);
+      p.pop();
+    }
+  };
 
   function drawAssetPanel() {
     p.push();
@@ -170,9 +178,16 @@ function MapEditorSketch(p) {
       p.stroke(0);
       p.noFill();
       p.rect(thumbX, thumbY, window.thumbnailSize, window.thumbnailSize);
-      if (img.width > 0) p.image(img, thumbX, thumbY, window.thumbnailSize, window.thumbnailSize);
+      if (img.width > 0) {
+        p.image(img, thumbX, thumbY, window.thumbnailSize, window.thumbnailSize);
+      }
 
-      if (window.selectedTile && window.selectedTile.img === img && window.selectedTile.category === window.currentTab && window.selectedTile.index === i) {
+      if (
+        window.selectedTile &&
+        window.selectedTile.img === img &&
+        window.selectedTile.category === window.currentTab &&
+        window.selectedTile.index === i
+      ) {
         p.noFill();
         p.stroke(255, 0, 0);
         p.rect(thumbX, thumbY, window.thumbnailSize, window.thumbnailSize);
@@ -224,7 +239,7 @@ function MapEditorSketch(p) {
           snappedY < tile.y + tile.h &&
           snappedY + effectiveH > tile.y
         ) {
-          return; 
+          return;
         }
       }
     }
@@ -285,7 +300,7 @@ function MapEditorSketch(p) {
     let visited = {};
     let key = (c, r) => `${c},${r}`;
     
-    queue.push({col: startCol, row: startRow});
+    queue.push({ col: startCol, row: startRow });
     visited[key(startCol, startRow)] = true;
     
     const tileLayer = window.getLayerForCategory(window.selectedTile.category);
@@ -306,10 +321,10 @@ function MapEditorSketch(p) {
         });
         
         let neighbors = [
-          {col: cell.col + 1, row: cell.row},
-          {col: cell.col - 1, row: cell.row},
-          {col: cell.col, row: cell.row + 1},
-          {col: cell.col, row: cell.row - 1}
+          { col: cell.col + 1, row: cell.row },
+          { col: cell.col - 1, row: cell.row },
+          { col: cell.col, row: cell.row + 1 },
+          { col: cell.col, row: cell.row - 1 }
         ];
         
         for (let n of neighbors) {
@@ -348,9 +363,11 @@ function MapEditorSketch(p) {
     
     if (targetTile) {
       window.placedTiles = window.placedTiles.filter(tile => {
-        return !(tile.layer === activeLayer &&
-                 tile.category === targetTile.category &&
-                 tile.index === targetTile.index);
+        return !(
+          tile.layer === activeLayer &&
+          tile.category === targetTile.category &&
+          tile.index === targetTile.index
+        );
       });
     }
   }
@@ -446,8 +463,7 @@ function MapEditorSketch(p) {
       if (window.selectedTile) {
         window.selectedTile.rotation = window.currentRotation;
       }
-    }
-    else if (p.keyCode === p.ESCAPE) {
+    } else if (p.keyCode === p.ESCAPE) {
       switchSketch(Mode.TITLE);
     }
   };

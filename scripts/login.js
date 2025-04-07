@@ -78,7 +78,7 @@ function LoginSketch(p) {
 
   p.mousePressed = function () {
       if (ExitIcon.isMouseOver(p)) {
-          bgMusic.stop();
+        bgMusic(Mode.TITLE, p, "stop");
           ExitIcon.callback();
       }
   };
