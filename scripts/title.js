@@ -1,5 +1,4 @@
 // scripts/title.js
-
 function TitleSketch(p) {
   let buttons = [];
   let levelButtons = [];

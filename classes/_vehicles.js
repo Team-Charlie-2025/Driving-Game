@@ -207,17 +207,15 @@ class Car extends GameObject {
   getHealth(){
     return this.healthBar;
   }
-  
-
 }
 
-class Enemy extends Car {
+class Enemy extends Car{
   constructor(p, x, y, target) {
     const stats = {
-      acceleration: 0.4 * window.difficulty,
-      maxSpeed: 4.5 * window.difficulty,
+      acceleration: 0.8 * window.difficulty,
+      maxSpeed: 7.0 * window.difficulty,
       health: 100 * window.difficulty,
-      friction: 0.05 
+      friction: 0.03
     };
     
     super(p, x, y, stats);
@@ -227,92 +225,158 @@ class Enemy extends Car {
     this.attackCooldown = 1500 / window.difficulty;
     this.currentImage = p.enemyImg;
     this.removeFromWorld = false;
+    
+    this.baseAcceleration = stats.acceleration;
+    this.baseMaxSpeed = stats.maxSpeed;
 
-      // Movement properties
-      this.velocity = p.createVector(0, 0);
-      this.maxForce = 0.3;
-      this.desired = p.createVector(0, 0);
-      this.steer = p.createVector(0, 0);
+    // Movement properties
+    this.velocity = p.createVector(0, 0);
+    this.maxForce = 0.8;         // How quickly it can change direction
+    this.turnRadius = 0.8;       // Turn radius control (lower = wider turns)
+    this.desired = p.createVector(0, 0);
+    this.steer = p.createVector(0, 0);
+    
+    // Visual scale to make vehicles visually distinct
+    this.visualScale = 1.0;
 
-      if (this.currentImage) {
-        this.width = 64;
-        this.height = 64;
-        this.collider = new Collider(
-          this,
-          "polygon",
-          { offsetX: -32, offsetY: -32 },
-          this.currentImage
-        );
-      } else {
-        // fallback rectangle
-        this.width = carWidth;
-        this.height = carHeight;
-        this.collider = new Collider(this, "rectangle", {
-          width: this.width,
-          height: this.height,
-          offsetX: -this.width / 2,
-          offsetY: -this.height / 2,
-        });
-      }
-    }
-  
-    update() {
-      if (!this.target || this.controlDisabled) return;
-  
-      // Calculate desired direction to target
-      this.desired = p5.Vector.sub(this.target.position, this.position);
-      this.desired.setMag(this.maxSpeed);
-  
-      // Calculate steering force
-      this.steer = p5.Vector.sub(this.desired, this.velocity);
-      this.steer.limit(this.maxForce);
-      this.velocity.add(this.steer);
-      
-      // Apply friction
-      this.velocity.mult(1 - this.friction);
-      
-      // Limit final velocity
-      this.velocity.limit(this.maxSpeed);
-  
-      // Update position
-      this.position.add(this.velocity);
-  
-      // Update angle to face movement direction
-      if (this.velocity.mag() > 0.1) {
-        this.angle = this.velocity.heading();
-      }
-  
-      // Boundary check
-      const margin = 2000;
-      if (this.position.x < -margin || this.position.x > mapSize * gridSize + margin ||
-          this.position.y < -margin || this.position.y > mapSize * gridSize + margin) {
-        this.removeFromWorld = true;
-      }
-    }
-  
-    onCollisionEnter(other) {
-      //super.onCollisionEnter(other);
-      if (other instanceof Car) { //upon ememy collision
-        let damage = 10;
-        this.healthBar = Math.max(0, this.healthBar - damage);
-      }
-      if (other instanceof Car && Date.now() - this.lastAttack > this.attackCooldown) {
-        this.lastAttack = Date.now();
-  
-        // Add knockback
-        const knockbackForce = 7 * window.difficulty;
-        other.position.x += knockbackForce * this.p.cos(this.angle);
-        other.position.y += knockbackForce * this.p.sin(this.angle);
-      }
-      //prevent enemy overlap
-      if (other instanceof Enemy) {
-        let separation = p5.Vector.sub(this.position, other.position);
-        separation.setMag(5);  //push apart
-        this.position.add(separation);
-      }
+    if (this.currentImage) {
+      this.width = 64 * this.visualScale;
+      this.height = 64 * this.visualScale;
+      this.collider = new Collider(
+        this,
+        "polygon",
+        { offsetX: -32 * this.visualScale, offsetY: -32 * this.visualScale },
+        this.currentImage
+      );
+    } else {
+      this.width = carWidth * this.visualScale;
+      this.height = carHeight * this.visualScale;
+      this.collider = new Collider(this, "rectangle", {
+        width: this.width,
+        height: this.height,
+        offsetX: -this.width / 2,
+        offsetY: -this.height / 2,
+      });
     }
   }
-  // Truck: Slower, sharper turns, more damage
+  
+  update() {
+    if (!this.target || this.controlDisabled) return;
+
+    let terrainType = getTileTypeAt(this.position.x, this.position.y);
+
+    if (window.difficulty <= 1.0 && terrainType === "grass") {
+      this.acceleration = this.baseAcceleration * 0.65;
+      this.maxSpeed = this.baseMaxSpeed * 0.65;
+    } else {
+      this.acceleration = this.baseAcceleration;
+      this.maxSpeed = this.baseMaxSpeed;
+    }
+    //console.log(`Max Speed: ${this.maxSpeed.toFixed(2)}`);
+
+    // Calculate desired direction to target
+    this.desired = p5.Vector.sub(this.target.position, this.position);
+    
+    // Apply turn radius limitation by adding an intermediate target
+    if (this.turnRadius > 0) {
+      // Get current direction and desired direction
+      const currentDir = p5.Vector.fromAngle(this.angle);
+      const desiredDir = this.desired.copy().normalize();
+      
+      // Calculate angle between current and desired direction
+      let angleDiff = this.p.atan2(
+        currentDir.x * desiredDir.y - currentDir.y * desiredDir.x,
+        currentDir.x * desiredDir.x + currentDir.y * desiredDir.y
+      );
+      
+      // Limit the angle change based on turn radius
+      const maxAngleChange = this.turnRadius;
+      angleDiff = this.p.constrain(angleDiff, -maxAngleChange, maxAngleChange);
+      
+      // Create a new direction based on the limited angle change
+      const newDir = p5.Vector.fromAngle(this.angle + angleDiff);
+      newDir.setMag(this.desired.mag());
+      this.desired = newDir;
+    }
+    
+    this.desired.setMag(this.maxSpeed);
+  
+    // Calculate steering force
+    this.steer = p5.Vector.sub(this.desired, this.velocity);
+    this.steer.limit(this.maxForce);
+    
+    // Apply acceleration
+    // this.steer.mult(this.acceleration);
+    this.velocity.add(this.steer);
+    
+    // Apply friction
+    this.velocity.mult(1 - this.friction);
+    
+    // Limit final velocity
+    this.velocity.limit(this.maxSpeed);
+  
+    // Update position
+    this.position.add(this.velocity);
+  
+    // Update angle to face movement direction
+    if (this.velocity.mag() > 0.1) {
+      this.angle = this.velocity.heading();
+    }
+  
+    // Boundary check
+    const margin = 2000;
+    if (this.position.x < -margin || this.position.x > mapSize * gridSize + margin ||
+        this.position.y < -margin || this.position.y > mapSize * gridSize + margin) {
+      this.removeFromWorld = true;
+    }
+  }
+  
+  onCollisionEnter(other) {
+    // Only apply damage if the collided object is the player car (not an Enemy)
+    
+    // Enemy takes damage when hit by player car
+    if (other instanceof Car && !(other instanceof Enemy)) {
+      let damage = other.attackDamage;
+      this.healthBar = Math.max(0, this.healthBar - damage);
+    }
+    
+    // Handle enemy-enemy collisions without damage
+    else if (other instanceof Enemy) {
+      let separation = p5.Vector.sub(this.position, other.position);
+      separation.setMag(5);  // Push enemies apart to avoid overlap
+      this.position.add(separation);
+    }
+    else if(other instanceof Bomb){
+      let damage = other.attackDamage;
+      this.healthBar = Math.max(0, this.healthBar - damage);
+
+    }
+  }
+  
+  // Override default display method to apply visual scale
+  display() {
+    const p = this.p;
+    p.push();
+    p.translate(this.position.x, this.position.y);
+    p.rotate(this.angle);
+
+    if (this.currentImage) {
+      p.image(this.currentImage, 
+              -this.width / 2, 
+              -this.height / 2, 
+              this.width, 
+              this.height);
+    } else {
+      // fallback rectangle
+      p.fill(0);
+      p.rect(-this.width / 2, -this.height / 2, this.width, this.height);
+    }
+
+    p.pop();
+  }
+}
+
+// Truck: Slower, sharper turns, more damage
 class Truck extends Enemy {
   constructor(p, x, y, target) {
     super(p, x, y, target);
@@ -320,6 +384,8 @@ class Truck extends Enemy {
     // Movement properties
     this.acceleration = 0.5 * window.difficulty;  // slow acceleration
     this.maxSpeed = 6 * window.difficulty;       // slow max speed
+    this.baseAcceleration = this.acceleration;
+    this.baseMaxSpeed = this.maxSpeed;
     this.maxForce = 0.2;                           // Less force
     this.turnRadius = 0.8;                        // SMALL turn radius = sharp turns
     this.friction = 0.03;                          // Less friction
@@ -359,6 +425,8 @@ class Motorcycle extends Enemy {
     // Movement properties
     this.acceleration = 0.8 * window.difficulty;   // High acceleration
     this.maxSpeed = 11.0 * window.difficulty;       // High max speed
+    this.baseAcceleration = this.acceleration;
+    this.baseMaxSpeed = this.maxSpeed;
     this.maxForce = 0.5;                           // More force
     this.turnRadius = 0.08;                        // LARGE turn radius = wide turns
     this.friction = 0.05;                          // Medium friction
