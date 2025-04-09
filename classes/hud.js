@@ -126,9 +126,28 @@ function drawInventory(p, scale){
     p.text(`Bombs: ${bombInventory}`, centerX, centerY);
   p.pop();
 
-  p.push(); //coins
+  p.push(); //Oils
+    backingWidth = 150 * window.widthScale;
+    backingHeight = 50 * window.heightScale;
     imageX = p.width - 10 * window.widthScale - backingWidth;
     imageY = 60 * window.heightScale - backingHeight / 2;
+  
+    p.image(window.displayBacking, imageX, imageY, backingWidth, backingHeight);
+  
+    // Center of the image
+    centerX = imageX + backingWidth / 2;
+    centerY = imageY + backingHeight / 2;
+  
+    p.textSize(16 * window.scale);
+    p.fill(255);
+    p.textAlign(p.CENTER, p.CENTER);
+    p.text(`Oil: ${oilInventory}`, centerX, centerY);
+  p.pop();
+
+
+  p.push(); //coins
+    imageX = p.width - 10 * window.widthScale - backingWidth;
+    imageY = 100 * window.heightScale - backingHeight / 2;
   
     p.image(window.displayBacking, imageX, imageY, backingWidth, backingHeight);
   
