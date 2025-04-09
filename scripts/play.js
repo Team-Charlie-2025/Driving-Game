@@ -123,26 +123,22 @@ function PlaySketch(p) {
       "Resume",
       p.width / 2,
       resumeButtonY,
-      p.width,
-      p.height,
       function() {
         togglePause();
       },
-      "green"
+      "green", "medium"
     );
     
     pauseMainMenuButton = new Button(
       "Main Menu",
       p.width / 2,
       mainMenuButtonY,
-      p.width,
-      p.height,
       function() {
         bgMusic(Mode.PLAY, p, "stop");
         clearInterval(window.enemySpawnInterval);
         switchSketch(Mode.TITLE);
       },
-      "red"
+      "red", "medium"
     );
   }
 

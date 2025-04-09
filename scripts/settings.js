@@ -30,8 +30,6 @@ function SettingsSketch(p){
       "ExitIcon",
       p.width - p.width * 0.05,
       p.height - p.height * 0.95,
-      p.width,
-      p.height,
       function() {
         bgMusic(Mode.SETTINGS, p, "stop");
         switchSketch(Mode.TITLE);

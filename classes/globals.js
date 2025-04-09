@@ -94,6 +94,8 @@ function loadButtons(p){
     window.basicButton["orange"] = p.loadImage("graphics/basicButton/oranButton.png");
     window.basicButton["red"] = p.loadImage("graphics/basicButton/redButton.png");
     window.basicButton["yellow"] = p.loadImage("graphics/basicButton/yellButton.png");
+    window.basicButton["purple"] = p.loadImage("graphics/basicButton/purpButton.png");
+    window.basicButton["teal"] = p.loadImage("graphics/basicButton/tealButton.png");
 
     window.PixelFont = p.loadFont('graphics/pixelFont.ttf');
 

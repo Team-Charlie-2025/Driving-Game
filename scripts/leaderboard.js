@@ -8,7 +8,7 @@ function LeaderboardSketch(p) {
       p.textSize(48);
       p.fill(50);
   
-      ExitIcon = new Button("ExitIcon", p.width - p.width * 0.05, p.height - p.height * 0.95, p.width, p.height, function () { 
+      ExitIcon = new Button("ExitIcon", p.width - p.width * 0.05, p.height - p.height * 0.95, function () { 
           switchSketch(Mode.TITLE);
       });
 

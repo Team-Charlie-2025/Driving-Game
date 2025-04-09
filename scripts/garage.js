@@ -50,7 +50,7 @@ function GarageSketch(p) {
 
   p.setup = function () {
     p.createCanvas(p.windowWidth, p.windowHeight);
-    ExitIcon = new Button("ExitIcon", p.width - p.width * 0.05, p.height - p.height * 0.95, p.width, p.height, () => switchSketch(Mode.TITLE));
+    ExitIcon = new Button("ExitIcon", p.width - p.width * 0.05, p.height - p.height * 0.95, () => switchSketch(Mode.TITLE));
 
     resetUpgradeButton = new Button("Reset", 80, p.height / 2, resetUpgrades, "gray");
 
