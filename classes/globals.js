@@ -15,7 +15,7 @@ function loadGlobals(p) {
   window.scale = (window.heightScale + window.widthScale) /2 ;
   window.buildingImg = p.loadImage("assets/building.png");
   window.difficulty = 1.0;
-  window.debug = true;
+  window.debug = false;
   globalsLoaded = true;
 }
 
@@ -80,8 +80,7 @@ function loadTires(p) {
 
 function loadButtons(p){
     //////////title screen//////////
-    window.playButton = p.loadImage("graphics/titleScreen/playButton.png");
-    window.garageButton = p.loadImage("graphics/titleScreen/garageButton.png");
+    window.displayBacking= p.loadImage("graphics/displayBacking.png");
     window.leaderButton = p.loadImage("graphics/titleScreen/leaderboardButton.png");
     window.setButton = p.loadImage("graphics/titleScreen/settingButton.png");
 

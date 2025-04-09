@@ -29,7 +29,6 @@ function TitleSketch(p) {
       window.debug = false;
     }
     debugCheckbox = p.createCheckbox("Debug", window.debug);
-    debugCheckbox.checked(false)
     debugCheckbox.position(10*window.widthScale, 10*window.heightScale);
     debugCheckbox.changed(() => {
       window.debug = debugCheckbox.checked();
