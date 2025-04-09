@@ -96,7 +96,8 @@ function loadButtons(p){
     window.basicButton["purple"] = p.loadImage("graphics/basicButton/purpButton.png");
     window.basicButton["teal"] = p.loadImage("graphics/basicButton/tealButton.png");
 
-    window.PixelFont = p.loadFont('graphics/pixelFont.ttf');
+    window.PixelFont = p.loadFont('assets/fonts/pixelFont.ttf');
+    window.FatPixelFont = p.loadFont('assets/fonts/ThaleahFat.ttf')
 
   console.log("buttons loaded");
 }

@@ -130,27 +130,27 @@ function TitleSketch(p) {
 
   function createTitleButtons() {
     buttons.push(
-      new Button("Play", p.width / 2, p.height - p.height * 0.38, function () {
+      new Button("PLAY", p.width / 2, p.height - p.height * 0.38, function () {
         showLevelSelection = true;
       }, "purple", "large")
     );
     buttons.push(
-      new Button("Garage", p.width / 2, p.height - p.height * 0.18, function () {
+      new Button("GARAGE", p.width / 2, p.height - p.height * 0.18, function () {
         switchSketch(Mode.GARAGE);
       }, "teal", "large")
     );
     buttons.push(
-      new Button("Settings", p.width / 7, p.height - p.height * 0.15, function () {
+      new Button("SETTINGS", p.width / 7, p.height - p.height * 0.15, function () {
         switchSketch(Mode.SETTINGS);
       })
     );
     buttons.push(
-      new Button("Leaderboard", p.width / 1.2, p.height - p.height * 0.90, function () {
+      new Button("LEADERBOARD", p.width / 1.2, p.height - p.height * 0.90, function () {
         switchSketch(Mode.LEADERBOARD);
       })
     );
     buttons.push(
-      new Button("Help", p.width / 10, p.height - p.height * 0.97, function () {
+      new Button("HELP", p.width / 10, p.height - p.height * 0.97, function () {
         toggleInfo();
       }, "blue")
     );

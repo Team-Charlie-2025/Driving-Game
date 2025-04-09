@@ -27,7 +27,7 @@ class Button { //regular rect button class
         return;
 
       }
-      else if(this.label == "Settings" ){ //specfic image for button
+      else if(this.label == "SETTINGS" ){ //specfic image for button
         this.width = 350 * window.widthScale;
         this.height = 200 * window.heightScale;
 
@@ -42,7 +42,7 @@ class Button { //regular rect button class
         p.text(this.label, this.x + this.width/20, this.y + this.height/4.8);
         return;
       }
-      else if(this.label == "Leaderboard" ){ //specfic image for button
+      else if(this.label == "LEADERBOARD" ){ //specfic image for button
         this.width = 500 * window.widthScale;
         this.height = 180 * window.heightScale;
         let drawWidth = this.width * hoverScale;
