@@ -139,7 +139,6 @@ function checkWrenchCollisions(wrenches, car, p) {
   return wrenches.filter(wrench => !wrench.collected);
 }
 
-
 function checkBombCollisions(bombs, car, p) {
   if (!car) return bombs;
   for (let bomb of bombs) {
@@ -153,13 +152,35 @@ function checkBombCollisions(bombs, car, p) {
         bomb.timeHit = p.millis(); //time when hit
         car.onCollisionEnter(bomb);
         console.log ("BOMB HIT");
-        console.log("Time passed:" + (p.millis() - bomb.timeHit));
       }
     }
     if(bomb.timeHit != null && p.millis() - bomb.timeHit >= 300)
         bomb.collected = true; //clears bomb off page
   }
   return bombs.filter(bomb => !bomb.collected);
+}
+
+
+
+function checkOilCollisions(oils, car, p) {
+  if (!car) return oils;
+
+  for (let oil of oils) {
+    if (!oil.collected && oil.collider && oil.collider.intersects(car.collider)) { //there is an oil collision
+
+      if(!oil.placed && !(car instanceof Enemy)){ //user car collect oil obj
+        oil.collected = true;
+        console.log("oil collected");
+        ItemsManager.oilCollected(car);
+      }
+
+      else if (oil.placed){// *active* user placed oil
+        car.onCollisionEnter(oil);
+        console.log ("OIL HIT");
+      }
+    } 
+  }
+  return oils.filter(oil => !oil.collected);  
 }
 
 

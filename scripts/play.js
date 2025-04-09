@@ -11,6 +11,7 @@ function PlaySketch(p) {
   let shields = [];
   let wrenches = [];
   let bombs = [];
+  let oils = [];
   window.coinsCollected = 0;
   window.enemyDestroyedCount = 0;
   
@@ -87,6 +88,8 @@ function PlaySketch(p) {
     console.log("Coins made: " + coins.length);
     createBomb(p, bombs, map);
     console.log("Bombs made: " + bombs.length);
+    createOil(p, oils, map);
+    console.log("Oils made: " + oils.length);
     ///////////////////////////////////////////
     
     // Create pause menu buttons with fixed positioning based on screen percentages
@@ -279,9 +282,11 @@ function PlaySketch(p) {
     shields.forEach(shield => shield.display(isPaused));
     wrenches.forEach(wrench => wrench.display(isPaused));
     bombs.forEach(bomb => bomb.display(isPaused));
+    oils.forEach(oil => oil.display(isPaused));
     
     if (window.debug) {
       bombs.forEach(bomb => bomb.collider.drawOutline());
+      oils.forEach(oil => oil.collider.drawOutline());
       physicsEngine.objects.forEach(obj => {
         if (obj.collider && typeof obj.collider.drawOutline === "function") {
           obj.collider.drawOutline();
@@ -323,6 +328,7 @@ function PlaySketch(p) {
     shields = checkShieldCollisions(shields, car, p);
     wrenches = checkWrenchCollisions(wrenches, car, p);
     bombs = checkBombCollisions(bombs, car, p);
+    oils = checkOilCollisions(oils, car, p);
     
     if (!car) {
       const stats = loadPersistentData().stats;
@@ -343,6 +349,7 @@ function PlaySketch(p) {
       enemy.update();
       checkBuildingCollisions(enemy);
       checkBombCollisions(bombs, enemy, p);
+      checkOilCollisions(oils, enemy, p);
     });
     
     physicsEngine.update();
@@ -372,6 +379,9 @@ function PlaySketch(p) {
     if (!isPaused) {
       if(p.keyCode === getKeyForAction("placebomb")){ 
         ItemsManager.placeBomb(p, car, bombs, isPaused);
+      }
+      if(p.keyCode === getKeyForAction("spilloil")){ 
+        ItemsManager.spillOil(p, car, oils, isPaused);
       }
     }
     

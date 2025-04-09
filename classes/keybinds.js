@@ -6,6 +6,7 @@ let keybindConfig = {
   right: 68,     // 'd'
   drift: 16,      // Shift
   placebomb: 66,  // 'b'
+  spilloil: 72, // 'h'
   pause: 80      // 'p'
 };
 

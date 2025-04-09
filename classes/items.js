@@ -13,6 +13,8 @@ const BombWaitTime = 500; //bomb place time delay
 let BombPlaceTime = null; 
 let bombInventory = 0; //number of bombs player collected 
 
+let oilInventory = 0;
+
 class ItemsManager {
 
     static ItemResetGame(){ //reset times and inventory
@@ -24,6 +26,8 @@ class ItemsManager {
 
       BombPlaceTime = null;
       bombInventory = 0;
+
+      oilInventory =0;
     }
     static ifShield(){
       if(shieldStartTime == null) return false;
@@ -117,6 +121,41 @@ class ItemsManager {
           bombs.push(bombPlaced);
           bombInventory --;
           BombPlaceTime = currentTime;
+        }
+        
+      }
+    }
+    static oilCollected(car){
+      oilInventory ++;
+    }
+    static spillOil(p, car, oils, isPaused = false){
+      if (isPaused) return; // Don't place oils when paused
+      
+      if( oilInventory > 0){ //has oil to spill
+        let oilSize = 25;
+        //////////////////////////oil placement behind car//////////////////////
+        let oilX = car.position.x - (gridSize * p.cos(car.angle)*1.5) - (oilSize/1.5 * p.cos(car.angle));
+        let oilY = car.position.y - (gridSize * p.sin(car.angle)*1.5) - (oilSize/1.5 * p.sin(car.angle));
+
+        let oilPlaced = new Oil(p, oilX , oilY);
+
+        const tileX = Math.floor(oilPlaced.position.x / gridSize);
+        const tileY = Math.floor(oilPlaced.position.y / gridSize);
+        let placeable = true;
+        for (let j = tileY - 1; j <= tileY + 1; j++){
+          for (let i = tileX - 1; i <= tileX + 1; i++){ 
+            if (map[j] && map[j][i] instanceof Building)
+              placeable = false;//position is a building//
+              break;
+          }
+          if(!placeable)
+            break;
+        }
+        if(placeable){//position is not building//
+          oilPlaced.placed = true;
+          //console.log("oil Placed: " + Math.round(oilPlaced.position.x/gridSize) +", " + Math.round(oilPlaced.position.y/gridSize));
+          oils.push(oilPlaced);
+          oilInventory --;
         }
         
       }
@@ -289,5 +328,47 @@ class Bomb extends GameObject {
     if (!isPaused) {
       this.animationStartTime = p.millis();
     }
+  }
+}
+class Oil extends GameObject {
+  constructor(p, x, y, size = 25) {
+    super(x, y);
+    this.p = p;
+    this.size = size;
+    this.collected = false;
+    this.placed = false; //oil puddle
+    this.attackDamage = 0.5 * window.difficulty; //damage from skidding
+    this.collider = new Collider(
+      this,
+      "polygon",
+      { offsetX: -8, offsetY: -9 },
+      window.animations["oil"][0]
+    );
+    this.animationStartTime = p.millis();
+    this.explosionStartTime = null;
+  }
+
+  display(isPaused = false) { 
+    const p = this.p;
+    let oilImg = null;
+    let animationTime = isPaused ? this.animationStartTime : p.millis();
+
+    if (!this.placed) { //animated as a oil container
+      const frameIndex = Math.floor(animationTime / frameDuration) % window.animations["oil"].length;
+      oilImg = window.animations["oil"][frameIndex];
+    }
+    else{ //has been placed, is an oil puddle
+      //const frameIndex = Math.floor(animationTime / frameDuration) % window.animations["oil"].length;
+      //oilImg = window.animations["oil"][frameIndex];
+      oilImg = window.animations["oilSpill"][0];
+    }
+
+    p.push();
+      p.translate(this.position.x, this.position.y);
+      p.imageMode(p.CENTER);
+      p.noStroke();
+      p.image(oilImg, 0, 0, this.size+10, this.size);
+    p.pop();
+    
   }
 }

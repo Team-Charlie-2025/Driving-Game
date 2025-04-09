@@ -134,6 +134,14 @@ function loadAnimations(p) {
   window.animations["bombExplosion"].push(p.loadImage("graphics/bombAnimation/bomb5.png"));
   window.animations["bombExplosion"].push(p.loadImage("graphics/bombAnimation/bomb6.png"));
 
+  window.animations["oil"] = [];
+  window.animations["oil"].push(p.loadImage("graphics/oilAnimation/oil1.png"));
+  window.animations["oil"].push(p.loadImage("graphics/oilAnimation/oil2.png"));
+  window.animations["oil"].push(p.loadImage("graphics/oilAnimation/oil3.png"));
+  window.animations["oil"].push(p.loadImage("graphics/oilAnimation/oil4.png"));
+  window.animations["oilSpill"] = [];
+  window.animations["oilSpill"].push(p.loadImage("graphics/oilAnimation/oilSpill.png"));
+
   console.log("animations loaded");
 }
 
