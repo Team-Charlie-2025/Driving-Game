@@ -120,7 +120,7 @@ function PlaySketch(p) {
     const mainMenuButtonY = p.height * MAIN_MENU_BUTTON_Y_PERCENT;
     
     pauseResumeButton = new Button(
-      "Resume",
+      "RESUME",
       p.width / 2,
       resumeButtonY,
       function() {
@@ -130,7 +130,7 @@ function PlaySketch(p) {
     );
     
     pauseMainMenuButton = new Button(
-      "Main Menu",
+      "MAIN MENU",
       p.width / 2,
       mainMenuButtonY,
       function() {
