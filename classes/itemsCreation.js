@@ -2,6 +2,7 @@ const totalCoins = 500;
 const totalShields = 20;
 const totalWrenches  = 20;
 const totalBombs = 40;
+const totalOils = 40;
 
 let attempts = 0;
 const maxAttempts = 10000; 
@@ -94,5 +95,25 @@ function createBomb(p, bombs, map){
   }
   if (attempts >= maxAttempts && debug) {
     console.log("Max attempts reached while spawning bombs. Bombs spawned: " + bombs.length);
+  }
+}
+function createOil(p, oils, map){
+  attempts = 0;
+  while (oils.length < totalOils && attempts < maxAttempts) {
+    // random map index
+    let randX = Math.floor(p.random(0, map[0].length));
+    let randY = Math.floor(p.random(0, map.length));
+    
+    // checks tile, if road, puts oil in center
+    if (map[randY] && map[randY][randX] instanceof Road) {
+      let oilX = randX * gridSize + gridSize / 2;
+      let oilY = randY * gridSize + gridSize / 2;
+      if (window.debug) console.log(`Spawning oil ${oils.length + 1} at tile (${randX}, ${randY}) with world coordinates (${oilX}, ${oilY})`);
+      oils.push(new Oil(p, oilX, oilY));
+    }
+    attempts++;
+  }
+  if (attempts >= maxAttempts && debug) {
+    console.log("Max attempts reached while spawning oils. oils spawned: " + oils.length);
   }
 }

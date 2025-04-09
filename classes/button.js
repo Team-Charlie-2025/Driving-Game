@@ -1,71 +1,86 @@
 // classes/button.js
 
 class Button { //regular rect button class
-    constructor(label, x, y, winx, winy, callback, color = "na") {
+    constructor(label, x, y, callback, color = "blue", size = "small") {
       this.label = label;
       this.x = x;
       this.y = y;
-      this.winx = winx;
-      this.winy = winy;
       this.width;
       this.height;
       this.callback = callback;
       this.color = color;
+      this.size = size ; //basic small, medium, large
+      this.hoverScale = 1.05;
+      this.textSize;
     }
   
     display(p) {
-      if(this.label == "Play" || this.label == "Garage"){ //label depends on image for title page
-        this.width = 330 * window.widthScale;
-        this.height = 200 * window.heightScale;
-        let buttonImg;
-        if(this.label == "Play")
-          buttonImg = window.playButton;
-        else  
-          buttonImg = window.garageButton;
-        p.image(buttonImg, this.x - this.width / 2, this.y - this.height / 2, this.width, this.height );
+      let isHovered = this.isMouseOver(p); // for responsive buttons (get larger on hover)
+      let hoverScale = isHovered ? this.hoverScale : 1;
 
-      }
-      else if(this.label == "Settings" ){
-        this.width = 350 * window.widthScale;
-        this.height = 215 * window.heightScale;
-        p.image(window.setButton, this.x-this.width/2, this.y-this.height/2, this.width, this.height * 1.8);
-      }
-      else if(this.label == "Leaderboard" ){
-        this.width = 500 * window.widthScale;
-        this.height = 180 * window.heightScale;
-        p.image(window.leaderButton, this.x - this.width / 2, this.y - this.height / 2, this.width, this.height * 1.8);
-      }
-      else if(this.label == "ExitIcon" ){
+      if(this.label == "ExitIcon" ){//specfic image for button
         this.width = 32;
         this.height = 32;
-        p.image(window.exitButton, this.x - this.width / 2, this.y - this.height / 2, this.width, this.height);
+        let drawWidth = this.width * hoverScale;
+        let drawHeight = this.height * hoverScale;
+        p.image(window.exitButton, this.x - drawWidth / 2, this.y - drawHeight / 2, drawWidth, drawHeight);
+        return;
 
       }
-      else if (this.label == "HELP") { // Info button
-        this.width = this.x / 20; 
-        this.height = this.y / 0.9; 
-        let buttonImg  = window.basicButton[this.color];
-        p.image(buttonImg, this.x - this.width / 2, this.y - this.height / 2, this.width, this.height);
+      else if(this.label == "SETTINGS" ){ //specfic image for button
+        this.width = 350 * window.widthScale;
+        this.height = 200 * window.heightScale;
+
+        let drawWidth = this.width * hoverScale;
+        let drawHeight = this.height * hoverScale;
+
+        p.image(window.setButton, this.x-drawWidth /2, this.y-drawHeight/2, drawWidth , drawHeight * 1.8);
 
         p.textFont(window.PixelFont);
-        p.textSize(this.width/8);
+        p.textSize(drawWidth/8);
         p.textAlign(p.CENTER, p.CENTER);
-        p.text(this.label, this.x, this.y);
+        p.text(this.label, this.x + this.width/20, this.y + this.height/4.8);
+        return;
       }
+      else if(this.label == "LEADERBOARD" ){ //specfic image for button
+        this.width = 500 * window.widthScale;
+        this.height = 180 * window.heightScale;
+        let drawWidth = this.width * hoverScale;
+        let drawHeight = this.height * hoverScale;
+        p.image(window.leaderButton, this.x - drawWidth / 2, this.y - drawHeight  / 2, drawWidth, drawHeight  * 1.8);
 
-      //basic button options, based on color and overlay text with pixel font
-      else if (this.color != "na"){
-        this.height = 120 * window.heightScale;
-        this.width = 300 * window.widthScale;
-        let buttonImg  = window.basicButton[this.color];
-
-        p.image(buttonImg, this.x - this.width / 2, this.y - this.height / 2, this.width, this.height);
 
         p.textFont(window.PixelFont);
-        p.textSize(35*window.scale);
+        p.textSize(drawWidth/11);
         p.textAlign(p.CENTER, p.CENTER);
-        p.text(this.label, this.x, this.y);
+        p.text(this.label, this.x+ this.width/75, this.y + this.height/14);
+        return;
       }
+      else if (this.size == "small"){
+        this.width = 125 * window.widthScale;
+        this.height = 40 * window.heightScale;
+        this.textSize = 8;
+      }
+      else if (this.size == "medium"){
+        this.width = 325 * window.widthScale;
+        this.height = 100 * window.heightScale;
+        this.textSize = 9
+      }
+      else if(this.size == "large"){
+        this.width = 375 * window.widthScale;
+        this.height = 140 * window.heightScale;
+        this.textSize = 6;
+      }
+      let buttonImg  = window.basicButton[this.color];
+      let drawWidth = this.width * hoverScale;
+      let drawHeight = this.height * hoverScale;
+      p.image(buttonImg, this.x - drawWidth / 2, this.y - drawHeight / 2, drawWidth, drawHeight);
+
+      p.fill(10);
+      p.textSize(drawWidth/ this.textSize)
+      p.textFont(window.PixelFont);
+      p.textAlign(p.CENTER, p.CENTER);
+      p.text(this.label, this.x, this.y);
       
     }
   

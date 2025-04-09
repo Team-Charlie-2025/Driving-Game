@@ -194,7 +194,12 @@ class Car extends GameObject {
       damage = other.attackDamage;
       damage = ItemsManager.shieldDamage(damage);
       this.healthBar = Math.max(0, this.healthBar - damage);
-
+    }
+    else if(other instanceof Oil){
+      damage = other.attackDamage;
+      damage = ItemsManager.shieldDamage(damage);
+      this.healthBar = Math.max(0, this.healthBar - damage);
+      this.speed = this.speed *0.9;
     }
   }
 
@@ -350,6 +355,11 @@ class Enemy extends Car{
       let damage = other.attackDamage;
       this.healthBar = Math.max(0, this.healthBar - damage);
 
+    }
+    else if(other instanceof Oil){
+      let damage = other.attackDamage;
+      this.healthBar = Math.max(0, this.healthBar - damage);
+      this.maxSpeed = this.maxSpeed *0.1;
     }
   }
   

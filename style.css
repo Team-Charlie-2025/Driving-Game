@@ -22,5 +22,5 @@ canvas {
 
 @font-face { /* load in new font name is PixelFont*/
   font-family: 'PixelFont';
-  src: url('graphics/pixelFont.ttf') format('truetype');
+  src: url('assets/fonts/pixelFont.ttf') format('truetype');
 }

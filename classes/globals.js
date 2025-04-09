@@ -15,7 +15,7 @@ function loadGlobals(p) {
   window.scale = (window.heightScale + window.widthScale) /2 ;
   window.buildingImg = p.loadImage("assets/building.png");
   window.difficulty = 1.0;
-  window.debug = true;
+  window.debug = false;
   globalsLoaded = true;
 }
 
@@ -80,8 +80,7 @@ function loadTires(p) {
 
 function loadButtons(p){
     //////////title screen//////////
-    window.playButton = p.loadImage("graphics/titleScreen/playButton.png");
-    window.garageButton = p.loadImage("graphics/titleScreen/garageButton.png");
+    window.displayBacking= p.loadImage("graphics/displayBacking.png");
     window.leaderButton = p.loadImage("graphics/titleScreen/leaderboardButton.png");
     window.setButton = p.loadImage("graphics/titleScreen/settingButton.png");
 
@@ -94,8 +93,11 @@ function loadButtons(p){
     window.basicButton["orange"] = p.loadImage("graphics/basicButton/oranButton.png");
     window.basicButton["red"] = p.loadImage("graphics/basicButton/redButton.png");
     window.basicButton["yellow"] = p.loadImage("graphics/basicButton/yellButton.png");
+    window.basicButton["purple"] = p.loadImage("graphics/basicButton/purpButton.png");
+    window.basicButton["teal"] = p.loadImage("graphics/basicButton/tealButton.png");
 
-    window.PixelFont = p.loadFont('graphics/pixelFont.ttf');
+    window.PixelFont = p.loadFont('assets/fonts/pixelFont.ttf');
+    window.FatPixelFont = p.loadFont('assets/fonts/ThaleahFat.ttf')
 
   console.log("buttons loaded");
 }
@@ -131,6 +133,14 @@ function loadAnimations(p) {
   window.animations["bombExplosion"].push(p.loadImage("graphics/bombAnimation/bomb4.png"));
   window.animations["bombExplosion"].push(p.loadImage("graphics/bombAnimation/bomb5.png"));
   window.animations["bombExplosion"].push(p.loadImage("graphics/bombAnimation/bomb6.png"));
+
+  window.animations["oil"] = [];
+  window.animations["oil"].push(p.loadImage("graphics/oilAnimation/oil1.png"));
+  window.animations["oil"].push(p.loadImage("graphics/oilAnimation/oil2.png"));
+  window.animations["oil"].push(p.loadImage("graphics/oilAnimation/oil3.png"));
+  window.animations["oil"].push(p.loadImage("graphics/oilAnimation/oil4.png"));
+  window.animations["oilSpill"] = [];
+  window.animations["oilSpill"].push(p.loadImage("graphics/oilAnimation/oilSpill.png"));
 
   console.log("animations loaded");
 }
