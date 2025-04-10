@@ -313,9 +313,9 @@ function PlaySketch(p) {
           }
         }
       }
-      
-      if(ItemsManager.ifShield()) //draw outline on car for shield
-        car.collider.drawOutline(true);
+    }
+    if(ItemsManager.ifShield()) {//draw outline on car for shield
+      car.collider.drawOutline(true);
     }
     p.pop();
   }
