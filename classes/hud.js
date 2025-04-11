@@ -11,7 +11,7 @@ function showHud(p, map, car, isPaused = false){
       if (window.debug)
         drawDebugInfo(p,car);
       drawMeters(p,car);
-      drawCoinsTimer(p, isPaused);
+      drawTimer(p, isPaused);
       ItemsManager.shieldDisplayBar(p, isPaused);
       drawInventory(p, scale);
       
@@ -74,12 +74,8 @@ function drawDebugInfo(p,car){
     }
 }
 
-function drawCoinsTimer(p, isPaused = false){
+function drawTimer(p, isPaused = false){
   p.push();
-    p.textSize(16*window.scale);
-    p.fill(255);
-    p.textAlign(p.CENTER, p.TOP);
-    
     // Calculate effective game time considering pauses
     let effectiveTime;
     if (isPaused) {
@@ -92,18 +88,78 @@ function drawCoinsTimer(p, isPaused = false){
     
     // Format to one decimal place
     let secondsElapsed = effectiveTime.toFixed(1);
-    
-    p.text(`Time: ${secondsElapsed} sec`, p.width/2 - 10*window.widthScale, 10*window.heightScale);
-    p.text(`Coins: ${window.coinsCollected}`, p.width/2 - 10*window.widthScale, 30*window.heightScale);
+
+
+    let backingWidth = 150 * window.widthScale;
+    let backingHeight = 50 * window.heightScale;
+    let imageX = p.width/2 - backingWidth/2;
+    let imageY = 20 * window.heightScale - backingHeight / 2;
+  
+    p.image(window.displayBacking, imageX, imageY, backingWidth, backingHeight);
+  
+  // Center of the image
+    centerX = imageX + backingWidth / 2;
+    centerY = imageY + backingHeight / 2;
+
+    p.textSize(16*window.scale);
+    p.fill(255);
+    p.textAlign(p.CENTER, p.CENTER);
+    p.text(`Time: ${secondsElapsed} sec`, centerX, centerY);
   p.pop();
 }
 function drawInventory(p, scale){
   p.push(); //Bombs
-    p.textSize(16*windowScale);
+    let backingWidth = 150 * window.widthScale;
+    let backingHeight = 50 * window.heightScale;
+    let imageX = p.width - 10 * window.widthScale - backingWidth;
+    let imageY = 20 * window.heightScale - backingHeight / 2;
+  
+    p.image(window.displayBacking, imageX, imageY, backingWidth, backingHeight);
+  
+    // Center of the image
+    let centerX = imageX + backingWidth / 2;
+    let centerY = imageY + backingHeight / 2;
+  
+    p.textSize(16 * window.scale);
     p.fill(255);
-    p.textAlign(p.RIGHT, p.TOP);
-    p.text(`Bomb Inventory: ${bombInventory}`, p.width - 10*windowWidthScale,  10*windowHeightScale);
+    p.textAlign(p.CENTER, p.CENTER);
+    p.text(`Bombs: ${bombInventory}`, centerX, centerY);
   p.pop();
+
+  p.push(); //Oils
+    backingWidth = 150 * window.widthScale;
+    backingHeight = 50 * window.heightScale;
+    imageX = p.width - 10 * window.widthScale - backingWidth;
+    imageY = 60 * window.heightScale - backingHeight / 2;
+  
+    p.image(window.displayBacking, imageX, imageY, backingWidth, backingHeight);
+  
+    // Center of the image
+    centerX = imageX + backingWidth / 2;
+    centerY = imageY + backingHeight / 2;
+  
+    p.textSize(16 * window.scale);
+    p.fill(255);
+    p.textAlign(p.CENTER, p.CENTER);
+    p.text(`Oil: ${oilInventory}`, centerX, centerY);
+  p.pop();
+
+
+  p.push(); //coins
+    imageX = p.width - 10 * window.widthScale - backingWidth;
+    imageY = 100 * window.heightScale - backingHeight / 2;
+  
+    p.image(window.displayBacking, imageX, imageY, backingWidth, backingHeight);
+  
+  // Center of the image
+    centerX = imageX + backingWidth / 2;
+    centerY = imageY + backingHeight / 2;
+
+    p.textSize(16*window.scale);
+    p.fill(255);
+    p.textAlign(p.CENTER, p.CENTER);
+    p.text(`Coins: ${window.coinsCollected}`, centerX, centerY);
+  p.pop()
 }
 
 /*

@@ -1,5 +1,4 @@
 // scripts/title.js
-
 function TitleSketch(p) {
   let buttons = [];
   let levelButtons = [];
@@ -37,6 +36,7 @@ function TitleSketch(p) {
     });
 
     bgMusic(Mode.TITLE, p, "loop");
+    p.windowResized();
     window.LoadingScreen.hide();
   };
 
@@ -130,83 +130,83 @@ function TitleSketch(p) {
 
   function createTitleButtons() {
     buttons.push(
-      new Button("Play", p.width / 2, p.height - p.height * 0.38, p.width, p.height, function () {
+      new Button("PLAY", p.width / 2, p.height - p.height * 0.38, function () {
         showLevelSelection = true;
-      }, "navy")
+      }, "purple", "large")
     );
     buttons.push(
-      new Button("Garage", p.width / 2, p.height - p.height * 0.20, p.width, p.height, function () {
+      new Button("GARAGE", p.width / 2, p.height - p.height * 0.18, function () {
         switchSketch(Mode.GARAGE);
-      }, "blue")
+      }, "teal", "large")
     );
     buttons.push(
-      new Button("Settings", p.width / 7, p.height - p.height * 0.15, p.width, p.height, function () {
+      new Button("SETTINGS", p.width / 7, p.height - p.height * 0.15, function () {
         switchSketch(Mode.SETTINGS);
       })
     );
     buttons.push(
-      new Button("Leaderboard", p.width / 1.2, p.height - p.height * 0.90, p.width, p.height, function () {
+      new Button("LEADERBOARD", p.width / 1.2, p.height - p.height * 0.90, function () {
         switchSketch(Mode.LEADERBOARD);
       })
     );
     buttons.push(
-      new Button("HELP", p.width / 1.05, p.height - p.height * 0.97, p.width, p.height, function () {
+      new Button("HELP", p.width / 10, p.height - p.height * 0.97, function () {
         toggleInfo();
       }, "blue")
     );
     buttons.push(
-      new Button("Map Editor", p.width * 7.4 / 8, p.height - p.height * 0.05, p.width, p.height, function () {
+      new Button("Map Editor", p.width / 1.05, p.height - p.height * 0.05, function () {
         switchSketch(Mode.MAP_EDITOR);
-      }, "blue")
+      })
     );    
     buttons.push(
-      new Button("Signup", p.width*7.4 / 8, p.height - p.height * 0.25, p.width, p.height, function () {
+      new Button("Signup", p.width/ 1.05, p.height - p.height * 0.10, function () {
         switchSketch(Mode.SIGNUP);
-      }, "blue")
+      })
     );
   
     buttons.push(
-      new Button("Login", p.width*7.4 / 8, p.height - p.height * 0.15, p.width, p.height, function () {
+      new Button("Login", p.width/ 1.05, p.height - p.height * 0.15, function () {
         switchSketch(Mode.LOGIN);
-      }, "blue")
+      })
     );
   }
 
   function createLevelButtons() {
     levelButtons.push(
-      new Button("EXTRA HARD", p.width / 2, p.height - p.height * 0.80, p.width, p.height, function () {
+      new Button("EXTRA HARD", p.width / 2, p.height - p.height * 0.80, function () {
         window.difficulty = 1.5;
         console.log("Difficulty changed to EXTRA HARD value, " + window.difficulty);
         bgMusic(Mode.TITLE, p, "stop");
         switchSketch(Mode.PLAY);
-      }, "red")
+      }, "red", "medium")
     );
     levelButtons.push(
-      new Button("HARD", p.width / 2, p.height - p.height * 0.60, p.width, p.height, function () {
+      new Button("HARD", p.width / 2, p.height - p.height * 0.60, function () {
         window.difficulty = 1.25;
         console.log("Difficulty changed to HARD value, " + window.difficulty);
         bgMusic(Mode.TITLE, p, "stop");
         switchSketch(Mode.PLAY);
-      }, "orange")
+      }, "orange", "medium")
     );
     levelButtons.push(
-      new Button("MEDIUM", p.width / 2, p.height - p.height * 0.40, p.width, p.height, function () {
+      new Button("MEDIUM", p.width / 2, p.height - p.height * 0.40,function () {
         window.difficulty = 1.0;
         console.log("Difficulty changed to MEDIUM, value " + window.difficulty);
         bgMusic(Mode.TITLE, p, "stop");
         switchSketch(Mode.PLAY);
-      }, "yellow")
+      }, "yellow", "medium")
     );
     levelButtons.push(
-      new Button("EASY", p.width / 2, p.height - p.height * 0.20, p.width, p.height, function () {
+      new Button("EASY", p.width / 2, p.height - p.height * 0.20, function () {
         window.difficulty = 0.8;
         console.log("Difficulty changed to EASY, value " + window.difficulty);
         bgMusic(Mode.TITLE, p, "stop");
         switchSketch(Mode.PLAY);
-      }, "green")
+      }, "green", "medium")
     );
 
-    ExitIcon = new Button("ExitIcon", p.width - p.width * 0.05, p.height - p.height * 0.95, p.width, p.height, function () {
+    ExitIcon = new Button("ExitIcon", p.width - p.width * 0.05, p.height - p.height * 0.95, function () {
       showLevelSelection = false;
       bgMusic(Mode.TITLE, p, "loop");
     });
