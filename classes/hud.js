@@ -1,6 +1,6 @@
 //scripts/hud.js
 let windowHeightScale, windowWidthScale, windowScale;
-function showHud(p,map,car){
+function showHud(p, map, car, isPaused = false){
 
     // UI
     p.push();
@@ -11,13 +11,12 @@ function showHud(p,map,car){
       if (window.debug)
         drawDebugInfo(p,car);
       drawMeters(p,car);
-      drawCoinsTimer(p);
-      ItemsManager.shieldDisplayBar(p);
+      drawTimer(p, isPaused);
+      ItemsManager.shieldDisplayBar(p, isPaused);
       drawInventory(p, scale);
-
       
+      // We're removing the pause indicator from the HUD since it's already shown in the main overlay
       
-
     p.pop();
 
 }
@@ -75,24 +74,92 @@ function drawDebugInfo(p,car){
     }
 }
 
-function drawCoinsTimer(p){
+function drawTimer(p, isPaused = false){
   p.push();
+    // Calculate effective game time considering pauses
+    let effectiveTime;
+    if (isPaused) {
+      // When paused, use the time when pause started minus total previous paused time
+      effectiveTime = (window.pauseStartTime - p.startTime - window.totalPausedTime) / 1000;
+    } else {
+      // When active, use current time minus start time minus total paused time
+      effectiveTime = (p.millis() - p.startTime - window.totalPausedTime) / 1000;
+    }
+    
+    // Format to one decimal place
+    let secondsElapsed = effectiveTime.toFixed(1);
+
+
+    let backingWidth = 150 * window.widthScale;
+    let backingHeight = 50 * window.heightScale;
+    let imageX = p.width/2 - backingWidth/2;
+    let imageY = 20 * window.heightScale - backingHeight / 2;
+  
+    p.image(window.displayBacking, imageX, imageY, backingWidth, backingHeight);
+  
+  // Center of the image
+    centerX = imageX + backingWidth / 2;
+    centerY = imageY + backingHeight / 2;
+
     p.textSize(16*window.scale);
     p.fill(255);
-    p.textAlign(p.CENTER, p.TOP);
-    let secondsElapsed = ((p.millis() - p.startTime) / 1000).toFixed(1);
-    p.text(`Time: ${secondsElapsed} sec`, p.width/2 - 10*window.widthScale, 10*window.heightScale);
-    p.text(`Coins: ${window.coinsCollected}`, p.width/2 - 10*window.widthScale, 30*window.heightScale);
+    p.textAlign(p.CENTER, p.CENTER);
+    p.text(`Time: ${secondsElapsed} sec`, centerX, centerY);
   p.pop();
 }
 function drawInventory(p, scale){
   p.push(); //Bombs
-    p.textSize(16*windowScale);
+    let backingWidth = 150 * window.widthScale;
+    let backingHeight = 50 * window.heightScale;
+    let imageX = p.width - 10 * window.widthScale - backingWidth;
+    let imageY = 20 * window.heightScale - backingHeight / 2;
+  
+    p.image(window.displayBacking, imageX, imageY, backingWidth, backingHeight);
+  
+    // Center of the image
+    let centerX = imageX + backingWidth / 2;
+    let centerY = imageY + backingHeight / 2;
+  
+    p.textSize(16 * window.scale);
     p.fill(255);
-    p.textAlign(p.RIGHT, p.TOP);
-    p.text(`Bomb Inventory: ${bombInventory}`, p.width - 10*windowWidthScale,  10*windowHeightScale);
+    p.textAlign(p.CENTER, p.CENTER);
+    p.text(`Bombs: ${bombInventory}`, centerX, centerY);
   p.pop();
 
+  p.push(); //Oils
+    backingWidth = 150 * window.widthScale;
+    backingHeight = 50 * window.heightScale;
+    imageX = p.width - 10 * window.widthScale - backingWidth;
+    imageY = 60 * window.heightScale - backingHeight / 2;
+  
+    p.image(window.displayBacking, imageX, imageY, backingWidth, backingHeight);
+  
+    // Center of the image
+    centerX = imageX + backingWidth / 2;
+    centerY = imageY + backingHeight / 2;
+  
+    p.textSize(16 * window.scale);
+    p.fill(255);
+    p.textAlign(p.CENTER, p.CENTER);
+    p.text(`Oil: ${oilInventory}`, centerX, centerY);
+  p.pop();
+
+
+  p.push(); //coins
+    imageX = p.width - 10 * window.widthScale - backingWidth;
+    imageY = 100 * window.heightScale - backingHeight / 2;
+  
+    p.image(window.displayBacking, imageX, imageY, backingWidth, backingHeight);
+  
+  // Center of the image
+    centerX = imageX + backingWidth / 2;
+    centerY = imageY + backingHeight / 2;
+
+    p.textSize(16*window.scale);
+    p.fill(255);
+    p.textAlign(p.CENTER, p.CENTER);
+    p.text(`Coins: ${window.coinsCollected}`, centerX, centerY);
+  p.pop()
 }
 
 /*

@@ -12,7 +12,7 @@ const largeHouseSize = 4;
 let map = []; 
 
 function drawMap(p, center, zoomFactor) {
-  p.background("grey");
+  p.background(0,0,0);
   let halfWidth = p.width / (2 * zoomFactor);
   let halfHeight = p.height / (2 * zoomFactor);
   let startX = Math.floor((center.x - halfWidth) / gridSize);
@@ -76,6 +76,17 @@ function generateGenMap(p, rows, cols) {
   drawBezierRoad(p,20,105,80,100,75,75,roadSizes.normal)
 }
 
+function generateCityMap(p, rows, cols) {
+  // Initialize the map with Grass.
+  // grassImg = p.loadImage("assets/mapBuildier/Terrain/terr04.png");
+  for (let y = 0; y < rows; y++) {
+    map[y] = [];
+    for (let x = 0; x < cols; x++) {
+      map[y][x] = new Grass(p, x * gridSize + gridSize / 2, y * gridSize+ gridSize / 2, gridSize, gridSize, null);
+    }
+  }
+
+}
 
 function drawLake(p, xStart, yStart, xEnd, yEnd) {
   if(!canPlaceBuilding(p,xStart,yStart,xEnd,yEnd)) return;
@@ -230,27 +241,49 @@ function drawRectBuilding(p, xStart, yStart, xEnd, yEnd) {
 function fillBuildingsDynamically(p, xPosStart, yPosStart, xPosEnd, yPosEnd) {
   for (let yStart = yPosStart; yStart < yPosEnd; yStart++) {
     for (let xStart = xPosStart; xStart < xPosEnd; xStart++) {
-      // Check if this tile is empty (grass) and is adjacent to a road
-      if (map[yStart][xStart] instanceof Grass && isAdjacentToRoad(p, xStart, yStart)) {
+      // Check if this tile is empty (grass) and has the required gap from other buildings
+      if (
+        map[yStart][xStart] instanceof Grass &&
+        hasBuildingGap(p, xStart, yStart, 3) && 
+        isAdjacentToRoad(p,xStart,yStart)
+      ) {
         // Decide expansion direction
         let expandLeft = Math.random() > 0.5 ? -1 : 1;
         let expandUp = Math.random() > 0.5 ? -1 : 1;
+
         // Randomize building size
-        let xEnd = xStart + expandLeft * (Math.floor(Math.random() * 3) + 3); // 3-6 wide, tall
-        let yEnd = yStart + expandUp * (Math.floor(Math.random() * 3) + 3);
+        let xEnd = xStart + expandLeft * (Math.floor(Math.random() * 3) + 3); // 3-6 wide
+        let yEnd = yStart + expandUp * (Math.floor(Math.random() * 3) + 3);   // 3-6 tall
+
         // Ensure xEnd/yEnd are in the correct order
         let finalXStart = Math.min(xStart, xEnd);
         let finalXEnd = Math.max(xStart, xEnd);
         let finalYStart = Math.min(yStart, yEnd);
         let finalYEnd = Math.max(yStart, yEnd);
-        // Ensure space is free & includes gaps
+
+        // Ensure space is free for the building
         if (canPlaceBuilding(p, finalXStart, finalYStart, finalXEnd, finalYEnd)) {
           drawRectBuilding(p, finalXStart, finalYStart, finalXEnd, finalYEnd);
-          //markBuildingArea(p, finalXStart, finalYStart, finalXEnd, finalYEnd); // Reserve the space
         }
       }
     }
   }
+}
+
+function hasBuildingGap(p, x, y, gap) {
+  for (let offsetY = -gap; offsetY <= gap; offsetY++) {
+    for (let offsetX = -gap; offsetX <= gap; offsetX++) {
+      let checkX = x + offsetX;
+      let checkY = y + offsetY;
+      if (
+        map[checkY] &&
+        map[checkY][checkX] instanceof Building // Check if there's already a building nearby
+      ) {
+        return false;
+      }
+    }
+  }
+  return true;
 }
 
 function fillShopsDynamically(p, xPosStart, yPosStart, xPosEnd, yPosEnd) {
@@ -258,29 +291,69 @@ function fillShopsDynamically(p, xPosStart, yPosStart, xPosEnd, yPosEnd) {
     for (let xStart = xPosStart; xStart < xPosEnd; xStart++) {
       // Check if this tile is empty (grass) and is adjacent to a road
       if (map[yStart][xStart] instanceof Grass && isAdjacentToRoad(p, xStart, yStart)) {
-        // Randomize building size
-        let xEnd = xStart + Math.floor(Math.random() * 7) + 3; // 2-4 wide/tall
-        let yEnd = yStart + Math.floor(Math.random() * 7) + 3;
-        // Ensure space is free & includes gaps
+        // Randomize shop dimensions
+        let shopLength = Math.floor(Math.random() * 11) + 5; // 5-15 tiles long
+        let shopDepth = Math.floor(Math.random() * 3) + 3;   // 3-5 tiles deep
+
+        // Determine shop orientation using the isRoadParallel function
+        let isHorizontal = isRoadParallel(xStart, yStart);
+
+        if (isHorizontal === null) {
+          // Skip if no clear road alignment is found
+          continue;
+        }
+
+        let xEnd, yEnd;
+        if (isHorizontal) {
+          // Horizontal shop (aligned with the road)
+          xEnd = xStart + shopLength;
+          yEnd = yStart + shopDepth;
+        } else {
+          // Vertical shop (aligned with the road)
+          xEnd = xStart + shopDepth;
+          yEnd = yStart + shopLength;
+        }
+
+        // Ensure space is free for the shop
         if (canPlaceBuilding(p, xStart, yStart, xEnd, yEnd)) {
           drawRectBuilding(p, xStart, yStart, xEnd, yEnd);
-          //markBuildingArea(p, xStart, yStart, xEnd, yEnd); // Reserve the space
         }
       }
     }
   }
 }
 
-  // Check if a tile is adjacent to a road but maintains a 1-tile gap
-function isAdjacentToRoad(p, x, y) {
-  return (
-    (map[y - 2] && map[y - 2][x] instanceof Road) ||
-    (map[y + 2] && map[y + 2][x] instanceof Road) ||
-    (map[y][x - 2] && map[y][x - 2] instanceof Road) ||
-    (map[y][x + 2] && map[y][x + 2] instanceof Road)
-  );
+
+function isRoadParallel(x, y) {
+  // Check if the road is horizontal (left/right)
+  const isHorizontal =
+    (map[y] && map[y][x - 4] instanceof Road) ||
+    (map[y] && map[y][x + 4] instanceof Road);
+
+  // Check if the road is vertical (above/below)
+  const isVertical =
+    (map[y - 4] && map[y - 2][x] instanceof Road) ||
+    (map[y + 2] && map[y + 2][x] instanceof Road);
+
+  // Return true if the road is parallel (either horizontal or vertical)
+  if (isHorizontal) return true; // Horizontal road
+  if (isVertical) return false;  // Vertical road
+  return null;   
 }
 
+// Check if a tile is adjacent to a road but maintains a 1-tile gap
+function isAdjacentToRoad(p, x, y) {
+  return (
+    (map[y - 1] && map[y - 1][x] instanceof Road) || // Above
+    (map[y + 1] && map[y + 1][x] instanceof Road) || // Below
+    (map[y][x - 1] && map[y][x - 1] instanceof Road) || // Left
+    (map[y][x + 1] && map[y][x + 1] instanceof Road) || // Right
+    (map[y - 2] && map[y - 2][x] instanceof Road) || // Two tiles above
+    (map[y + 2] && map[y + 2][x] instanceof Road) || // Two tiles below
+    (map[y][x - 2] && map[y][x - 2] instanceof Road) || // Two tiles left
+    (map[y][x + 2] && map[y][x + 2] instanceof Road) // Two tiles right
+  );
+}
   // Ensure space is free for the building, considering gaps
 function canPlaceBuilding(p, xStart, yStart, xEnd, yEnd) {
   for (let y = yStart - 1; y <= yEnd; y++) {
@@ -311,11 +384,30 @@ function fillBigBuildings(p, xPosStart, yPosStart, xPosEnd, yPosEnd) {
       if (map[y][x] instanceof Grass && Math.random() < bigBuildingChance) {
         let xEnd = x + Math.floor(bigBuildingSize / 2);
         let yEnd = y + bigBuildingSize;
+
         if (canPlaceLargeBuilding(p, x, y, xEnd, yEnd)) {
+          // Draw the large building
           drawRectBuilding(p, x, y, xEnd, yEnd);
-          let lotXStart = x - 4, lotXEnd = xEnd + 4;
-          let lotYStart = y - 4, lotYEnd = yEnd + 4;
+
+          // Determine parking lot placement (top or bottom only)
+          let lotXStart = x;
+          let lotXEnd = xEnd;
+          let lotYStart, lotYEnd;
+
+          if (Math.random() < 0.5) {
+            // Place parking lot on the top side
+            lotYStart = y - 4; // 4 tiles above the building
+            lotYEnd = y;
+          } else {
+            // Place parking lot on the bottom side
+            lotYStart = yEnd;
+            lotYEnd = yEnd + 4; // 4 tiles below the building
+          }
+
+          // Draw the parking lot
           drawParkingLot(p, lotXStart, lotYStart, lotXEnd, lotYEnd);
+
+          // Create parking lot entrances
           createParkingLotEntrances(p, lotXStart, lotYStart, lotXEnd, lotYEnd);
         }
       }
@@ -393,10 +485,50 @@ function generateRoadMap(p, rows, cols) {
     }
   }
   // Draws a residential area 
-  // generateResidentialRoads(p, 0, 0, 5, 50);
-  generateWindyCountryRoads(p,0,0,100,100 );
+
+  generateResidentialRoads(p, 0, 0, 5, 50);
+  //generateDowntownRoads(p,0,0,5,50);
+
 
 }
+// Generates grid-like downtown with some variance for some smaller side roads and skips some side roads
+function generateDowntownRoads(p, xStart, yStart, blocks, blockSize) {
+  console.log("Generating downtown roads");
+
+  for (let i = 0; i <= blocks; i++) {
+    // Vertical roads
+    let roadWidth = i % 2 === 0 ? roadSizes.normal : roadSizes.small;
+    if (roadWidth === roadSizes.small && Math.random() < 0.3) {
+      // 30% chance to skip small roads
+      continue;
+    }
+    drawRectRoad(
+      p,
+      xStart + i * blockSize, // Start X
+      yStart,                 // Start Y
+      xStart + i * blockSize + roadWidth, // End X
+      yStart + blocks * blockSize // End Y
+    );
+
+    // Horizontal roads
+    roadWidth = i % 2 === 0 ? roadSizes.normal : roadSizes.small;
+    if (roadWidth === roadSizes.small && Math.random() < 0.3) {
+      // 30% chance to skip small roads
+      continue;
+    }
+    drawRectRoad(
+      p,
+      xStart,                 // Start X
+      yStart + i * blockSize, // Start Y
+      xStart + blocks * blockSize, // End X
+      yStart + i * blockSize + roadWidth // End Y
+    );
+  }
+
+  console.log("Generated downtown roads");
+}
+
+
 function generateResidentialRoads(p, xStart, yStart, blocks, blockSize) {
   // Generate grid-like residential area with house
   console.log("generating roads");

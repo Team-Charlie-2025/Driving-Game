@@ -5,7 +5,9 @@ let keybindConfig = {
   left: 65,      // 'a'
   right: 68,     // 'd'
   drift: 16,      // Shift
-  placebomb: 66  // 'b'
+  placebomb: 66,  // 'b'
+  spilloil: 72, // 'h'
+  pause: 80      // 'p'
 };
 
 function loadKeybinds() {
