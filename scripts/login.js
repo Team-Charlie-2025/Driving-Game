@@ -49,6 +49,7 @@ function LoginSketch(p) {
       .then(response => response.json())
       .then(data => {
           if (data.success) {
+              localStorage.setItem('username', username); // save login state
               message.html("Login successful! Redirecting...");
               message.style('color', 'green');
               message.show();
