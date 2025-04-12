@@ -14,23 +14,15 @@ def get_db_connection():
 def init_db():
     with sqlite3.connect('game.db') as conn:
         cursor = conn.cursor()
-        # Create users table with coins column
         cursor.execute('''CREATE TABLE IF NOT EXISTS users (
                             id INTEGER PRIMARY KEY AUTOINCREMENT,
                             username TEXT UNIQUE NOT NULL,
                             password TEXT NOT NULL,
-                            coins INTEGER DEFAULT 0)''')
+                            score INTEGER DEFAULT 0)''')
         conn.commit()
 
 init_db()
 
-def add_coins_column():
-    with sqlite3.connect('game.db') as conn:
-        cursor = conn.cursor()
-        cursor.execute('''ALTER TABLE users ADD COLUMN coins INTEGER DEFAULT 0''')
-        conn.commit()
-
-add_coins_column() 
 
 @app.route('/signup', methods=['POST'])
 def signup():
@@ -96,14 +88,14 @@ def update_score():
 def submit_score():
     data = request.get_json()
     username = data.get('username')
-    coins = data.get('coins')
+    score = data.get('score')
 
-    if not username or coins is None:
+    if not username or score is None:
         return jsonify({'success': False, 'message': 'Missing data'})
 
     conn = sqlite3.connect('leaderboard.db')
     c = conn.cursor()
-    c.execute("INSERT INTO leaderboard (username, coins) VALUES (?, ?)", (username, coins))
+    c.execute("INSERT INTO leaderboard (username, score) VALUES (?, ?)", (username, score))
     conn.commit()
     conn.close()
 
@@ -115,8 +107,7 @@ def leaderboard():
     conn = sqlite3.connect("game.db")
     cur = conn.cursor()
 
-    # Query to get usernames and coins, ordered by coins
-    cur.execute("SELECT username, coins FROM users ORDER BY coins DESC")
+    cur.execute("SELECT username, score FROM users ORDER BY score DESC")
     users = cur.fetchall()
 
     conn.close()
@@ -124,29 +115,6 @@ def leaderboard():
     # Return leaderboard data as JSON
     leaderboard_data = [{"username": user[0], "coins": user[1]} for user in users]
     return jsonify(leaderboard_data)
-
-
-
-@app.route("/update_coins", methods=["POST"])
-def update_coins():
-    data = request.get_json()
-    coins = data.get("coins")
-
-    username = session.get("username")  # or session['user_id']
-
-    if not username:
-        return jsonify({"error": "Not logged in"}), 403
-
-    conn = sqlite3.connect("game.db")
-    cur = conn.cursor()
-
-    # Update coins for that user
-    cur.execute("UPDATE users SET coins = ? WHERE username = ?", (coins, username))
-
-    conn.commit()
-    conn.close()
-
-    return jsonify({"status": "success"})
 
 
 

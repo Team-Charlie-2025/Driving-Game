@@ -46,7 +46,7 @@ function LeaderboardSketch(p) {
           const player = leaderboardData[i];
           const y = 180 + i * 40;
           p.fill(i === 0 ? "#DAA520" : "#000"); // Gold for 1st
-          p.text(`${i + 1}. ${player.username} - 💰 ${player.coins} coins`, p.width / 2, y);
+          p.text(`${i + 1}. ${player.username} - 💰 ${player.score} score`, p.width / 2, y);
         }
       }
 
