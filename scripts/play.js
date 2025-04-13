@@ -274,15 +274,19 @@ function PlaySketch(p) {
     if (car) p.translate(-car.position.x, -car.position.y);
     
     drawMap(p, car ? car.position : {x: 0, y: 0}, zoomFactor);
-    if (car) car.display();
-    enemies.forEach(enemy => enemy.display());
-    
-    // Pass isPaused to display methods to freeze animations
+
+    // Pass isPaused to display methods to freeze animations, animate beofre cars so they "drive over"
     coins.forEach(coin => coin.display(isPaused));
     shields.forEach(shield => shield.display(isPaused));
     wrenches.forEach(wrench => wrench.display(isPaused));
     bombs.forEach(bomb => bomb.display(isPaused));
     oils.forEach(oil => oil.display(isPaused));
+
+    if (car) car.display();
+    enemies.forEach(enemy => enemy.display());
+
+    bombs.forEach(bomb => bomb.display(isPaused)); //animation "over" cars
+    
     
     if (window.debug) {
       bombs.forEach(bomb => bomb.collider.drawOutline());

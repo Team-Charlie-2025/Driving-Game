@@ -331,13 +331,13 @@ class Bomb extends GameObject {
   }
 }
 class Oil extends GameObject {
-  constructor(p, x, y, size = 25) {
+  constructor(p, x, y, size = 15) {
     super(x, y);
     this.p = p;
     this.size = size;
     this.collected = false;
     this.placed = false; //oil puddle
-    this.attackDamage = 0.5 * window.difficulty; //damage from skidding
+    this.attackDamage = 0.3 * window.difficulty; //damage from skidding
     this.collider = new Collider(
       this,
       "polygon",
