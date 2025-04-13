@@ -40,7 +40,7 @@ function LoginSketch(p) {
     function sendLoginData() {
         let username = usernameInput.value();
         let password = passwordInput.value();
-  
+    
         fetch('http://127.0.0.1:5000/login', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
@@ -49,12 +49,16 @@ function LoginSketch(p) {
         .then(response => response.json())
         .then(data => {
             if (data.success) {
+                // ✅ Save the logged-in username globally
+                window.username = username;
+    
                 message.html("Login successful! Redirecting...");
                 message.style('color', 'green');
                 message.show();
+    
                 setTimeout(() => {
-                    switchSketch(Mode.TITLE); // Redirect to game or dashboard
-                }, 2000); // Redirect after 2 seconds
+                    switchSketch(Mode.TITLE);
+                }, 2000);
             } else {
                 message.html("Login failed: " + data.error);
                 message.style('color', 'red');
@@ -67,26 +71,5 @@ function LoginSketch(p) {
             message.style('color', 'red');
             message.show();
         });
-    }
-  
-    p.draw = function () {
-        ExitIcon.display(p);
-        p.textSize(100);
-        p.fill(50);
-        p.text("Login", p.width / 2, p.height / 2 - 100);
-    };
-  
-    p.mousePressed = function () {
-        if (ExitIcon.isMouseOver(p)) {
-          bgMusic(Mode.TITLE, p, "stop");
-            ExitIcon.callback();
-        }
-    };
-  
-    p.keyPressed = function () {
-        if (p.keyCode === p.ESCAPE) {
-            switchSketch(Mode.TITLE);
-        }
-    };
-  }
-  
+    }}
+    

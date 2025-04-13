@@ -66,26 +66,8 @@ def login():
             return jsonify({'success': False, 'error': 'Invalid username or password'})
         
 
-@app.route('/update_score', methods=['POST'])
-def update_score():
-    data = request.json
-    username = data.get('username')
-    new_score = data.get('score')
-
-    if not username or new_score is None:
-        return jsonify({'success': False, 'error': 'Missing username or score'})
-
-    with sqlite3.connect('game.db') as conn:
-        cursor = conn.cursor()
-        cursor.execute("UPDATE users SET score = ? WHERE username = ?", (new_score, username))
-        conn.commit()
-
-    return jsonify({'success': True, 'message': 'Score updated successfully'})
-
-
-
 @app.route('/submit_score', methods=['POST'])
-def submit_score():
+def submit_or_update_score():
     data = request.get_json()
     username = data.get('username')
     score = data.get('score')
@@ -93,14 +75,22 @@ def submit_score():
     if not username or score is None:
         return jsonify({'success': False, 'message': 'Missing data'})
 
-    conn = sqlite3.connect('leaderboard.db')
-    c = conn.cursor()
-    c.execute("INSERT INTO leaderboard (username, score) VALUES (?, ?)", (username, score))
-    conn.commit()
-    conn.close()
+    with sqlite3.connect("game.db") as conn:
+        cursor = conn.cursor()
+        cursor.execute("SELECT score FROM users WHERE username = ?", (username,))
+        existing = cursor.fetchone()
 
-    return jsonify({'success': True})
+        if existing:
+            current_score = existing[0]
+            if score > current_score:
+                cursor.execute("UPDATE users SET score = ? WHERE username = ?", (score, username))
+        else:
+            # Only occurs if username somehow doesn't exist — but you can handle this more strictly if needed
+            cursor.execute("INSERT INTO users (username, score, password) VALUES (?, ?, '')", (username, score))
 
+        conn.commit()
+
+    return jsonify({'success': True, 'message': 'Score submitted or updated'})
 
 @app.route("/leaderboard")
 def leaderboard():
@@ -113,7 +103,7 @@ def leaderboard():
     conn.close()
 
     # Return leaderboard data as JSON
-    leaderboard_data = [{"username": user[0], "coins": user[1]} for user in users]
+    leaderboard_data = [{"username": user[0], "score": user[1]} for user in users]
     return jsonify(leaderboard_data)
 
 
