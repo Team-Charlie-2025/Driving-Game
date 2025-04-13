@@ -107,6 +107,8 @@ function PlaySketch(p) {
         p.textSize(50);
         p.textAlign(p.CENTER, p.CENTER);
         p.text("GAME OVER", p.width / 2, p.height / 3);
+        p.textSize(30);
+        p.text("Final Score: " + (window.finalScore || 0), p.width / 2, p.height / 2.3);
 
         p.textSize(30);
         p.fill(255);
@@ -241,7 +243,8 @@ function PlaySketch(p) {
         CurrencyManager.updateTotalCoins(runCoinReward);
         const elapsedTime = (p.millis() - p.startTime - window.totalPausedTime) / 1000; // Account for paused time
         const enemyDestroyed = window.enemyDestroyedCount || 0;
-        const computedScore = ScoreManager.computeScore(elapsedTime, enemyDestroyed, window.coinsCollected);
+        const finalscore = ScoreManager.computeScore(elapsedTime, enemyDestroyed, window.coinsCollected, window.difficulty);
+        ScoreManager.updateHighScore(finalscore);
         
         if(window.debug){
         console.log("Game Over: Run coins reward calculated: " + runCoinReward);

@@ -4,15 +4,19 @@ function LeaderboardSketch(p) {
 
 
     function loadLeaderboard() {
-        fetch('http://127.0.0.1:5000/leaderboard')
-          .then(response => response.json())
-          .then(data => {
-            leaderboardData = data;
-          })
-          .catch(error => {
-            console.error("Error loading leaderboard:", error);
-          });
-    }
+      fetch('http://127.0.0.1:5000/leaderboard')
+        .then(response => response.json())
+        .then(data => {
+          // Map the data to ensure we handle missing or undefined scores gracefully
+          leaderboardData = data.map(player => ({
+            username: player.username || 'Unknown Player',  // Default username if missing
+            score: player.score || 0  // Default score if missing
+          }));
+        })
+        .catch(error => {
+          console.error("Error loading leaderboard:", error);
+        });
+  }
 
     p.setup = function () {
         p.createCanvas(p.windowWidth, p.windowHeight);
@@ -46,7 +50,7 @@ function LeaderboardSketch(p) {
           const player = leaderboardData[i];
           const y = 180 + i * 40;
           p.fill(i === 0 ? "#DAA520" : "#000"); // Gold for 1st
-          p.text(`${i + 1}. ${player.username} - 💰 ${player.score} score`, p.width / 2, y);
+          p.text(`${i + 1}. ${player.username} - 💰 ${player.score || 0} score`, p.width / 2, y);
         }
       }
 
