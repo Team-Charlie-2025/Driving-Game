@@ -71,5 +71,26 @@ function LoginSketch(p) {
             message.style('color', 'red');
             message.show();
         });
-    }}
+    }
+
+    p.draw = function () {
+        ExitIcon.display(p);
+        p.textSize(100);
+        p.fill(50);
+        p.text("Login", p.width / 2, p.height / 2 - 100);
+      };
+    
+      p.mousePressed = function () {
+        if (ExitIcon.isMouseOver(p)) {
+          bgMusic(Mode.TITLE, p, "stop");
+          ExitIcon.callback();
+        }
+      };
+    
+      p.keyPressed = function () {
+        if (p.keyCode === p.ESCAPE) {
+          switchSketch(Mode.TITLE);
+        }
+      };
+    }
     
