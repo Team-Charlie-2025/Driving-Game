@@ -187,8 +187,12 @@ class Car extends GameObject {
       this.healthBar = Math.max(0, this.healthBar - damage);
     }
     else if(other instanceof Wrench){
-      let healing = other.collisionEffect;
-      this.healthBar = Math.min(this.maxHealth, this.healthBar + healing);
+      if (this.healthBar < this.maxHealth) {
+        let healing = Math.floor(this.maxHealth * wrenchHealthModPercent);
+        //let before = this.healthBar;  //temp for console check
+        this.healthBar = Math.min(this.maxHealth, this.healthBar + healing);
+        //console.log(`Wrench healed for ${this.healthBar - before} (from ${before} to ${this.healthBar})`);
+      }
     }
     else if(other instanceof Bomb){
       damage = other.attackDamage;
