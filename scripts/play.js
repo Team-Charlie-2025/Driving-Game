@@ -48,11 +48,11 @@ function PlaySketch(p) {
     p.fps = p.frameRate();
     physicsEngine = new PhysicsEngine();
     //generateGenMap(p, mapSize, mapSize);
-    generateDFSMap(p, mapSize, mapSize); // Why is this just so much better 
+    //generateDFSMap(p, mapSize, mapSize); // Why is this just so much better 
     //generateDFSChunkedMap(p,mapSize, mapSize); // Too cluttered downtown
     //generateSmartChunkedMap(p, mapSize, mapSize);
     //generateRefactoredDFSMap(p, mapSize, mapSize); // Weird gaps
-    //generateImprovedCityMap(p,500,500); // Has weird gen but usable
+    generateImprovedCityMap(p,500,500); // Has weird gen but usable
     window.runCoinsCalculated = false;
     window.isGameOver = false;
 
