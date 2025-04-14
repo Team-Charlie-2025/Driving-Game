@@ -36,7 +36,7 @@ class ScoreManager {
   static sendScoreToServer(playerName, score) {
     const data = { username: playerName, score: score };
 
-    fetch('http://127.0.0.1:5000/leaderboard', {
+    fetch('http://cassini.cs.kent.edu:9411/leaderboard', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',

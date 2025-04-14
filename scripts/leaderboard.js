@@ -4,7 +4,7 @@ function LeaderboardSketch(p) {
 
 
     function loadLeaderboard() {
-      fetch('http://127.0.0.1:5000/leaderboard')
+      fetch('http://cassini.cs.kent.edu:9411/leaderboard')
         .then(response => response.json())
         .then(data => {
           // Map the data to ensure we handle missing or undefined scores gracefully
