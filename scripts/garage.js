@@ -119,17 +119,21 @@ function GarageSketch(p) {
     let level = getUpgradeLevel(up.type);
     up.button.label = (up.type === 'bombs' && level >= 5) || level >= 10 ? "MAX" : BASE_UPGRADE_PRICE * level;
   }
-  function purchaseUpgrade(type) {
-    let level = getUpgradeLevel(type);
-    let price = BASE_UPGRADE_PRICE * level;
-    if (CurrencyManager.getTotalCoins() >= price && level < 10) {
-      if (typeof CurrencyManager.spendCoins === "function") {
-        CurrencyManager.spendCoins(price);
+  function purchaseUpgrade(type) {   
+      let level = getUpgradeLevel(type);
+      let maxLevel = type === 'bombs' ? 5 : 10; 
+      if (level >= maxLevel) return;
+      let price = BASE_UPGRADE_PRICE * level;
+      if (CurrencyManager.getTotalCoins() >= price) {
+        if (typeof CurrencyManager.spendCoins === "function") {
+          CurrencyManager.spendCoins(price);
+        }
+        setUpgradeLevel(type, level + 1);
+        upgrades.forEach(u => u.type === type && updateUpgradeButtonText(u));
+        saveConfiguration();
       }
-      setUpgradeLevel(type, level + 1);
-      upgrades.forEach(u => u.type === type && updateUpgradeButtonText(u));
-      saveConfiguration();
-    }
+    
+    
   }
 
   function purchaseCar(index) {
