@@ -80,6 +80,15 @@ function PlaySketch(p) {
     window.enemySpawnInterval = setInterval(() => spawnEnemy(p), ENEMY_SPAWN_RATE);
 
     //////////MAP ITEM CREATION///////////////
+    // Load item unlocks before spawning anything
+    const savedConfig = loadPersistentData();
+    if (savedConfig?.unlockedItems) {
+      for (let key in savedConfig.unlockedItems) {
+        if (savedConfig.unlockedItems[key]) {
+          ItemsManager.unlockItem(key);
+        }
+      }
+    }
     createShields(p, shields, map);
     console.log("Shields made: " + shields.length);
     createWrenches(p, wrenches, map);

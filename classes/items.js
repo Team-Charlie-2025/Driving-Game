@@ -17,6 +17,17 @@ let oilInventory = 0;
 
 class ItemsManager {
 
+    static unlockedItems = {
+      wrench: false,
+      bomb: false,
+      oil: false,
+      shield: false
+    };
+
+    static unlockItem(itemType) {
+      this.unlockedItems[itemType] = true;
+    }
+
     static ItemResetGame(){ //reset times and inventory
       shieldStartTime = null;
       currentTime = null;

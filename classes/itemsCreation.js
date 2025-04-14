@@ -33,6 +33,7 @@ function createCoins(p, coins, map){
     ////////////////////////////////////////////////
     // shield creation, positioning, building check, and logs
 function createShields(p, shields, map){
+    if (!ItemsManager.unlockedItems.shield) return;
     attempts = 0;
     while (shields.length < totalShields && attempts < maxAttempts) {
       // random map index
@@ -56,6 +57,7 @@ function createShields(p, shields, map){
     ////////////////////////////////////////////////
     // wrench creation, positioning, building check, and logs
 function createWrenches(p, wrenches, map ){
+  if (!ItemsManager.unlockedItems.wrench) return;
     attempts = 0;
     while (wrenches.length < totalWrenches && attempts < maxAttempts) {
       // random map index
@@ -66,18 +68,19 @@ function createWrenches(p, wrenches, map ){
       if (map[randY] && map[randY][randX] instanceof Road) {
         let wrenchX = randX * gridSize + gridSize / 2;
         let wrenchY = randY * gridSize + gridSize / 2;
-        if (window.debug) console.log(`Spawning sheild ${wrenches.length + 1} at tile (${randX}, ${randY}) with world coordinates (${wrenchX}, ${wrenchY})`);
+        if (window.debug) console.log(`Spawning wrench ${wrenches.length + 1} at tile (${randX}, ${randY}) with world coordinates (${wrenchX}, ${wrenchY})`);
         wrenches.push(new Wrench(p, wrenchX, wrenchY));
       }
       attempts++;
     }  
     if (attempts >= maxAttempts && debug) {
-      console.log("Max attempts reached while spawning wrenches. wrenches spawned: " + sheilds.length);
+      console.log("Max attempts reached while spawning wrenches. wrenches spawned: " + wrenches.length);
     }
 }
 
 
 function createBomb(p, bombs, map){
+  if (!ItemsManager.unlockedItems.bomb) return;
   attempts = 0;
   while (bombs.length < totalBombs && attempts < maxAttempts) {
     // random map index
@@ -98,6 +101,7 @@ function createBomb(p, bombs, map){
   }
 }
 function createOil(p, oils, map){
+  if (!ItemsManager.unlockedItems.oil) return;
   attempts = 0;
   while (oils.length < totalOils && attempts < maxAttempts) {
     // random map index
