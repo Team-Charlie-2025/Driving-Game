@@ -2,6 +2,12 @@
 const carWidth = 64;
 const carHeight = 64;
 
+function isBuildingTile(x, y) {
+  const gridX = Math.floor(x / gridSize);
+  const gridY = Math.floor(y / gridSize);
+  return map[gridY]?.[gridX] instanceof Building;
+}
+
 // Car class with realistic driving physics, drift, gears, RPM, and boost
 class Car extends GameObject {
   constructor(p, x, y, stats) {
@@ -12,28 +18,13 @@ class Car extends GameObject {
     this.healthBar = stats.health;
     this.maxHealth = stats.health;
 
-    // Movement and handling stats
-    this.traction = 1.0;                     // 0–1, higher = more grip
-    this.normalTraction = 1.0;
-    this.driftTraction = 0.3;
     this.accelerationRate = stats.acceleration;
     this.maxSpeed = stats.maxSpeed;
     this.reverseSpeed = -4;
     this.friction = 0.05;
-
-    // Drift mechanics
-    this.isDrifting = false;
-    this.movementAngle = this.angle;         // Angle drift carries you
-    this.driftAccumulator = 0;               // Counts up toward spinout
-    this.driftAngle = 0;                     // Difference between movement and heading
-    this.minDriftSpeed = 18;                 // Minimum speed to trigger drift
-    this.spinOutThreshold = 4;              // When drift gets out of control
-    this.driftTurnMultiplier = 2;            // Faster rotation during drift
-    this.driftDecay = 0.995;                 // Slowdown per frame during drift
-    this.driftRecoveryRate = 0.01;           // How fast car regains traction
-
-    // Engine & Gears
     this.speed = 0;
+
+    // Engine & gears
     this.engineRPM = 1000;
     this.gear = 1;
     this.maxGear = 5;
@@ -54,7 +45,11 @@ class Car extends GameObject {
     this.maxTurnRate = 0.05;
     this.steeringSmooth = 0.1;
 
-    // Graphics & collider
+    // Fireball FX
+    this.fireballActive = false;
+    this.fireballTimer = 0;
+
+    // Visuals & Collider
     this.currentImage = window.cars[loadPersistentData().selectedCar || 0];
     this.width = 64;
     this.height = 64;
@@ -64,14 +59,21 @@ class Car extends GameObject {
 
   update() {
     const p = this.p;
+
+    if (this.healthBar <= 0) {
+      this.healthBar = 0;
+      window.isGameOver = true;
+      return;
+    }
+
+    // Inputs
     const accelerating = p.keyIsDown(getKeyForAction("forward"));
     const braking = p.keyIsDown(getKeyForAction("backward"));
     const turnLeft = p.keyIsDown(getKeyForAction("left"));
     const turnRight = p.keyIsDown(getKeyForAction("right"));
     const boostKey = p.keyIsDown(getKeyForAction("boost"));
-    const shiftHeld = p.keyIsDown(16);
-  
-    // Boost logic
+
+    // Boost
     if (accelerating && boostKey && this.boostMeter > 0) {
       this.isBoosting = true;
       this.boostMeter = Math.max(0, this.boostMeter - 5);
@@ -82,11 +84,8 @@ class Car extends GameObject {
         this.boostMeter = Math.min(this.boostMax, this.boostMeter + this.boostRegenRate);
       }
     }
-    // Fireball properties
-    this.fireballActive = false; // Whether the fireball is active
-    this.fireballTimer = 0;      // Timer to control fireball duration
-    this.fireballDuration = 200; // Fireball lasts for 200ms
-    // Gear shifting logic
+
+    // Gears
     if (this.engineRPM > 7000 && this.gear < this.maxGear) {
       this.gear++;
       this.engineRPM = 4000;
@@ -95,108 +94,83 @@ class Car extends GameObject {
     } else if (this.engineRPM < 2500 && this.gear > 1) {
       this.gear--;
     }
-  
+
     const gearRatio = this.gearRatios[this.gear];
     const totalDriveRatio = gearRatio * this.finalDrive;
-    // Update fireball state
-    if (this.fireballActive && Date.now() - this.fireballTimer > this.fireballDuration) {
-      this.fireballActive = false;
-    }
-    // Adjust RPM based on input
+
     if (accelerating) {
-      if(this.engineRPM<=2000) this.engineRPM += this.accelerationRate *100
-      else if(this.engineRPM<=3500) this.engineRPM += this.accelerationRate *250
-      else if(this.engineRPM<=6500) this.engineRPM += this.accelerationRate *300
-      else if(this.engineRPM<=8000) this.engineRPM += this.accelerationRate *100
+      if (this.engineRPM <= 2000) this.engineRPM += this.accelerationRate * 100;
+      else if (this.engineRPM <= 3500) this.engineRPM += this.accelerationRate * 250;
+      else if (this.engineRPM <= 6500) this.engineRPM += this.accelerationRate * 300;
+      else if (this.engineRPM <= 8000) this.engineRPM += this.accelerationRate * 100;
     } else {
       this.engineRPM -= this.accelerationRate * 100;
     }
+
     this.engineRPM = p.constrain(this.engineRPM, 1000, 8000);
-  
-    // Convert engine RPM to speed
-    const wheelRPM = this.engineRPM/125 / totalDriveRatio;
+
+    const wheelRPM = this.engineRPM / 125 / totalDriveRatio;
     const wheelCircumference = this.tireCircumference * gridSize;
     const newSpeed = (wheelRPM * wheelCircumference) / 60;
-  
     const maxAllowedSpeed = this.isBoosting ? this.maxSpeed * 1.75 : this.maxSpeed;
     this.speed = p.constrain(newSpeed, this.reverseSpeed, maxAllowedSpeed);
-  
-    // Apply friction when not accelerating or braking
+
     if (!accelerating && !braking) {
       this.speed *= 1 - this.friction;
       if (Math.abs(this.speed) < 0.05) this.speed = 0;
     }
-  
-    // Turning
+
+    // Steering
     let steerTarget = 0;
     if (turnLeft) steerTarget -= 1;
     if (turnRight) steerTarget += 1;
     this.steerInput += (steerTarget - this.steerInput) * this.steeringSmooth;
-    const currentTurn = this.maxTurnRate * this.steerInput * (1 + Math.abs(this.speed) / 10);
-  
-    // Drift logic
-    const terrain = getTileTypeAt(this.position.x, this.position.y);
-    const tractionFactor = this.traction * (terrain === "grass" ? 0.7 : 1.0);
-    const severeTurn = Math.abs(this.steerInput) > 0.9;
-    const fastEnough = Math.abs(this.speed) > this.minDriftSpeed * tractionFactor;
-  
-    if (!this.isDrifting && (shiftHeld || (fastEnough && severeTurn))) {
-      this.isDrifting = true;
-      this.movementAngle = this.angle;
-      this.steerInput *= 1.25;    // increases steer input when starts drifting
-      this.traction = this.iceTraction;
-    }
-  
-    if (this.isDrifting) {
-      this.driftAccumulator += Math.abs(this.steerInput) * 0.1;
-      this.driftAngle = p.atan2(p.sin(this.angle - this.movementAngle), p.cos(this.angle - this.movementAngle));
-      this.speed *= this.driftDecay;
-      
-  
-      if (accelerating) {
-        this.movementAngle += this.driftAngle * this.driftRecoveryRate;
-      }
-  
-      if (this.driftAccumulator > this.spinOutThreshold) {
-        this.speed *= 0.9;
-        this.angle += 0.2 * (this.steerInput > 0 ? 1 : -1);
-      }
-      
-      
-      // End drift if speed is too low or accelerating
-      if (Math.abs(this.speed) < 9 || accelerating) {
-        this.isDrifting = false;
-        this.driftAccumulator = 0;
-        this.traction = this.normalTraction;
-        this.steerInput * .8;   // returns steer input to normal
-      }
-      
-      // Smoke effect
-      p.push();
-      p.noStroke();
-      p.fill(150, 150, 150, 100);
-      const tireOffsetX = this.width / 4;
-      const tireOffsetY = this.height / 2;
-      p.ellipse(-tireOffsetX, tireOffsetY, 10, 10);
-      p.ellipse(tireOffsetX, tireOffsetY, 10, 10);
-      p.pop();
-    }
-  
-    const moveAngle = this.isDrifting ? this.movementAngle : this.angle;
-    this.position.x += this.speed * p.cos(moveAngle);
-    this.position.y += this.speed * p.sin(moveAngle);
+    const turnAmount = this.maxTurnRate * this.steerInput * (1 + Math.abs(this.speed) / 10);
+
+    // Calculate next position
+    const moveAngle = this.angle;
+    const proposedX = this.position.x + this.speed * p.cos(moveAngle);
+    const proposedY = this.position.y + this.speed * p.sin(moveAngle);
+    const oldX = this.position.x;
+    const oldY = this.position.y;
+
+    // Move temporarily
+    this.position.x = proposedX;
+    this.position.y = proposedY;
     this.velocity.set(this.speed * p.cos(moveAngle), this.speed * p.sin(moveAngle));
-    this.angle += currentTurn;
+
+    // Update collider
+    if (this.collider && this.collider.update) {
+      this.collider.update(this);
+    }
+
+    // Let collisions handle logic via onCollisionEnter
+    if (this.collider.collidingObjects?.length > 0) {
+      for (let other of this.collider.collidingObjects) {
+        if (other?.onCollisionEnter) {
+          other.onCollisionEnter(this);
+        }
+        if (this.onCollisionEnter) {
+          this.onCollisionEnter(other);
+        }
+      }
+
+      // Revert position if collided with a building (solid)
+      const collidedWithSolid = this.collider.collidingObjects.some(obj => obj instanceof Building);
+      if (collidedWithSolid) {
+        this.buildingCollision();
+        this.position.x = oldX;
+        this.position.y = oldY;
+        this.velocity.set(0, 0);
+        this.speed *= -.5;
+      }
+    }
+
+    this.angle += turnAmount;
+
     this.position.x = p.constrain(this.position.x, 0, mapSize * gridSize);
     this.position.y = p.constrain(this.position.y, 0, mapSize * gridSize);
-  
-    // Death check
-    if (this.healthBar <= 0) {
-      this.healthBar = 0;
-      window.isGameOver = true;
-    }
   }
-  
 
   display() {
     const p = this.p;
@@ -209,42 +183,31 @@ class Car extends GameObject {
       p.fill(0);
       p.rect(-this.width / 2, -this.height / 2, this.width, this.height);
     }
-    p.pop();
 
-    // Draw the fireball
-    if (this.fireballActive) {
-      p.push();
-      p.fill(255, 0, 0); // Red color for the fireball
+    if (this.fireballActive && Date.now() - this.fireballTimer < 200) {
+      const fireballX = this.position.x - p.cos(this.angle) * (this.width / 2 + 5);
+      const fireballY = this.position.y - p.sin(this.angle) * (this.height / 2 + 5);
+      p.fill(255, 0, 0);
       p.noStroke();
-
-      // Calculate fireball position (behind the car)
-      const fireballX = this.position.x - p.cos(this.angle) * (this.width / 2 + 7);
-      const fireballY = this.position.y - p.sin(this.angle) * (this.height / 2 + 7);
-
-      // Draw the fireball
-      p.ellipse(fireballX, fireballY, 10, 10); // Fireball size: 10x10
-      p.pop();
+      p.ellipse(fireballX, fireballY, 10, 10);
     }
+
+    p.pop();
   }
 
   onCollisionEnter(other) {
     let damage;
     if (other instanceof Enemy) {
-      damage = other.attackDamage;
-      damage = ItemsManager.shieldDamage(damage);
+      damage = ItemsManager.shieldDamage(other.attackDamage);
       this.healthBar = Math.max(0, this.healthBar - damage);
     } else if (other instanceof Wrench) {
-      let healing = other.collisionEffect;
-      this.healthBar = Math.min(this.maxHealth, this.healthBar + healing);
-    } else if (other instanceof Bomb) {
-      damage = other.attackDamage;
-      damage = ItemsManager.shieldDamage(damage);
+      this.healthBar = Math.min(this.maxHealth, this.healthBar + other.collisionEffect);
+    } else if (other instanceof Bomb || other instanceof Oil) {
+      damage = ItemsManager.shieldDamage(other.attackDamage);
       this.healthBar = Math.max(0, this.healthBar - damage);
-    } else if (other instanceof Oil) {
-      damage = other.attackDamage;
-      damage = ItemsManager.shieldDamage(damage);
-      this.healthBar = Math.max(0, this.healthBar - damage);
-      this.speed *= 0.9;
+      if (other instanceof Oil) {
+        this.speed *= 0.9;
+      }
     }
   }
 
@@ -252,7 +215,7 @@ class Car extends GameObject {
     let damage = 5 * window.difficulty * (1 + this.speed / this.maxSpeed);
     damage = ItemsManager.shieldDamage(damage);
     this.healthBar = Math.max(0, this.healthBar - damage);
-    //this.speed *= -0.1;
+    //this.speed *= -0.5;
   }
 
   getHealth() {
