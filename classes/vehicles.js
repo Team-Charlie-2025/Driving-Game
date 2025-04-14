@@ -187,8 +187,12 @@ class Car extends GameObject {
       this.healthBar = Math.max(0, this.healthBar - damage);
     }
     else if(other instanceof Wrench){
-      let healing = other.collisionEffect;
-      this.healthBar = Math.min(this.maxHealth, this.healthBar + healing);
+      if (this.healthBar < this.maxHealth) {
+        let healing = Math.floor(this.maxHealth * wrenchHealthModPercent);
+        //let before = this.healthBar;  //temp for console check
+        this.healthBar = Math.min(this.maxHealth, this.healthBar + healing);
+        //console.log(`Wrench healed for ${this.healthBar - before} (from ${before} to ${this.healthBar})`);
+      }
     }
     else if(other instanceof Bomb){
       damage = other.attackDamage;
@@ -397,7 +401,7 @@ class Truck extends Enemy {
     this.baseAcceleration = this.acceleration;
     this.baseMaxSpeed = this.maxSpeed;
     this.maxForce = 0.2;                           // Less force
-    this.turnRadius = 0.8;                        // SMALL turn radius = sharp turns
+    this.turnRadius = 0.4;                        //wider turn radius
     this.friction = 0.03;                          // Less friction
     
     // Combat properties
@@ -438,7 +442,7 @@ class Motorcycle extends Enemy {
     this.baseAcceleration = this.acceleration;
     this.baseMaxSpeed = this.maxSpeed;
     this.maxForce = 0.5;                           // More force
-    this.turnRadius = 0.08;                        // LARGE turn radius = wide turns
+    this.turnRadius = 0.6;                        // slightly wider turns than police cars
     this.friction = 0.05;                          // Medium friction
     
     // Combat properties

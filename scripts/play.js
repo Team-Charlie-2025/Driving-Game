@@ -170,10 +170,10 @@ function PlaySketch(p) {
     const x = car.position.x + spawnDistance * p.cos(angle);
     const y = car.position.y + spawnDistance * p.sin(angle);
 
-    const elapsedTime = p.millis() - p.startTime;
+    const elapsedTime = (p.millis() - p.startTime)/1000;
 
-    const BIKE_UNLOCK_TIME = 40000;  //40 sec
-    const TRUCK_UNLOCK_TIME = 70000;  //70 sec
+    const BIKE_UNLOCK_TIME = 40;  //40 sec
+    const TRUCK_UNLOCK_TIME = 70;  //70 sec
 
     //initially just cop cars
     let enemy;
@@ -188,10 +188,23 @@ function PlaySketch(p) {
         enemy = new Motorcycle(p, x, y, car);
       }
     } else {  //cops, bikes, and trucks
-      if (rand < 0.55) {  //cop cars
+      const timeSinceTruckUnlock = elapsedTime - TRUCK_UNLOCK_TIME;
+      const MAX_TRANSITION_TIME = 230;  //this + TRUCK_UNLOCK_TIME = 5 min cap
+      const t = Math.min(timeSinceTruckUnlock / MAX_TRANSITION_TIME, 1.0);  //0 to 1
+
+      //spawn ratios change over time
+      const copChance = 0.55 * (1 - t);  //starts at 55%, drops to 0%
+      const bikeChance = 0.25 + 0.15 * t;  //25% -> 40%
+      const truckChance = 0.20 + 0.40 * t;  //20% -> 60%
+
+      const total = copChance + bikeChance + truckChance;
+      const copNormalized = copChance / total;
+      const bikeNormalized = bikeChance / total;
+
+      if (rand < copNormalized) {
         enemy = new Enemy(p, x, y, car);
         //console.log("cop spawning");
-      } else if (rand < 0.80) {  //bikes
+      } else if (rand < copNormalized + bikeNormalized) {
         enemy = new Motorcycle(p, x, y, car);
         //console.log("bike spawning");
       } else {

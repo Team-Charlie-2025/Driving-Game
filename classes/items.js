@@ -7,7 +7,7 @@ let shieldElapsedTime = null;
 let shieldPauseTime = 0;
 let shieldTotalPausedTime = 0;
 
-let wrenchHealthMod = 10;    //addition to health on wrench collision
+let wrenchHealthModPercent = 0.1;    //heal 10% of health on wrench collision
 
 const BombWaitTime = 500; //bomb place time delay
 let BombPlaceTime = null; 
@@ -87,8 +87,11 @@ class ItemsManager {
         return 0;
     }
     static wrenchCollected(car, wrench){
-      let newHealth = car.getHealth() + wrenchHealthMod;
-      car.onCollisionEnter( wrench);
+      //let newHealth = car.getHealth() + wrenchHealthModPercent;
+      car.onCollisionEnter(wrench);
+    }
+    static canUseWrench(car){
+      return car.healthBar < car.maxHealth;
     }
 
     static bombCollected(car){
@@ -242,7 +245,7 @@ class Wrench extends GameObject {
     this.p = p;
     this.size = size;
     this.collected = false;
-    this.collisionEffect = 10;
+    //this.collisionEffect = 10;
     this.collider = new Collider(this, "rectangle", {
       width: this.size,
       height: this.size,
