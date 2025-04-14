@@ -156,6 +156,12 @@ class ItemsManager {
         }
         if(placeable){//position is not building//
           oilPlaced.placed = true;
+          oilPlaced.collider = new Collider(
+            oilPlaced,
+            "polygon",
+            { offsetX: -13, offsetY: -13 },
+            window.animations["oilSpill"][0]
+          );
           //console.log("oil Placed: " + Math.round(oilPlaced.position.x/gridSize) +", " + Math.round(oilPlaced.position.y/gridSize));
           oils.push(oilPlaced);
           oilInventory --;
@@ -340,11 +346,11 @@ class Oil extends GameObject {
     this.size = size;
     this.collected = false;
     this.placed = false; //oil puddle
-    this.attackDamage = 0.5 * window.difficulty; //damage from skidding
+    this.attackDamage = 0.3 * window.difficulty; //damage from skidding
     this.collider = new Collider(
       this,
       "polygon",
-      { offsetX: -8, offsetY: -9 },
+      { offsetX: -22, offsetY: -8 },
       window.animations["oil"][0]
     );
     this.animationStartTime = p.millis();
@@ -370,7 +376,10 @@ class Oil extends GameObject {
       p.translate(this.position.x, this.position.y);
       p.imageMode(p.CENTER);
       p.noStroke();
-      p.image(oilImg, 0, 0, this.size+10, this.size);
+      if(!this.placed)
+        p.image(oilImg, 0, 0, this.size+20, this.size-5);
+      else  
+        p.image(oilImg, 0, 0, this.size, this.size);
     p.pop();
     
   }

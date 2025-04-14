@@ -111,7 +111,7 @@ class MudTile extends BaseTile {
 
 class Water extends BaseTile {
   constructor(p, x, y, width, height, img = null, createCollider = true, rotation = 0) {
-    super(p, x, y, width, height, img, "blue", createCollider, rotation);
+    super(p, x, y, width, height, img || waterImg, "blue", createCollider, rotation);
   }
   collide(other) {
     return this.collider && other.collider && this.collider.intersects(other.collider);

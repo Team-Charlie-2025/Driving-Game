@@ -13,8 +13,8 @@ function TitleSketch(p) {
   p.preload = function() {    
     loadMusic(p);
     loadSoundEffects(p);
-    bgImage = p.loadImage("graphics/titleBackground.png");
-    imgTitle = p.loadImage("graphics/title.png");
+    bgImage = p.loadImage("graphics/titleScreen/titleBackground2.png"); //trial of a new background (higher def)
+    imgTitle = p.loadImage("graphics/titleScreen/title.png");
     if (!globalsLoaded) loadGlobals(p);
   };
 

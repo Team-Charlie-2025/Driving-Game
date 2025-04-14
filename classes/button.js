@@ -19,8 +19,8 @@ class Button { //regular rect button class
       let hoverScale = isHovered ? this.hoverScale : 1;
 
       if(this.label == "ExitIcon" ){//specfic image for button
-        this.width = 32;
-        this.height = 32;
+        this.width = 45 * window.widthScale;
+        this.height = 45 * window.heightScale;
         let drawWidth = this.width * hoverScale;
         let drawHeight = this.height * hoverScale;
         p.image(window.exitButton, this.x - drawWidth / 2, this.y - drawHeight / 2, drawWidth, drawHeight);
@@ -34,12 +34,12 @@ class Button { //regular rect button class
         let drawWidth = this.width * hoverScale;
         let drawHeight = this.height * hoverScale;
 
-        p.image(window.setButton, this.x-drawWidth /2, this.y-drawHeight/2, drawWidth , drawHeight * 1.8);
+        p.image(window.setButton, this.x-drawWidth /2, this.y-drawHeight/1.5, drawWidth , drawHeight * 1.8);
 
         p.textFont(window.PixelFont);
         p.textSize(drawWidth/8);
         p.textAlign(p.CENTER, p.CENTER);
-        p.text(this.label, this.x + this.width/20, this.y + this.height/4.8);
+        p.text(this.label, this.x + this.width/20, this.y + this.height/16);
         return;
       }
       else if(this.label == "LEADERBOARD" ){ //specfic image for button
