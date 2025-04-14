@@ -28,6 +28,9 @@ class ItemsManager {
       bombInventory = 0;
 
       oilInventory =0;
+      const data = loadPersistentData();
+      bombInventory = data.upgradeBombsLevel || 0;
+
     }
     static ifShield(){
       if(shieldStartTime == null) return false;

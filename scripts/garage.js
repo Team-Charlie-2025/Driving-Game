@@ -31,7 +31,8 @@ class UpgradeButton extends Button {
 
 function GarageSketch(p) {
   console.log(CurrencyManager.getTotalCoins());
-  let upgradeEngineLevel = 1, upgradeBodyLevel = 1, upgradeTransmissionLevel = 1, upgradeTiresLevel = 1;
+  let upgradeEngineLevel = 1, upgradeBodyLevel = 1, upgradeTransmissionLevel = 1, upgradeTiresLevel = 1, upgradeBombsLevel = 0; // bombs start at 0
+  
   let selectedCarIndex = 0;
   let BASE_UPGRADE_PRICE = window.debug ? 0 : 10;
   const DEFAULT_CAR_STATS = { ...window.defaultData.stats };
@@ -61,6 +62,7 @@ function GarageSketch(p) {
       if (typeof savedConfig.upgradeTransmissionLevel === "number") upgradeTransmissionLevel = savedConfig.upgradeTransmissionLevel;
       if (typeof savedConfig.upgradeTiresLevel === "number") upgradeTiresLevel = savedConfig.upgradeTiresLevel;
       if (typeof savedConfig.selectedCar === "number") selectedCarIndex = savedConfig.selectedCar;
+      if (typeof savedConfig.upgradeBombsLevel === "number") upgradeBombsLevel = savedConfig.upgradeBombsLevel;
       if (Array.isArray(savedConfig.purchasedCars)) purchasedCars = savedConfig.purchasedCars;
     }
 
@@ -72,13 +74,13 @@ function GarageSketch(p) {
 
   function setupUpgradeLayout() {
     upgrades = [];
-    let size = 196, spacing = 100, totalWidth = 4 * size + 3 * spacing;
+    let size = 196, spacing = 40, totalWidth = 4 * size + 3 * spacing;
     let startX = (p.width - totalWidth) / 2;
     let boxY = p.height - size - 20, buttonY = boxY - 20;
 
     resetUpgradeButton = new UpgradeButton("Reset", 80, p.height / 2, resetUpgrades, "gray");
 
-    let types = ['engine', 'body', 'transmission', 'tires'];
+    let types = ['engine', 'body', 'transmission', 'tires', 'bombs'];
     types.forEach((type, i) => {
       let x = startX + i * (size + spacing);
       let level = getUpgradeLevel(type);
@@ -102,7 +104,7 @@ function GarageSketch(p) {
   }
 
   function getUpgradeLevel(type) {
-    return { engine: upgradeEngineLevel, body: upgradeBodyLevel, transmission: upgradeTransmissionLevel, tires: upgradeTiresLevel }[type] || 0;
+    return { engine: upgradeEngineLevel, body: upgradeBodyLevel, transmission: upgradeTransmissionLevel, tires: upgradeTiresLevel, bombs: upgradeBombsLevel }[type] || 0;
   }
 
   function setUpgradeLevel(type, level) {
@@ -110,13 +112,13 @@ function GarageSketch(p) {
     else if (type === 'body') upgradeBodyLevel = level;
     else if (type === 'transmission') upgradeTransmissionLevel = level;
     else if (type === 'tires') upgradeTiresLevel = level;
+    else if (type === 'bombs') upgradeBombsLevel = level;
   }
 
   function updateUpgradeButtonText(up) {
     let level = getUpgradeLevel(up.type);
-    up.button.label = level === 10 ? "MAX" : BASE_UPGRADE_PRICE * level;
+    up.button.label = (up.type === 'bombs' && level >= 5) || level >= 10 ? "MAX" : BASE_UPGRADE_PRICE * level;
   }
-
   function purchaseUpgrade(type) {
     let level = getUpgradeLevel(type);
     let price = BASE_UPGRADE_PRICE * level;
@@ -142,7 +144,7 @@ function GarageSketch(p) {
       console.log("Not enough coins for car color.");
     }
   }
-
+  
   function computeCalcStats() {
     return {
       health: DEFAULT_CAR_STATS.health + (upgradeBodyLevel - 1) * 5,
@@ -203,7 +205,6 @@ function GarageSketch(p) {
     if (window.cars?.[selectedCarIndex]) {
       p.image(window.cars[selectedCarIndex], centerX, centerY - 100, 320, 320);
     }
-
     upgrades.forEach(up => {
       p.stroke(0);
       p.fill(211);
@@ -215,6 +216,9 @@ function GarageSketch(p) {
       p.text("Lvl " + getUpgradeLevel(up.type), up.box.x + up.box.w / 2, up.box.y + up.box.h / 2 + 15);
       up.button.display(p);
     });
+
+
+
 
     let stats = computeCalcStats(), panelX = p.width - 270, panelY = (p.height - 200) / 2;
     p.fill(255, 255, 255, 204);
@@ -285,7 +289,7 @@ function GarageSketch(p) {
 
   function saveConfiguration() {
     let config = {
-      upgradeEngineLevel, upgradeBodyLevel, upgradeTransmissionLevel, upgradeTiresLevel,
+      upgradeEngineLevel, upgradeBodyLevel, upgradeTransmissionLevel, upgradeTiresLevel, upgradeBombsLevel,
       selectedCar: selectedCarIndex,
       purchasedCars,
       stats: computeCalcStats()
@@ -293,13 +297,13 @@ function GarageSketch(p) {
     savedStats = { ...config.stats };
     savePersistentData(config);
   }
-
+  
   function resetUpgrades() {
     upgradeEngineLevel = 1;
     upgradeBodyLevel = 1;
     upgradeTransmissionLevel = 1;
     upgradeTiresLevel = 1;
-  
+    upgradeBombsLevel = 0; 
     upgrades.forEach(updateUpgradeButtonText);
     purchasedCars = [true, false, false, false, false, false, false, false];
   
