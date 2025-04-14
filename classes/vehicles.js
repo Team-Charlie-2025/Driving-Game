@@ -252,7 +252,7 @@ class Car extends GameObject {
     let damage = 5 * window.difficulty * (1 + this.speed / this.maxSpeed);
     damage = ItemsManager.shieldDamage(damage);
     this.healthBar = Math.max(0, this.healthBar - damage);
-    this.speed *= -0.1;
+    //this.speed *= -0.1;
   }
 
   getHealth() {
