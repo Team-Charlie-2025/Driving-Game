@@ -12,6 +12,7 @@ function PlaySketch(p) {
   let wrenches = [];
   let bombs = [];
   let oils = [];
+  let gas = []; // Add gas cans array
   window.coinsCollected = 0;
   window.enemyDestroyedCount = 0;
   
@@ -86,6 +87,15 @@ function PlaySketch(p) {
     window.enemySpawnInterval = setInterval(() => spawnEnemy(p), ENEMY_SPAWN_RATE);
 
     //////////MAP ITEM CREATION///////////////
+    // Load item unlocks before spawning anything
+    const savedConfig = loadPersistentData();
+    if (savedConfig?.unlockedItems) {
+      for (let key in savedConfig.unlockedItems) {
+        if (savedConfig.unlockedItems[key]) {
+          ItemsManager.unlockItem(key);
+        }
+      }
+    }
     createShields(p, shields, map);
     console.log("Shields made: " + shields.length);
     createWrenches(p, wrenches, map);
@@ -96,6 +106,8 @@ function PlaySketch(p) {
     console.log("Bombs made: " + bombs.length);
     createOil(p, oils, map);
     console.log("Oils made: " + oils.length);
+    createGas(p, gas, map); // Create gas cans
+    console.log("Gas cans made: " + gas.length);
     ///////////////////////////////////////////
     
     // Create pause menu buttons with fixed positioning based on screen percentages
@@ -113,6 +125,9 @@ function PlaySketch(p) {
         p.textSize(50);
         p.textAlign(p.CENTER, p.CENTER);
         p.text("GAME OVER", p.width / 2, p.height / 3);
+        p.textSize(30);
+        p.text(`Your Final Score: ${window.finalScore || 0}`, p.width / 2, p.height / 2.5 );
+
 
         p.textSize(30);
         p.fill(255);
@@ -176,10 +191,10 @@ function PlaySketch(p) {
     const x = car.position.x + spawnDistance * p.cos(angle);
     const y = car.position.y + spawnDistance * p.sin(angle);
 
-    const elapsedTime = p.millis() - p.startTime;
+    const elapsedTime = (p.millis() - p.startTime)/1000;
 
-    const BIKE_UNLOCK_TIME = 40000;  //40 sec
-    const TRUCK_UNLOCK_TIME = 70000;  //70 sec
+    const BIKE_UNLOCK_TIME = 40;  //40 sec
+    const TRUCK_UNLOCK_TIME = 70;  //70 sec
 
     //initially just cop cars
     let enemy;
@@ -194,10 +209,23 @@ function PlaySketch(p) {
         enemy = new Motorcycle(p, x, y, car);
       }
     } else {  //cops, bikes, and trucks
-      if (rand < 0.55) {  //cop cars
+      const timeSinceTruckUnlock = elapsedTime - TRUCK_UNLOCK_TIME;
+      const MAX_TRANSITION_TIME = 230;  //this + TRUCK_UNLOCK_TIME = 5 min cap
+      const t = Math.min(timeSinceTruckUnlock / MAX_TRANSITION_TIME, 1.0);  //0 to 1
+
+      //spawn ratios change over time
+      const copChance = 0.55 * (1 - t);  //starts at 55%, drops to 0%
+      const bikeChance = 0.25 + 0.15 * t;  //25% -> 40%
+      const truckChance = 0.20 + 0.40 * t;  //20% -> 60%
+
+      const total = copChance + bikeChance + truckChance;
+      const copNormalized = copChance / total;
+      const bikeNormalized = bikeChance / total;
+
+      if (rand < copNormalized) {
         enemy = new Enemy(p, x, y, car);
         //console.log("cop spawning");
-      } else if (rand < 0.80) {  //bikes
+      } else if (rand < copNormalized + bikeNormalized) {
         enemy = new Motorcycle(p, x, y, car);
         //console.log("bike spawning");
       } else {
@@ -247,8 +275,30 @@ function PlaySketch(p) {
         CurrencyManager.updateTotalCoins(runCoinReward);
         const elapsedTime = (p.millis() - p.startTime - window.totalPausedTime) / 1000; // Account for paused time
         const enemyDestroyed = window.enemyDestroyedCount || 0;
-        const computedScore = ScoreManager.computeScore(elapsedTime, enemyDestroyed, window.coinsCollected);
-        
+        const finalscore = ScoreManager.computeScore(elapsedTime, enemyDestroyed, window.coinsCollected, window.difficulty);
+        ScoreManager.updateHighScore(finalscore);
+        window.finalScore= finalscore;
+
+        fetch("http://cassini.cs.kent.edu:9411/submit_score", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json"
+          },
+          body: JSON.stringify({
+            username: window.username,  // This must be set when user logs in!
+            score: finalscore
+          })
+        })
+        .then(response => response.json())
+        .then(data => {
+          if (!data.success) {
+            console.error("Score submit error:", data.message);
+          }
+        })
+        .catch(error => {
+          console.error("Error submitting score:", error);
+        });
+        console.log("Game Over: Score sent to server: " + finalscore);        
         if(window.debug){
         console.log("Game Over: Run coins reward calculated: " + runCoinReward);
         console.log("Game Over: Score calculated: " + computedScore +
@@ -280,15 +330,20 @@ function PlaySketch(p) {
     if (car) p.translate(-car.position.x, -car.position.y);
     
     drawMap(p, car ? car.position : {x: 0, y: 0}, zoomFactor);
-    if (car) car.display();
-    enemies.forEach(enemy => enemy.display());
-    
-    // Pass isPaused to display methods to freeze animations
+
+    // Pass isPaused to display methods to freeze animations, animate beofre cars so they "drive over"
     coins.forEach(coin => coin.display(isPaused));
     shields.forEach(shield => shield.display(isPaused));
     wrenches.forEach(wrench => wrench.display(isPaused));
     bombs.forEach(bomb => bomb.display(isPaused));
     oils.forEach(oil => oil.display(isPaused));
+    gas.forEach(canister => canister.display(isPaused)); // Draw gas cans
+
+    if (car) car.display();
+    enemies.forEach(enemy => enemy.display());
+
+    bombs.forEach(bomb => bomb.display(isPaused)); //animation "over" cars
+    
     
     if (window.debug) {
       bombs.forEach(bomb => bomb.collider.drawOutline());
@@ -319,9 +374,9 @@ function PlaySketch(p) {
           }
         }
       }
-      
-      if(ItemsManager.ifShield()) //draw outline on car for shield
-        car.collider.drawOutline(true);
+    }
+    if(ItemsManager.ifShield()) {//draw outline on car for shield
+      car.collider.drawOutline(true);
     }
     p.pop();
   }
@@ -335,6 +390,14 @@ function PlaySketch(p) {
     wrenches = checkWrenchCollisions(wrenches, car, p);
     bombs = checkBombCollisions(bombs, car, p);
     oils = checkOilCollisions(oils, car, p);
+    gas = checkGasCollisions(gas, car, p); // Check gas can collisions
+    
+    // Update fuel level and check if empty
+    ItemsManager.updateFuel(p, car, isPaused);
+    if (ItemsManager.isFuelEmpty()) {
+      window.isGameOver = true;
+      console.log("Game Over: Out of fuel!");
+    }
     
     if (!car) {
       const stats = loadPersistentData().stats;

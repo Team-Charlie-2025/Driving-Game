@@ -142,6 +142,13 @@ function loadAnimations(p) {
   window.animations["oilSpill"] = [];
   window.animations["oilSpill"].push(p.loadImage("graphics/oilAnimation/oilSpill.png"));
 
+  window.animations["gas"] = [];
+  window.animations["gas"].push(p.loadImage("graphics/gasAnimation/GasCan1.png"));
+  window.animations["gas"].push(p.loadImage("graphics/gasAnimation/GasCan2.png"));
+  window.animations["gas"].push(p.loadImage("graphics/gasAnimation/GasCan3.png"));
+  window.animations["gas"].push(p.loadImage("graphics/gasAnimation/GasCan4.png"));
+  window.animations["gas"].push(p.loadImage("graphics/gasAnimation/GasCan5.png"));
+
   console.log("animations loaded");
 }
 

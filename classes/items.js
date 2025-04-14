@@ -7,7 +7,7 @@ let shieldElapsedTime = null;
 let shieldPauseTime = 0;
 let shieldTotalPausedTime = 0;
 
-let wrenchHealthMod = 10;    //addition to health on wrench collision
+let wrenchHealthModPercent = 0.1;    //heal 10% of health on wrench collision
 
 const BombWaitTime = 500; //bomb place time delay
 let BombPlaceTime = null; 
@@ -15,7 +15,23 @@ let bombInventory = 0; //number of bombs player collected
 
 let oilInventory = 0;
 
+// Fuel system variables
+const fuelMaxTime = 60000; // 60 seconds in milliseconds (fuel runs for 60 seconds)
+let fuelLevel = fuelMaxTime; // Start with full fuel
+let fuelLastUpdateTime = null;
+
 class ItemsManager {
+
+    static unlockedItems = {
+      wrench: false,
+      bomb: false,
+      oil: false,
+      shield: false
+    };
+
+    static unlockItem(itemType) {
+      this.unlockedItems[itemType] = true;
+    }
 
     static ItemResetGame(){ //reset times and inventory
       shieldStartTime = null;
@@ -27,7 +43,11 @@ class ItemsManager {
       BombPlaceTime = null;
       bombInventory = 0;
 
-      oilInventory =0;
+      oilInventory = 0;
+      
+      // Reset fuel
+      fuelLevel = fuelMaxTime;
+      fuelLastUpdateTime = null;
     }
     static ifShield(){
       if(shieldStartTime == null) return false;
@@ -71,8 +91,6 @@ class ItemsManager {
 
       p.textSize(16*window.scale);
       p.text("Shield", 300*window.widthScale, 20*window.heightScale);
-
-
     }
     
     static shieldCollected(){ //a shield has been collected
@@ -87,8 +105,11 @@ class ItemsManager {
         return 0;
     }
     static wrenchCollected(car, wrench){
-      let newHealth = car.getHealth() + wrenchHealthMod;
-      car.onCollisionEnter( wrench);
+      //let newHealth = car.getHealth() + wrenchHealthModPercent;
+      car.onCollisionEnter(wrench);
+    }
+    static canUseWrench(car){
+      return car.healthBar < car.maxHealth;
     }
 
     static bombCollected(car){
@@ -153,6 +174,12 @@ class ItemsManager {
         }
         if(placeable){//position is not building//
           oilPlaced.placed = true;
+          oilPlaced.collider = new Collider(
+            oilPlaced,
+            "polygon",
+            { offsetX: -13, offsetY: -13 },
+            window.animations["oilSpill"][0]
+          );
           //console.log("oil Placed: " + Math.round(oilPlaced.position.x/gridSize) +", " + Math.round(oilPlaced.position.y/gridSize));
           oils.push(oilPlaced);
           oilInventory --;
@@ -161,8 +188,51 @@ class ItemsManager {
       }
     }
 
+    // Fuel system methods
+    static gasCollected(){
+      // Add 30 seconds of fuel
+      fuelLevel = Math.min(fuelMaxTime, fuelLevel + 30000);
+    }
 
-  }
+    static updateFuel(p, car, isPaused = false){
+      if (isPaused) return;
+
+      // Only drain fuel when moving (W or S key pressed)
+      const p5Instance = car.p;
+      if (p5Instance.keyIsDown(getKeyForAction("forward")) || 
+          p5Instance.keyIsDown(getKeyForAction("backward"))) {
+        
+        const currentTime = p.millis();
+        
+        // Initialize last update time if necessary
+        if (fuelLastUpdateTime === null) {
+          fuelLastUpdateTime = currentTime;
+          return;
+        }
+        
+        // Calculate time elapsed since last update
+        const deltaTime = currentTime - fuelLastUpdateTime;
+        
+        // Reduce fuel
+        fuelLevel = Math.max(0, fuelLevel - deltaTime);
+        
+        // Update last update time
+        fuelLastUpdateTime = currentTime;
+      }
+    }
+
+    static getFuelLevel(){
+      return fuelLevel;
+    }
+
+    static getFuelPercentage(){
+      return fuelLevel / fuelMaxTime;
+    }
+
+    static isFuelEmpty(){
+      return fuelLevel <= 0;
+    }
+}
 
 
 class Coin extends GameObject {
@@ -236,13 +306,47 @@ class Shield extends GameObject {
     }
   }
 
+class Gas extends GameObject {
+  constructor(p, x, y, size = 25) {
+    super(x, y);
+    this.p = p;
+    this.size = size;
+    this.collected = false;
+    this.collider = new Collider(this, "rectangle", {
+      width: this.size,
+      height: this.size,
+      offsetX: -this.size / 2,
+      offsetY: -this.size / 2
+    });
+    this.animationStartTime = p.millis();
+  }
+
+  display(isPaused = false) { 
+    const p = this.p;
+    let animationTime = isPaused ? this.animationStartTime : p.millis();
+    const frameIndex = Math.floor(animationTime / frameDuration) % window.animations["gas"].length;
+    const gasImg = window.animations["gas"][frameIndex];
+
+    p.push();
+      p.translate(this.position.x, this.position.y);
+      p.imageMode(p.CENTER);
+      p.noStroke();
+      p.image(gasImg, 0, 0, this.size, this.size);
+    p.pop();
+    
+    if (!isPaused) {
+      this.animationStartTime = p.millis();
+    }
+  }
+}
+
 class Wrench extends GameObject {
   constructor(p, x, y, size = 30) {
     super(x, y);
     this.p = p;
     this.size = size;
     this.collected = false;
-    this.collisionEffect = 10;
+    //this.collisionEffect = 10;
     this.collider = new Collider(this, "rectangle", {
       width: this.size,
       height: this.size,
@@ -337,11 +441,11 @@ class Oil extends GameObject {
     this.size = size;
     this.collected = false;
     this.placed = false; //oil puddle
-    this.attackDamage = 0.5 * window.difficulty; //damage from skidding
+    this.attackDamage = 0.3 * window.difficulty; //damage from skidding
     this.collider = new Collider(
       this,
       "polygon",
-      { offsetX: -8, offsetY: -9 },
+      { offsetX: -22, offsetY: -8 },
       window.animations["oil"][0]
     );
     this.animationStartTime = p.millis();
@@ -367,7 +471,10 @@ class Oil extends GameObject {
       p.translate(this.position.x, this.position.y);
       p.imageMode(p.CENTER);
       p.noStroke();
-      p.image(oilImg, 0, 0, this.size+10, this.size);
+      if(!this.placed)
+        p.image(oilImg, 0, 0, this.size+20, this.size-5);
+      else  
+        p.image(oilImg, 0, 0, this.size, this.size);
     p.pop();
     
   }

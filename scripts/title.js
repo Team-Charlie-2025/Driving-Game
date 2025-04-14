@@ -5,7 +5,8 @@ function TitleSketch(p) {
   let bgImage;
   let imgTitle;
   let debugCheckbox; 
-  let showInfo = false;
+  let helpButton;
+  let showHelpScreen = false;
   let showLevelSelection = false;
   let ExitIcon;
   let windowHeightScale, windowWidthScale, windowScale;
@@ -13,8 +14,8 @@ function TitleSketch(p) {
   p.preload = function() {    
     loadMusic(p);
     loadSoundEffects(p);
-    bgImage = p.loadImage("graphics/titleBackground.png");
-    imgTitle = p.loadImage("graphics/title.png");
+    bgImage = p.loadImage("graphics/titleScreen/titleBackground2.png"); //trial of a new background (higher def)
+    imgTitle = p.loadImage("graphics/titleScreen/title.png");
     if (!globalsLoaded) loadGlobals(p);
   };
 
@@ -24,6 +25,7 @@ function TitleSketch(p) {
 
     createTitleButtons();
     createLevelButtons();
+    createHelpButton();
 
     if (window.debug === undefined) {
       window.debug = false;
@@ -52,10 +54,23 @@ function TitleSketch(p) {
       for (let btn of levelButtons) {
         btn.display(p);
       }
-    } else {
+    } 
+    else if (showHelpScreen) { //HELP INFORMATION
+      helpButton.display(p);
+      p.fill(255, 255, 255, 200);
+      p.noStroke();
+      p.rect(p.width / 2 - (1400 *window.widthScale/2), p.height / 2 - (375*window.heightScale/2), (1400 *window.widthScale), (375*window.heightScale), 15);
+
+      p.fill(0);
+      p.textSize(25*window.widthScale);
+      p.text("Drive and survive the police chasing you! \n \nAvoid getting hit by utilizing items to assist in your escape. \n\nItems like bombs and oil spills to hurt enemies,\n and sheilds to stop damage to your car and wrenches to restore health.\n Check out the settings to adjust the keybinds \nthen hit play to select your difficulity and begin your drive. \n\n Any issues? Let us know on our GitHub.", 
+      p.width / 2, p.height / 2);
+    }
+    else {
       for (let btn of buttons) {
         btn.display(p);
       }
+      helpButton.display(p);
 
       if (imgTitle) {
         p.image(
@@ -65,15 +80,6 @@ function TitleSketch(p) {
           p.windowWidth / 1.2,
           p.windowHeight / 2.6
         );
-      }
-
-      if (showInfo) {
-        p.fill(34, 139, 34, 200);
-        p.noStroke();
-        p.rect(p.width / 2 - 150, p.height / 2 - 50, 300, 100, 15);
-        p.fill(255);
-        p.textSize(16);
-        p.text("Still to be modified", p.width / 2, p.height / 2);
       }
     }
   };
@@ -102,6 +108,9 @@ function TitleSketch(p) {
           break;
         }
       }
+      if (helpButton.isMouseOver(p)){
+        helpButton.callback();
+      }
     }
   };
 
@@ -124,9 +133,6 @@ function TitleSketch(p) {
     createLevelButtons();
   };
 
-  function toggleInfo() {
-    showInfo = !showInfo;
-  }
 
   function createTitleButtons() {
     buttons.push(
@@ -148,11 +154,6 @@ function TitleSketch(p) {
       new Button("LEADERBOARD", p.width / 1.2, p.height - p.height * 0.90, function () {
         switchSketch(Mode.LEADERBOARD);
       })
-    );
-    buttons.push(
-      new Button("HELP", p.width / 10, p.height - p.height * 0.97, function () {
-        toggleInfo();
-      }, "blue")
     );
     buttons.push(
       new Button("Map Editor", p.width / 1.05, p.height - p.height * 0.05, function () {
@@ -208,7 +209,15 @@ function TitleSketch(p) {
 
     ExitIcon = new Button("ExitIcon", p.width - p.width * 0.05, p.height - p.height * 0.95, function () {
       showLevelSelection = false;
+      showHelpScreen = false;
       bgMusic(Mode.TITLE, p, "loop");
     });
+  }
+  function createHelpButton(){
+    helpButton = 
+      new Button("HELP", p.width / 10, p.height - p.height * 0.97, function () {
+        showHelpScreen = !showHelpScreen;
+        console.log("help");
+      }, "blue");
   }
 }

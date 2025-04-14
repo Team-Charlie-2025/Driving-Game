@@ -15,8 +15,6 @@ function showHud(p, map, car, isPaused = false){
       ItemsManager.shieldDisplayBar(p, isPaused);
       drawInventory(p, scale);
       
-      // We're removing the pause indicator from the HUD since it's already shown in the main overlay
-      
     p.pop();
 
 }
@@ -28,6 +26,8 @@ function drawMeters(p,car){
   p.textSize(16*window.scale);
   p.text("Health", 10*window.widthScale, 18*window.heightScale);
   p.text("Boost", 10*window.widthScale, 65*window.heightScale);
+  p.text("Fuel", 10*window.widthScale, 112*window.heightScale); // New fuel label
+  
   let maxHealth = (loadPersistentData().stats.health);  
   // Draw Health Bar
   p.fill(50);
@@ -54,7 +54,20 @@ function drawMeters(p,car){
   //console.log("boost" + car.boostMeter);
   p.rect(10*window.widthScale, 67*window.heightScale, car.boostMeter * 2 * window.widthScale, 25*window.heightScale);
 
+  // Draw Fuel Meter
+  p.fill(50);
+  p.rect(10*window.widthScale, 114*window.heightScale, 200*window.widthScale, 25*window.heightScale);
+  
+  // Change fuel meter color based on level
+  const fuelPercentage = ItemsManager.getFuelPercentage();
+  if (fuelPercentage < 0.25) // Below 25%
+    p.fill(240, 20, 20);
+  else if (fuelPercentage < 0.5) // Below 50%
+    p.fill(223, 232, 100);
+  else
+    p.fill(34, 139, 34); // Green
 
+  p.rect(10*window.widthScale, 114*window.heightScale, fuelPercentage * 200 * window.widthScale, 25*window.heightScale);
 }
 
 // Draws the framerate and car position
@@ -102,7 +115,7 @@ function drawTimer(p, isPaused = false){
     centerY = imageY + backingHeight / 2;
 
     p.textSize(16*window.scale);
-    p.fill(255);
+    p.fill(0);
     p.textAlign(p.CENTER, p.CENTER);
     p.text(`Time: ${secondsElapsed} sec`, centerX, centerY);
   p.pop();
@@ -121,7 +134,7 @@ function drawInventory(p, scale){
     let centerY = imageY + backingHeight / 2;
   
     p.textSize(16 * window.scale);
-    p.fill(255);
+    p.fill(0);
     p.textAlign(p.CENTER, p.CENTER);
     p.text(`Bombs: ${bombInventory}`, centerX, centerY);
   p.pop();
@@ -139,7 +152,7 @@ function drawInventory(p, scale){
     centerY = imageY + backingHeight / 2;
   
     p.textSize(16 * window.scale);
-    p.fill(255);
+    p.fill(0);
     p.textAlign(p.CENTER, p.CENTER);
     p.text(`Oil: ${oilInventory}`, centerX, centerY);
   p.pop();
@@ -156,7 +169,7 @@ function drawInventory(p, scale){
     centerY = imageY + backingHeight / 2;
 
     p.textSize(16*window.scale);
-    p.fill(255);
+    p.fill(0);
     p.textAlign(p.CENTER, p.CENTER);
     p.text(`Coins: ${window.coinsCollected}`, centerX, centerY);
   p.pop()
