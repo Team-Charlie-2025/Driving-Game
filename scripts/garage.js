@@ -33,13 +33,13 @@ function GarageSketch(p) {
   console.log(CurrencyManager.getTotalCoins());
   let upgradeEngineLevel = 1, upgradeBodyLevel = 1, upgradeTransmissionLevel = 1, upgradeTiresLevel = 1;
   let selectedCarIndex = 0;
-  let BASE_UPGRADE_PRICE = window.debug ? 0 : 10;
+  let BASE_UPGRADE_PRICE = window.debug ? 0 : 25;
   const DEFAULT_CAR_STATS = { ...window.defaultData.stats };
   let savedStats = { ...DEFAULT_CAR_STATS };
   let upgrades = [], carBoxes = [], resetUpgradeButton;
   let purchasedCars = [true, false, false, false, false, false, false, false];
   const CAR_COLOR_COST = 10;
-
+  let debugAddCoinsButton;
   p.preload = function () {
     loadMusic(p);
     loadSoundEffects(p);
@@ -51,6 +51,7 @@ function GarageSketch(p) {
   p.setup = function () {
     p.createCanvas(p.windowWidth, p.windowHeight);
     ExitIcon = new Button("ExitIcon", p.width - p.width * 0.05, p.height - p.height * 0.95, () => switchSketch(Mode.TITLE));
+    if (window.debug) debugAddCoinsButton = new UpgradeButton("Coins", 80, p.height / 2 - 60, debugAddCoins, "gray");
 
     resetUpgradeButton = new Button("Reset", 80, p.height / 2, resetUpgrades, "gray");
 
@@ -82,7 +83,7 @@ function GarageSketch(p) {
     types.forEach((type, i) => {
       let x = startX + i * (size + spacing);
       let level = getUpgradeLevel(type);
-      let price = BASE_UPGRADE_PRICE * level;
+      let price = getPrice(type);
       let btn = new UpgradeButton(price, x + size / 2, buttonY, () => purchaseUpgrade(type), "upgrade");
       upgrades.push({ type, label: type.charAt(0).toUpperCase() + type.slice(1), box: { x, y: boxY, w: size, h: size }, button: btn });
       updateUpgradeButtonText(upgrades[upgrades.length - 1]);
@@ -114,12 +115,12 @@ function GarageSketch(p) {
 
   function updateUpgradeButtonText(up) {
     let level = getUpgradeLevel(up.type);
-    up.button.label = level === 10 ? "MAX" : BASE_UPGRADE_PRICE * level;
+    up.button.label = level === 10 ? "MAX" : getPrice(up.type);
   }
 
   function purchaseUpgrade(type) {
     let level = getUpgradeLevel(type);
-    let price = BASE_UPGRADE_PRICE * level;
+    let price = getPrice(type);
     if (CurrencyManager.getTotalCoins() >= price && level < 10) {
       if (typeof CurrencyManager.spendCoins === "function") {
         CurrencyManager.spendCoins(price);
@@ -159,10 +160,16 @@ function GarageSketch(p) {
     return fixed.indexOf('.') !== -1 ? fixed.replace(/\.0+$/, '') : fixed;
   }
 
+  function getPrice(partType){
+    const level = getUpgradeLevel(partType);
+    return Math.floor((BASE_UPGRADE_PRICE * 3 * Math.log(BASE_UPGRADE_PRICE) * (level * level) / 20))
+  }
+
   p.draw = function () {
     p.background(bgImage || [30, 30, 30]);
     ExitIcon.display(p);
     if (resetUpgradeButton) resetUpgradeButton.display(p);
+    if (debugAddCoinsButton) debugAddCoinsButton.display(p);
 
     carBoxes.forEach(box => {
       p.stroke(0);
@@ -263,6 +270,8 @@ function GarageSketch(p) {
       if (up.button.isMouseOver(p)) return purchaseUpgrade(up.type);
     }
     if (resetUpgradeButton.isMouseOver(p)) return resetUpgrades();
+    if (window.debug) if (debugAddCoinsButton.isMouseOver(p)) return debugAddCoins();
+
     if (ExitIcon.isMouseOver(p)) {
       bgMusic(Mode.GARAGE, p, "stop");
       ExitIcon.callback();
@@ -281,6 +290,8 @@ function GarageSketch(p) {
     setupUpgradeLayout();
     setupCarBodySelector();
     resetUpgradeButton = new Button("Reset", 80, p.height / 2, resetUpgrades, "gray");
+    // if (debugAddCoinsButton) debugAddCoinsButton = new UpgradeButton("Coins", 80, p.height / 2 - 60, debugAddCoins, "gray");
+
   };
 
   function saveConfiguration() {
@@ -314,4 +325,10 @@ function GarageSketch(p) {
       switchSketch(Mode.TITLE);
     }
   };
+}
+
+function debugAddCoins() {
+  if(window.debug){
+  CurrencyManager.updateTotalCoins(1000);
+  console.log("Debug: Added 1000 coins. Total coins:", CurrencyManager.getTotalCoins());}
 }
