@@ -8,7 +8,7 @@ function showHud(p, map, car, isPaused = false){
       //drawMinimap(p,map,4)
 
       // Only draws debug if debug is clicked
-      if (window.debug)
+      //if (window.debug)
         drawDebugInfo(p,car);
       drawMeters(p,car);
       drawTimer(p, isPaused);
