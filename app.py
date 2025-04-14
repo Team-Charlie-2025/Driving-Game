@@ -81,5 +81,5 @@ def update_score():
 
 
 if __name__ == '__main__':
-    app.run(debug=True)
+    app.run(host='cassini.cs.kent.edu', port=9415,debug=True)
 
