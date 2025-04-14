@@ -83,7 +83,7 @@ function GarageSketch(p) {
     types.forEach((type, i) => {
       let x = startX + i * (size + spacing);
       let level = getUpgradeLevel(type);
-      let price = getPrice(type);
+      let price = getUpgradePrice(type);
       let btn = new UpgradeButton(price, x + size / 2, buttonY, () => purchaseUpgrade(type), "upgrade");
       upgrades.push({ type, label: type.charAt(0).toUpperCase() + type.slice(1), box: { x, y: boxY, w: size, h: size }, button: btn });
       updateUpgradeButtonText(upgrades[upgrades.length - 1]);
@@ -115,12 +115,12 @@ function GarageSketch(p) {
 
   function updateUpgradeButtonText(up) {
     let level = getUpgradeLevel(up.type);
-    up.button.label = level === 10 ? "MAX" : getPrice(up.type);
+    up.button.label = level === 10 ? "MAX" : getUpgradePrice(up.type);
   }
 
   function purchaseUpgrade(type) {
     let level = getUpgradeLevel(type);
-    let price = getPrice(type);
+    let price = getUpgradePrice(type);
     if (CurrencyManager.getTotalCoins() >= price && level < 10) {
       if (typeof CurrencyManager.spendCoins === "function") {
         CurrencyManager.spendCoins(price);
@@ -160,11 +160,17 @@ function GarageSketch(p) {
     return fixed.indexOf('.') !== -1 ? fixed.replace(/\.0+$/, '') : fixed;
   }
 
-  function getPrice(partType){
+  function getUpgradePrice(partType){
     const level = getUpgradeLevel(partType);
     return Math.floor((BASE_UPGRADE_PRICE * 3 * Math.log(BASE_UPGRADE_PRICE) * (level * level) / 20))
   }
 
+  function debugAddCoins() {
+    if(window.debug){
+    CurrencyManager.updateTotalCoins(1000);
+    console.log("Debug: Added 1000 coins. Total coins:", CurrencyManager.getTotalCoins());}
+  }
+  
   p.draw = function () {
     p.background(bgImage || [30, 30, 30]);
     ExitIcon.display(p);
@@ -327,8 +333,3 @@ function GarageSketch(p) {
   };
 }
 
-function debugAddCoins() {
-  if(window.debug){
-  CurrencyManager.updateTotalCoins(1000);
-  console.log("Debug: Added 1000 coins. Total coins:", CurrencyManager.getTotalCoins());}
-}
