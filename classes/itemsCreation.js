@@ -3,6 +3,7 @@ const totalShields = 20;
 const totalWrenches  = 20;
 const totalBombs = 40;
 const totalOils = 40;
+const totalGas = 20; // Same amount as shields
 
 let attempts = 0;
 const maxAttempts = 10000; 
@@ -43,13 +44,36 @@ function createShields(p, shields, map){
       if (map[randY] && map[randY][randX] instanceof Road) {
         let shieldX = randX * gridSize + gridSize / 2;
         let shieldY = randY * gridSize + gridSize / 2;
-        if (window.debug) console.log(`Spawning sheild ${shields.length + 1} at tile (${randX}, ${randY}) with world coordinates (${shieldX}, ${shieldY})`);
+        if (window.debug) console.log(`Spawning shield ${shields.length + 1} at tile (${randX}, ${randY}) with world coordinates (${shieldX}, ${shieldY})`);
         shields.push(new Shield(p, shieldX, shieldY));
       }
       attempts++;
     }   
     if (attempts >= maxAttempts && debug) {
-      console.log("Max attempts reached while spawning shields. Shields spawned: " + sheilds.length);
+      console.log("Max attempts reached while spawning shields. Shields spawned: " + shields.length);
+    }
+}
+
+    ////////////////////////////////////////////////
+    // gas can creation, positioning, building check, and logs
+function createGas(p, gas, map){
+    attempts = 0;
+    while (gas.length < totalGas && attempts < maxAttempts) {
+      // random map index
+      let randX = Math.floor(p.random(0, map[0].length));
+      let randY = Math.floor(p.random(0, map.length));
+      
+      // checks tile, if road, puts gas can in center
+      if (map[randY] && map[randY][randX] instanceof Road) {
+        let gasX = randX * gridSize + gridSize / 2;
+        let gasY = randY * gridSize + gridSize / 2;
+        if (window.debug) console.log(`Spawning gas can ${gas.length + 1} at tile (${randX}, ${randY}) with world coordinates (${gasX}, ${gasY})`);
+        gas.push(new Gas(p, gasX, gasY));
+      }
+      attempts++;
+    }
+    if (attempts >= maxAttempts && debug) {
+      console.log("Max attempts reached while spawning gas cans. Gas cans spawned: " + gas.length);
     }
 }
 
@@ -66,13 +90,13 @@ function createWrenches(p, wrenches, map ){
       if (map[randY] && map[randY][randX] instanceof Road) {
         let wrenchX = randX * gridSize + gridSize / 2;
         let wrenchY = randY * gridSize + gridSize / 2;
-        if (window.debug) console.log(`Spawning sheild ${wrenches.length + 1} at tile (${randX}, ${randY}) with world coordinates (${wrenchX}, ${wrenchY})`);
+        if (window.debug) console.log(`Spawning wrench ${wrenches.length + 1} at tile (${randX}, ${randY}) with world coordinates (${wrenchX}, ${wrenchY})`);
         wrenches.push(new Wrench(p, wrenchX, wrenchY));
       }
       attempts++;
     }  
     if (attempts >= maxAttempts && debug) {
-      console.log("Max attempts reached while spawning wrenches. wrenches spawned: " + sheilds.length);
+      console.log("Max attempts reached while spawning wrenches. wrenches spawned: " + wrenches.length);
     }
 }
 
