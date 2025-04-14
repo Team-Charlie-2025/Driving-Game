@@ -20,6 +20,49 @@ canvas {
   display: none; /* Hide by default */
 }
 
+#leaderboard-container {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  padding: 20px;
+  background-color: #f4f4f4;
+}
+
+h1 {
+  font-family: 'PixelFont', sans-serif;
+  color: #333;
+}
+
+table {
+  width: 100%;
+  max-width: 600px;
+  margin-top: 20px;
+  border-collapse: collapse;
+  background-color: white;
+  box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+th, td {
+  padding: 12px;
+  text-align: center;
+  font-family: 'PixelFont', sans-serif;
+  font-size: 18px;
+}
+
+th {
+  background-color: #4CAF50;
+  color: white;
+}
+
+tr:nth-child(even) {
+  background-color: #f2f2f2;
+}
+
+tr:hover {
+  background-color: #ddd;
+}
+
 @font-face { /* load in new font name is PixelFont*/
   font-family: 'PixelFont';
   src: url('assets/fonts/pixelFont.ttf') format('truetype');

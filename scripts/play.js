@@ -119,6 +119,9 @@ function PlaySketch(p) {
         p.textSize(50);
         p.textAlign(p.CENTER, p.CENTER);
         p.text("GAME OVER", p.width / 2, p.height / 3);
+        p.textSize(30);
+        p.text(`Your Final Score: ${window.finalScore || 0}`, p.width / 2, p.height / 2.5 );
+
 
         p.textSize(30);
         p.fill(255);
@@ -266,8 +269,30 @@ function PlaySketch(p) {
         CurrencyManager.updateTotalCoins(runCoinReward);
         const elapsedTime = (p.millis() - p.startTime - window.totalPausedTime) / 1000; // Account for paused time
         const enemyDestroyed = window.enemyDestroyedCount || 0;
-        const computedScore = ScoreManager.computeScore(elapsedTime, enemyDestroyed, window.coinsCollected);
-        
+        const finalscore = ScoreManager.computeScore(elapsedTime, enemyDestroyed, window.coinsCollected, window.difficulty);
+        ScoreManager.updateHighScore(finalscore);
+        window.finalScore= finalscore;
+
+        fetch("http://cassini.cs.kent.edu:9411/submit_score", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json"
+          },
+          body: JSON.stringify({
+            username: window.username,  // This must be set when user logs in!
+            score: finalscore
+          })
+        })
+        .then(response => response.json())
+        .then(data => {
+          if (!data.success) {
+            console.error("Score submit error:", data.message);
+          }
+        })
+        .catch(error => {
+          console.error("Error submitting score:", error);
+        });
+        console.log("Game Over: Score sent to server: " + finalscore);        
         if(window.debug){
         console.log("Game Over: Run coins reward calculated: " + runCoinReward);
         console.log("Game Over: Score calculated: " + computedScore +
