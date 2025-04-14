@@ -7,7 +7,7 @@ let shieldElapsedTime = null;
 let shieldPauseTime = 0;
 let shieldTotalPausedTime = 0;
 
-let wrenchHealthMod = 10;    //addition to health on wrench collision
+let wrenchHealthModPercent = 0.1;    //heal 10% of health on wrench collision
 
 const BombWaitTime = 500; //bomb place time delay
 let BombPlaceTime = null; 
@@ -94,8 +94,11 @@ class ItemsManager {
         return 0;
     }
     static wrenchCollected(car, wrench){
-      let newHealth = car.getHealth() + wrenchHealthMod;
-      car.onCollisionEnter( wrench);
+      //let newHealth = car.getHealth() + wrenchHealthModPercent;
+      car.onCollisionEnter(wrench);
+    }
+    static canUseWrench(car){
+      return car.healthBar < car.maxHealth;
     }
 
     static bombCollected(car){
@@ -160,6 +163,12 @@ class ItemsManager {
         }
         if(placeable){//position is not building//
           oilPlaced.placed = true;
+          oilPlaced.collider = new Collider(
+            oilPlaced,
+            "polygon",
+            { offsetX: -13, offsetY: -13 },
+            window.animations["oilSpill"][0]
+          );
           //console.log("oil Placed: " + Math.round(oilPlaced.position.x/gridSize) +", " + Math.round(oilPlaced.position.y/gridSize));
           oils.push(oilPlaced);
           oilInventory --;
@@ -326,7 +335,7 @@ class Wrench extends GameObject {
     this.p = p;
     this.size = size;
     this.collected = false;
-    this.collisionEffect = 10;
+    //this.collisionEffect = 10;
     this.collider = new Collider(this, "rectangle", {
       width: this.size,
       height: this.size,
@@ -421,11 +430,11 @@ class Oil extends GameObject {
     this.size = size;
     this.collected = false;
     this.placed = false; //oil puddle
-    this.attackDamage = 0.5 * window.difficulty; //damage from skidding
+    this.attackDamage = 0.3 * window.difficulty; //damage from skidding
     this.collider = new Collider(
       this,
       "polygon",
-      { offsetX: -8, offsetY: -9 },
+      { offsetX: -22, offsetY: -8 },
       window.animations["oil"][0]
     );
     this.animationStartTime = p.millis();
@@ -451,7 +460,10 @@ class Oil extends GameObject {
       p.translate(this.position.x, this.position.y);
       p.imageMode(p.CENTER);
       p.noStroke();
-      p.image(oilImg, 0, 0, this.size+10, this.size);
+      if(!this.placed)
+        p.image(oilImg, 0, 0, this.size+20, this.size-5);
+      else  
+        p.image(oilImg, 0, 0, this.size, this.size);
     p.pop();
     
   }

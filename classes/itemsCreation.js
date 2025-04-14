@@ -1,8 +1,8 @@
-const totalCoins = 500;
-const totalShields = 20;
+const totalCoins = 400;
+const totalShields = 10;
 const totalWrenches  = 20;
-const totalBombs = 40;
-const totalOils = 40;
+const totalBombs = 20;
+const totalOils = 20;
 const totalGas = 20; // Same amount as shields
 
 let attempts = 0;
