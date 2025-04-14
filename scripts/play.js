@@ -248,7 +248,7 @@ function PlaySketch(p) {
         ScoreManager.updateHighScore(finalscore);
         window.finalScore= finalscore;
 
-        fetch("http://127.0.0.1:5000/submit_score", {
+        fetch("http://cassini.cs.kent.edu:9411/submit_score", {
           method: "POST",
           headers: {
             "Content-Type": "application/json"
