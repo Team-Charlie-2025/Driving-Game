@@ -611,6 +611,7 @@ function generateImprovedCityMap(p, rows, cols) {
       generateCountryTree(p, pt.x, pt.y, visited, 0, 10);
     }
   }
+  fillBuildingsDynamically(p,0,0,rows,cols);
 }
 
 function generateAngledGrid(p, zoneMap, zoneName, hSpacing, vSpacing, alleyOffset, width, visited, alleyChance = 0.5, endpoints = [], chunkSize = 25) {
