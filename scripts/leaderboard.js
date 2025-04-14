@@ -16,7 +16,7 @@ function LeaderboardSketch(p) {
   };
 
   function fetchLeaderboard() {
-      fetch("http://127.0.0.1:5000/leaderboard")
+      fetch("http://cassini.cs.kent.edu:9411/leaderboard")
       .then(response => response.json())
       .then(data => {
           if (data.success) {
