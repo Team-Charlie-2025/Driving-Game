@@ -77,6 +77,167 @@ function generateGenMap(p, rows=500, cols=500) {
   drawBezierRoad(p,20,105,80,100,75,75,roadSizes.normal)
 }
 
+function generateRefactoredDFSMap(p, rows, cols) {
+  const chunkSize = 25;
+  const chunkCols = Math.floor(cols / chunkSize);
+  const chunkRows = Math.floor(rows / chunkSize);
+  const chunks = Array.from({ length: chunkRows }, (_, y) =>
+    Array.from({ length: chunkCols }, (_, x) => ({
+      hasRoad: false,
+      zone: "country"
+    }))
+  );
+
+  const centerChunkX = Math.floor(chunkCols / 2);
+  const centerChunkY = Math.floor(chunkRows / 2);
+
+  for (let y = 0; y < chunkRows; y++) {
+    for (let x = 0; x < chunkCols; x++) {
+      const dist = Math.max(Math.abs(x - centerChunkX), Math.abs(y - centerChunkY));
+      if (dist <= 5) chunks[y][x].zone = "downtown";
+      else if (dist <= 11) chunks[y][x].zone = "residential";
+    }
+  }
+
+  for (let y = 0; y < rows; y++) {
+    map[y] = [];
+    for (let x = 0; x < cols; x++) {
+      map[y][x] = new Grass(p, x * gridSize + gridSize / 2, y * gridSize + gridSize / 2, gridSize, gridSize, null);
+    }
+  }
+
+  const visited = Array.from({ length: rows }, () => Array(cols).fill(false));
+  const midX = Math.floor(cols / 2);
+  const midY = Math.floor(rows / 2);
+  centerX = midX;
+  centerY = midY
+
+  drawAngledRoad(p, midX, 0, midX, rows - 1, roadSizes.main);
+  drawAngledRoad(p, 0, midY, cols - 1, midY, roadSizes.main);
+  markRoadVisited(midX, 0, midX, rows - 1, visited);
+  markRoadVisited(0, midY, cols - 1, midY, visited);
+
+  const offset = Math.ceil(roadSizes.main / 2) + 2;
+  for (let y = 100; y < rows - 100; y += 50) {
+    launchRoadBranch(p, midX + offset - 1, y, visited, chunks, chunkSize, 0);
+    launchRoadBranch(p, midX - offset + 1, y, visited, chunks, chunkSize, 0);
+  }
+  for (let x = 50; x < cols - 50; x += 50) {
+    launchRoadBranch(p, x, midY + offset - 1, visited, chunks, chunkSize, 0);
+    launchRoadBranch(p, x, midY - offset + 1, visited, chunks, chunkSize, 0);
+  }
+}
+
+function launchRoadBranch(p, x, y, visited, chunks, chunkSize, depth) {
+  if (!inBounds(x, y)) return;
+  const chunkX = Math.floor(x / chunkSize);
+  const chunkY = Math.floor(y / chunkSize);
+  if (!inChunkBounds(chunkX, chunkY, chunks)) return;
+
+  const startX = chunkX * chunkSize + Math.floor(chunkSize / 2);
+  const startY = chunkY * chunkSize + Math.floor(chunkSize / 2);
+  const fromChunk = chunks[chunkY][chunkX];
+  const zone = fromChunk.zone;
+
+  const directions = [
+    { dx: 1, dy: 0 }, { dx: -1, dy: 0 },
+    { dx: 0, dy: 1 }, { dx: 0, dy: -1 },
+    { dx: 2, dy: 1 }, { dx: -2, dy: 1 },
+    { dx: 2, dy: -1 }, { dx: -2, dy: -1 },
+    { dx: 1, dy: 2 }, { dx: -1, dy: 2 },
+    { dx: 1, dy: -2 }, { dx: -1, dy: -2 }
+  ];
+  directions.sort(() => Math.random() - 0.5);
+
+  let drewRoad = false;
+
+  for (let dir of directions) {
+    const len = 40 + Math.floor(Math.random() * 110);
+    const endX = startX + dir.dx * len;
+    const endY = startY + dir.dy * len;
+    if (!inBounds(endX, endY)) continue;
+
+    const targetChunkX = Math.floor(endX / chunkSize);
+    const targetChunkY = Math.floor(endY / chunkSize);
+    if (!inChunkBounds(targetChunkX, targetChunkY, chunks)) continue;
+
+    const toChunk = chunks[targetChunkY][targetChunkX];
+    const isPerpendicular = isPerpendicularDirection(dir);
+    const touchesRoad = pathWouldTouchExistingRoad(startX, startY, endX, endY);
+
+    const allow =
+      !toChunk.hasRoad ||
+      (toChunk.hasRoad && isPerpendicular && touchesRoad);
+
+    if (!allow) continue;
+    if (!canDrawRoadPath(startX, startY, endX, endY, visited)) continue;
+
+    const bezierChance =
+      zone === "country" ? 0.75 :
+      zone === "residential" ? 0.25 : 0.1;
+
+    if (Math.random() < bezierChance) {
+      const cx = Math.floor((startX + endX) / 2) + (Math.random() > 0.5 ? 12 : -12);
+      const cy = Math.floor((startY + endY) / 2) + (Math.random() > 0.5 ? 12 : -12);
+      drawBezierRoad(p, startX, startY, cx, cy, endX, endY, roadSizes.normal);
+    } else {
+      drawAngledRoad(p, startX, startY, endX, endY, roadSizes.normal);
+    }
+
+    markRoadVisited(startX, startY, endX, endY, visited);
+    toChunk.hasRoad = true;
+    fromChunk.hasRoad = true;
+    drewRoad = true;
+
+    if (depth < 6 && Math.random() < 0.7) {
+      launchRoadBranch(p, endX, endY, visited, chunks, chunkSize, depth + 1);
+    }
+
+    const forkChance = zone === "country" ? 0.4 : zone === "residential" ? 0.2 : 0.05;
+    if (depth < 6 && Math.random() < forkChance) {
+      const mx = Math.floor((startX + endX) / 2);
+      const my = Math.floor((startY + endY) / 2);
+      launchRoadBranch(p, mx, my, visited, chunks, chunkSize, depth + 1);
+    }
+  }
+
+  if (!drewRoad) {
+    // Optional debug log
+  }
+}
+
+function inChunkBounds(x, y, chunks) {
+  return y >= 0 && y < chunks.length && x >= 0 && x < chunks[0].length;
+}
+
+function isPerpendicularDirection(dir) {
+  const dx = Math.abs(dir.dx);
+  const dy = Math.abs(dir.dy);
+  const slope = dx === 0 || dy === 0 ? 0 : dx / dy;
+  return slope < 0.3 || slope > 3.5;
+}
+
+function pathWouldTouchExistingRoad(x0, y0, x1, y1) {
+  let dx = Math.abs(x1 - x0);
+  let dy = Math.abs(y1 - y0);
+  let stepX = x0 < x1 ? 1 : -1;
+  let stepY = y0 < y1 ? 1 : -1;
+  let err = dx - dy;
+  let x = x0;
+  let y = y0;
+  const maxSteps = Math.max(dx, dy) * 2 + 10;
+  let steps = 0;
+  while ((x !== x1 || y !== y1) && steps++ < maxSteps) {
+    if (inBounds(x, y) && map[y][x] instanceof Road) return true;
+    const e2 = 2 * err;
+    if (e2 > -dy) { err -= dy; x += stepX; }
+    if (e2 < dx) { err += dx; y += stepY; }
+  }
+  return false;
+}
+
+
+
 function generateDFSChunkedMap(p, rows, cols) {
   const chunkSize = 25;
   const chunkCols = Math.floor(cols / chunkSize);
@@ -400,4 +561,206 @@ function getTileTypeAt(x, y) {
   return "unknown"; //default case (e.g., out of bounds)
 }
   
+// --- STRUCTURED CITY GENERATOR (Grid + Country DFS) ---
+function generateImprovedCityMap(p, rows, cols) {
+  const chunkSize = 25;
+  const horizontalSpacing = 60;
+  const verticalSpacing = 40;
+  const alleyOffset = 20;
 
+  const chunksX = Math.floor(cols / chunkSize);
+  const chunksY = Math.floor(rows / chunkSize);
+  const zoneMap = Array.from({ length: chunksY }, () => Array(chunksX).fill("country"));
+
+  const centerChunkX = Math.floor(chunksX / 2);
+  const centerChunkY = Math.floor(chunksY / 2);
+
+  for (let y = 0; y < chunksY; y++) {
+    for (let x = 0; x < chunksX; x++) {
+      const dx = Math.abs(x - centerChunkX);
+      const dy = Math.abs(y - centerChunkY);
+      if (dx <= 1 && dy <= 1) zoneMap[y][x] = "downtown";
+      else if (dx <= 4 && dy <= 4) zoneMap[y][x] = "residential";
+    }
+  }
+
+  for (let y = 0; y < rows; y++) {
+    map[y] = [];
+    for (let x = 0; x < cols; x++) {
+      map[y][x] = new Grass(p, x * gridSize + gridSize/2, y * gridSize + gridSize/2, gridSize, gridSize, null);
+    }
+  }
+
+  const visited = Array.from({ length: rows }, () => Array(cols).fill(false));
+  centerX = Math.floor(cols / 2);
+  centerY = Math.floor(rows / 2);
+  drawAngledRoad(p, centerX, 0, centerX, rows - 1, roadSizes.main);
+  drawAngledRoad(p, 0, centerY, cols - 1, centerY, roadSizes.main);
+  markRoadVisited(centerX, 0, centerX, rows - 1, visited);
+  markRoadVisited(0, centerY, cols - 1, centerY, visited);
+  launchGridFromMainRoad(p, visited, 60, 300, cols, rows);
+
+  const residentialEnds = [];
+
+  generateAngledGrid(p, zoneMap, "downtown", horizontalSpacing, verticalSpacing, alleyOffset, roadSizes.normal, visited);
+  generateAngledGrid(p, zoneMap, "residential", horizontalSpacing, verticalSpacing, alleyOffset, roadSizes.small, visited, 0.25, residentialEnds, chunkSize);
+
+  for (const pt of residentialEnds) {
+    const forks = 1 + Math.floor(Math.random() * 3);
+    for (let i = 0; i < forks; i++) {
+      generateCountryTree(p, pt.x, pt.y, visited, 0, 10);
+    }
+  }
+}
+
+function generateAngledGrid(p, zoneMap, zoneName, hSpacing, vSpacing, alleyOffset, width, visited, alleyChance = 0.5, endpoints = [], chunkSize = 25) {
+  const chunksY = zoneMap.length;
+  const chunksX = zoneMap[0].length;
+
+  for (let y = 0; y < chunksY; y++) {
+    for (let x = 0; x < chunksX; x++) {
+      if (zoneMap[y][x] !== zoneName) continue;
+
+      const baseX = x * chunkSize + Math.floor(chunkSize / 2);
+      const baseY = y * chunkSize + Math.floor(chunkSize / 2);
+
+      const gx = Math.floor(baseX / hSpacing) * hSpacing + hSpacing / 2;
+      const gy = Math.floor(baseY / vSpacing) * vSpacing + vSpacing / 2;
+
+      const dx = Math.floor(Math.random() * 5) - 2;
+      const dy = Math.floor(Math.random() * 5) - 2;
+
+      if (gx + hSpacing < map[0].length) {
+        drawAngledRoad(p, gx, gy, gx + hSpacing + dx, gy + dy, width);
+        markRoadVisited(gx, gy, gx + hSpacing + dx, gy + dy, visited);
+        if (zoneName === "residential" && x === 4) endpoints.push({ x: gx + hSpacing + dx, y: gy + dy });
+      }
+      if (gy + vSpacing < map.length) {
+        drawAngledRoad(p, gx, gy, gx + dx, gy + vSpacing + dy, width);
+        markRoadVisited(gx, gy, gx + dx, gy + vSpacing + dy, visited);
+        if (zoneName === "residential" && y === 4) endpoints.push({ x: gx + dx, y: gy + vSpacing + dy });
+      }
+
+      if (Math.random() < alleyChance) {
+        const ax = gx + (Math.random() > 0.5 ? -alleyOffset : alleyOffset);
+        const ay = gy + (Math.random() > 0.5 ? -alleyOffset : alleyOffset);
+        drawAngledRoad(p, gx, gy, ax, ay, roadSizes.tiny);
+        markRoadVisited(gx, gy, ax, ay, visited);
+      }
+    }
+  }
+}
+function generateCountryTree(p, x, y, visited, depth, maxDepth) {
+  if (!inBounds(x, y, visited.length, visited[0].length)) return;
+  if (visited[y][x]) return;
+
+  visited[y][x] = true;
+
+  const distFromCenter = Math.hypot(x - centerX, y - centerY);
+  const dynamicForks = Math.min(6, 2 + Math.floor(distFromCenter / 250));
+  const dynamicMaxDepth = Math.min(8, Math.floor(distFromCenter / 100) + 2);
+  const windiness = Math.min(2.5, 0.5 + distFromCenter / 500);
+  const curveChance = Math.min(0.3 + distFromCenter / 1000, 0.9);
+
+  const directions = [
+    { dx: 2, dy: 1 }, { dx: -2, dy: -1 },
+    { dx: 1, dy: 2 }, { dx: -1, dy: -2 },
+    { dx: 1, dy: 0 }, { dx: 0, dy: 1 },
+    { dx: -1, dy: 0 }, { dx: 0, dy: -1 }
+  ].sort(() => Math.random() - 0.5);
+
+  let branchesMade = 0;
+
+  for (let dir of directions) {
+    if (branchesMade >= dynamicForks) break;
+
+    const len = 40 + Math.floor(Math.random() * 80);
+    const nx = x + dir.dx * len;
+    const ny = y + dir.dy * len;
+
+    if (!inBounds(nx, ny, visited.length, visited[0].length)) continue;
+    if (!canDrawRoadPath(x, y, nx, ny, visited)) continue;
+    if (pathWouldOverlapRoad(x, y, nx, ny)) continue;
+
+    if (Math.random() < curveChance) {
+      const cx = Math.floor((x + nx) / 2) + (Math.random() * windiness * 20 - windiness * 10);
+      const cy = Math.floor((y + ny) / 2) + (Math.random() * windiness * 20 - windiness * 10);
+      drawBezierRoad(p, x, y, cx, cy, nx, ny, roadSizes.normal);
+    } else {
+      drawAngledRoad(p, x, y, nx, ny, roadSizes.normal);
+    }
+
+    markRoadVisited(x, y, nx, ny, visited);
+
+    if (depth < dynamicMaxDepth && Math.random() < 0.9) {
+      generateCountryTree(p, nx, ny, visited, depth + 1, dynamicMaxDepth);
+    }
+
+    if (depth >= 2 && Math.random() < 0.5) {
+      const mx = Math.floor((x + nx) / 2);
+      const my = Math.floor((y + ny) / 2);
+      generateCountryTree(p, mx, my, visited, depth + 1, dynamicMaxDepth);
+    }
+
+    branchesMade++;
+  }
+}
+
+function launchGridFromMainRoad(p, visited, spacing, range, cols, rows) {
+  const mainX = Math.floor(cols / 2);
+  const mainY = Math.floor(rows / 2);
+  const offset = roadSizes.main;
+
+  // Horizontal main road — vertical branches
+  for (let x = mainX - range; x <= mainX + range; x += spacing) {
+    const topY = mainY - Math.floor(offset / 2) - 1;
+    const botY = mainY + Math.floor(offset / 2) + 1;
+    if (inBounds(x, topY, rows, cols) && !visited[topY][x]) {
+      launchInitialBranch(p, x, topY, visited);
+    }
+    if (inBounds(x, botY, rows, cols) && !visited[botY][x]) {
+      launchInitialBranch(p, x, botY, visited);
+    }
+  }
+
+  // Vertical main road — horizontal branches
+  for (let y = mainY - range; y <= mainY + range; y += spacing) {
+    const leftX = mainX - Math.floor(offset / 2) - 1;
+    const rightX = mainX + Math.floor(offset / 2) + 1;
+    if (inBounds(leftX, y, rows, cols) && !visited[y][leftX]) {
+      launchInitialBranch(p, leftX, y, visited);
+    }
+    if (inBounds(rightX, y, rows, cols) && !visited[y][rightX]) {
+      launchInitialBranch(p, rightX, y, visited);
+    }
+  }
+}
+
+function launchInitialBranch(p, x, y, visited) {
+  const dirs = [
+    { dx: 1, dy: 0 }, { dx: -1, dy: 0 },
+    { dx: 0, dy: 1 }, { dx: 0, dy: -1 },
+    { dx: 2, dy: 1 }, { dx: -2, dy: -1 },
+    { dx: 1, dy: 2 }, { dx: -1, dy: -2 }
+  ].sort(() => Math.random() - 0.5);
+
+  for (let dir of dirs) {
+    const len = 40 + Math.floor(Math.random() * 60);
+    const nx = x + dir.dx * len;
+    const ny = y + dir.dy * len;
+    if (!inBounds(nx, ny, map.length, map[0].length)) continue;
+    if (!canDrawRoadPath(x, y, nx, ny, visited)) continue;
+
+    const curve = Math.random() < 0.3;
+    if (curve) {
+      const cx = Math.floor((x + nx) / 2) + (Math.random() > 0.5 ? 10 : -10);
+      const cy = Math.floor((y + ny) / 2) + (Math.random() > 0.5 ? 10 : -10);
+      drawBezierRoad(p, x, y, cx, cy, nx, ny, roadSizes.normal);
+    } else {
+      drawAngledRoad(p, x, y, nx, ny, roadSizes.normal);
+    }
+
+    markRoadVisited(x, y, nx, ny, visited);
+    break;
+  }
+}

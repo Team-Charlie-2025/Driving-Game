@@ -60,14 +60,14 @@ function drawMeters(p,car){
 // Draws the framerate and car position
 function drawDebugInfo(p,car){
   // Frame Rate
-  p.textSize(14*window.scale);
+  p.textSize(16*window.scale);
   p.textAlign(p.LEFT, p.BOTTOM);
   p.fill(0);
   p.fps = p.frameRate();
   p.text("Frames: " + Math.round(p.fps), 10*window.widthScale ,p.height-22*window.heightScale);
   // debug positional for car
   if (car) {
-    p.textSize(12*window.scale);
+    p.textSize(16*window.scale);
     p.textAlign(p.LEFT, p.BOTTOM);
     p.fill(0);
     p.text(`Car: (${Math.round(car.position.x/gridSize)}, ${Math.round(car.position.y/gridSize)})`, 10*window.widthScale, p.height - 10*window.heightScale);
