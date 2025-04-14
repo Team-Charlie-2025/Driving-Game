@@ -54,8 +54,8 @@ function drawMeters(p, car) {
   p.rect(10 * window.widthScale, 67 * window.heightScale, car.boostMeter * 2 * window.widthScale, 25 * window.heightScale);
 
   // Draw RPM Bar
-  const rpm = car.rpm; // Assuming `car.rpm` contains the current RPM value
-  const maxRpm = 7000; // Maximum RPM
+  const rpm = car.engineRPM; // Assuming `car.rpm` contains the current RPM value
+  const maxRpm = 8000; // Maximum RPM
   const rpmBarWidth = 200 * window.widthScale;
   const rpmBarHeight = 25 * window.heightScale;
   const rpmBarX = 10 * window.widthScale;
