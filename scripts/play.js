@@ -12,6 +12,7 @@ function PlaySketch(p) {
   let wrenches = [];
   let bombs = [];
   let oils = [];
+  let gas = []; // Add gas cans array
   window.coinsCollected = 0;
   window.enemyDestroyedCount = 0;
   
@@ -99,6 +100,8 @@ function PlaySketch(p) {
     console.log("Bombs made: " + bombs.length);
     createOil(p, oils, map);
     console.log("Oils made: " + oils.length);
+    createGas(p, gas, map); // Create gas cans
+    console.log("Gas cans made: " + gas.length);
     ///////////////////////////////////////////
     
     // Create pause menu buttons with fixed positioning based on screen percentages
@@ -303,6 +306,7 @@ function PlaySketch(p) {
     wrenches.forEach(wrench => wrench.display(isPaused));
     bombs.forEach(bomb => bomb.display(isPaused));
     oils.forEach(oil => oil.display(isPaused));
+    gas.forEach(canister => canister.display(isPaused)); // Draw gas cans
 
     if (car) car.display();
     enemies.forEach(enemy => enemy.display());
@@ -355,6 +359,14 @@ function PlaySketch(p) {
     wrenches = checkWrenchCollisions(wrenches, car, p);
     bombs = checkBombCollisions(bombs, car, p);
     oils = checkOilCollisions(oils, car, p);
+    gas = checkGasCollisions(gas, car, p); // Check gas can collisions
+    
+    // Update fuel level and check if empty
+    ItemsManager.updateFuel(p, car, isPaused);
+    if (ItemsManager.isFuelEmpty()) {
+      window.isGameOver = true;
+      console.log("Game Over: Out of fuel!");
+    }
     
     if (!car) {
       const stats = loadPersistentData().stats;

@@ -15,6 +15,11 @@ let bombInventory = 0; //number of bombs player collected
 
 let oilInventory = 0;
 
+// Fuel system variables
+const fuelMaxTime = 60000; // 60 seconds in milliseconds (fuel runs for 60 seconds)
+let fuelLevel = fuelMaxTime; // Start with full fuel
+let fuelLastUpdateTime = null;
+
 class ItemsManager {
 
     static unlockedItems = {
@@ -38,7 +43,11 @@ class ItemsManager {
       BombPlaceTime = null;
       bombInventory = 0;
 
-      oilInventory =0;
+      oilInventory = 0;
+      
+      // Reset fuel
+      fuelLevel = fuelMaxTime;
+      fuelLastUpdateTime = null;
     }
     static ifShield(){
       if(shieldStartTime == null) return false;
@@ -82,8 +91,6 @@ class ItemsManager {
 
       p.textSize(16*window.scale);
       p.text("Shield", 300*window.widthScale, 20*window.heightScale);
-
-
     }
     
     static shieldCollected(){ //a shield has been collected
@@ -181,8 +188,51 @@ class ItemsManager {
       }
     }
 
+    // Fuel system methods
+    static gasCollected(){
+      // Add 30 seconds of fuel
+      fuelLevel = Math.min(fuelMaxTime, fuelLevel + 30000);
+    }
 
-  }
+    static updateFuel(p, car, isPaused = false){
+      if (isPaused) return;
+
+      // Only drain fuel when moving (W or S key pressed)
+      const p5Instance = car.p;
+      if (p5Instance.keyIsDown(getKeyForAction("forward")) || 
+          p5Instance.keyIsDown(getKeyForAction("backward"))) {
+        
+        const currentTime = p.millis();
+        
+        // Initialize last update time if necessary
+        if (fuelLastUpdateTime === null) {
+          fuelLastUpdateTime = currentTime;
+          return;
+        }
+        
+        // Calculate time elapsed since last update
+        const deltaTime = currentTime - fuelLastUpdateTime;
+        
+        // Reduce fuel
+        fuelLevel = Math.max(0, fuelLevel - deltaTime);
+        
+        // Update last update time
+        fuelLastUpdateTime = currentTime;
+      }
+    }
+
+    static getFuelLevel(){
+      return fuelLevel;
+    }
+
+    static getFuelPercentage(){
+      return fuelLevel / fuelMaxTime;
+    }
+
+    static isFuelEmpty(){
+      return fuelLevel <= 0;
+    }
+}
 
 
 class Coin extends GameObject {
@@ -255,6 +305,40 @@ class Shield extends GameObject {
       }
     }
   }
+
+class Gas extends GameObject {
+  constructor(p, x, y, size = 25) {
+    super(x, y);
+    this.p = p;
+    this.size = size;
+    this.collected = false;
+    this.collider = new Collider(this, "rectangle", {
+      width: this.size,
+      height: this.size,
+      offsetX: -this.size / 2,
+      offsetY: -this.size / 2
+    });
+    this.animationStartTime = p.millis();
+  }
+
+  display(isPaused = false) { 
+    const p = this.p;
+    let animationTime = isPaused ? this.animationStartTime : p.millis();
+    const frameIndex = Math.floor(animationTime / frameDuration) % window.animations["gas"].length;
+    const gasImg = window.animations["gas"][frameIndex];
+
+    p.push();
+      p.translate(this.position.x, this.position.y);
+      p.imageMode(p.CENTER);
+      p.noStroke();
+      p.image(gasImg, 0, 0, this.size, this.size);
+    p.pop();
+    
+    if (!isPaused) {
+      this.animationStartTime = p.millis();
+    }
+  }
+}
 
 class Wrench extends GameObject {
   constructor(p, x, y, size = 30) {
