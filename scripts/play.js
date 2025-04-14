@@ -54,7 +54,7 @@ function PlaySketch(p) {
     // Load player car
     const savedData = loadPersistentData();
     const stats = savedData.stats;
-    car = new Car(p, p.width / 2, p.height / 2, stats);
+    car = new PlayerCar(p, 50*gridSize, 18*gridSize, stats);
     
     // Set car image from selected car color if it exists
     const selectedCarIndex = savedData.selectedCar || 0;

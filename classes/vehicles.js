@@ -1,6 +1,6 @@
 // classes/_vehicles.js
-const carWidth = 50;
-const carHeight = 30;
+const carWidth = 64;
+const carHeight = 64;
 
 class Car extends GameObject {
   constructor(p, x, y, stats) {
@@ -70,25 +70,16 @@ class Car extends GameObject {
     let terrainType = getTileTypeAt(this.position.x, this.position.y);
     //console.log(`Car is on: ${terrainType} at (${this.position.x}, {$this.position.y})`)
     
-    if(this.isBoosting) {
-      if (terrainType === "grass") {
-        this.acceleration = this.baseAcceleration * 1.5; //smaller boost on grass
-        this.maxSpeed = this.baseMaxSpeed * 1.75; //lower maxSpeed increase on grass
-      } else {
-        this.acceleration = this.baseAcceleration * 2.5;
-        this.maxSpeed = this.baseMaxSpeed * 3;
-      }
+  
+    if (terrainType === "grass") {
+      this.acceleration = this.baseAcceleration * 0.65; //reduce acceleration
+      this.maxSpeed = this.baseMaxSpeed * 0.65; //reduce max speed
     } else {
-      if (terrainType === "grass") {
-        this.acceleration = this.baseAcceleration * 0.65; //reduce acceleration
-        this.maxSpeed = this.baseMaxSpeed * 0.65; //reduce max speed
-      } else {
-        this.acceleration = this.baseAcceleration;
-        this.maxSpeed = this.baseMaxSpeed;
-      }
-    }  
+      this.acceleration = this.baseAcceleration;
+      this.maxSpeed = this.baseMaxSpeed;
+    }
     
-
+    
     if (p.keyIsDown(getKeyForAction("forward")) && !this.controlDisabled) {
       if (p.keyIsDown(getKeyForAction("boost")) && this.boostMeter > 0) {
         this.isBoosting = true;
@@ -210,6 +201,235 @@ class Car extends GameObject {
   }
 
   getHealth(){
+    return this.healthBar;
+  }
+}
+
+// Ultra realistic car class with gears, and steering angle
+class PlayerCar extends Car {
+  constructor(p, x, y, stats) {
+    super(p, x, y, stats);
+
+    // Gear and engine system
+    this.rpm = 1000;
+    this.gear = 1;
+    this.maxGears = 5;
+    this.rpmRedline = 8000;
+    this.rpmIdle = 1000;
+    this.rpmShiftUp = 6500;
+    this.rpmShiftDown = 3000;
+    this.gearRatios = [2.5, 1.8, 1.3, 1.0, 0.85]; // Lower = longer gear
+
+    // Engine behavior
+    this.rpmGainRate = 300; // how fast RPM rises under throttle
+    this.rpmLossRate = 200; // how fast RPM falls off throttle
+
+    // Traction and drift system
+    this.traction = 1.0; // 1.0 = high traction, 0.0 = none
+    this.minDriftSpeed = 10;
+    this.autoDriftThreshold = 0.9; // fraction of max turn to trigger drift
+    this.isDrifting = false;
+    this.movementAngle = this.angle;
+    this.driftDecay = 0.98;
+    this.spinOutThreshold = 2.5;
+    this.driftTurnMultiplier = 2.5;
+    this.driftRecoveryRate = 0.1;
+    this.driftAccumulator = 0;
+
+    // Boost and smooth ramping
+    this.boostDecayRate = 0.96;
+    this.wasBoosting = false;
+  }
+
+  update() {
+    const p = this.p;
+
+    // Game over condition
+    if (this.healthBar <= 0) {
+      this.healthBar = 0;
+      window.isGameOver = true;
+      return;
+    }
+
+    const terrain = getTileTypeAt(this.position.x, this.position.y);
+    const isOnGrass = terrain === "grass";
+
+    // Set base stats
+    let effectiveTraction = this.traction;
+    if (isOnGrass) effectiveTraction *= 0.6;
+
+    let accel = this.baseAcceleration;
+    let maxSpeed = this.baseMaxSpeed;
+
+    // Boost logic
+    if (p.keyIsDown(getKeyForAction("boost")) && this.boostMeter > 0) {
+      this.isBoosting = true;
+      this.boostMeter -= 2;
+      this.lastBoostTime = Date.now();
+    } else {
+      this.isBoosting = false;
+    }
+
+    if (this.isBoosting) {
+      accel *= 2.0;
+      maxSpeed *= 2.5;
+    }
+
+    // Throttle/brake logic
+    const accelerating = p.keyIsDown(getKeyForAction("forward")) && !this.controlDisabled;
+    const braking = p.keyIsDown(getKeyForAction("backward")) && !this.controlDisabled;
+
+    if (accelerating) {
+      this.speed += accel * this.getCurrentGearRatio();
+      this.speed = Math.min(this.speed, maxSpeed);
+      this.rpm += this.rpmGainRate;
+    } else if (braking) {
+      this.speed -= accel;
+      this.speed = Math.max(this.speed, this.reverseSpeed);
+      this.rpm -= this.rpmLossRate;
+    } else {
+      this.speed *= 1 - this.friction;
+      this.rpm -= this.rpmLossRate;
+    }
+
+    // Smooth transition out of boost
+    if (!this.isBoosting && this.wasBoosting) {
+      this.speed *= this.boostDecayRate;
+      this.wasBoosting = false;
+    } else if (this.isBoosting) {
+      this.wasBoosting = true;
+    }
+
+    // Shift gears
+    this.rpm = p.constrain(this.rpm, this.rpmIdle, this.rpmRedline);
+    if (this.rpm > this.rpmShiftUp && this.gear < this.maxGears) {
+      this.gear++;
+      this.rpm -= 1500;
+    } else if (this.rpm < this.rpmShiftDown && this.gear > 1) {
+      this.gear--;
+      this.rpm += 1000;
+    }
+
+    // Turning
+    const turningLeft = p.keyIsDown(getKeyForAction("left"));
+    const turningRight = p.keyIsDown(getKeyForAction("right"));
+    let turningIntensity = 0;
+    if (turningLeft) turningIntensity -= 1;
+    if (turningRight) turningIntensity += 1;
+
+    const baseTurnRate = 0.02;
+    const turnRate = baseTurnRate * (1 + this.speed / 10);
+    const isTurningHard = Math.abs(turningIntensity) > 0.9;
+
+    const turningForce = turnRate * turningIntensity;
+
+    // Drift logic
+    if (this.speed > this.minDriftSpeed && (p.keyIsDown(16) || isTurningHard)) {
+      if (!this.isDrifting) {
+        this.isDrifting = true;
+        this.movementAngle = this.angle;
+      }
+      this.angle += turningForce * this.driftTurnMultiplier;
+      this.driftAccumulator += 0.05;
+      this.speed *= this.driftDecay;
+
+      const driftAngle = p.atan2(
+        p.sin(this.angle - this.movementAngle),
+        p.cos(this.angle - this.movementAngle)
+      );
+
+      this.movementAngle += driftAngle * this.driftRecoveryRate;
+
+      if (this.driftAccumulator > this.spinOutThreshold) {
+        this.angle += 0.2;
+        this.speed *= 0.9;
+      }
+    } else {
+      if (this.isDrifting && this.speed < this.minDriftSpeed) {
+        this.isDrifting = false;
+        this.driftAccumulator = 0;
+      }
+
+      this.angle += turningForce;
+      this.movementAngle = this.angle;
+      this.driftAccumulator *= 0.9;
+    }
+
+    // Position update
+    const useAngle = this.isDrifting ? this.movementAngle : this.angle;
+    this.position.x += this.speed * p.cos(useAngle);
+    this.position.y += this.speed * p.sin(useAngle);
+    this.velocity.set(this.speed * p.cos(useAngle), this.speed * p.sin(useAngle));
+
+    // Clamp to map
+    const bound = mapSize * gridSize;
+    this.position.x = p.constrain(this.position.x, 0, bound);
+    this.position.y = p.constrain(this.position.y, 0, bound);
+
+    // Regenerate boost
+    if (!this.isBoosting && Date.now() - this.lastBoostTime > this.boostRegenDelay) {
+      this.boostMeter = Math.min(this.boostMax, this.boostMeter + this.boostRegenRate);
+    }
+  }
+
+  getCurrentGearRatio() {
+    return this.gearRatios[this.gear - 1] || 1;
+  }
+
+  getRPM() {
+    return Math.round(this.rpm);
+  }
+
+  display() {
+    const p = this.p;
+    p.push();
+    p.translate(this.position.x, this.position.y);
+    p.rotate(this.angle);
+
+    if (this.currentImage) {
+      p.image(this.currentImage, -this.width / 2, -this.height / 2, this.width, this.height);
+    } else {
+      p.fill(0);
+      p.rect(-this.width / 2, -this.height / 2, this.width, this.height);
+    }
+
+    p.pop();
+  }
+
+  onCollisionEnter(other) {
+    let damage;
+    if (other instanceof Enemy) {
+      damage = other.attackDamage;
+      damage = ItemsManager.shieldDamage(damage);
+      this.healthBar = Math.max(0, this.healthBar - damage);
+    } else if (other instanceof Wrench) {
+      let healing = other.collisionEffect;
+      this.healthBar = Math.min(this.maxHealth, this.healthBar + healing);
+    } else if (other instanceof Bomb) {
+      damage = other.attackDamage;
+      damage = ItemsManager.shieldDamage(damage);
+      this.healthBar = Math.max(0, this.healthBar - damage);
+    } else if (other instanceof Oil) {
+      damage = other.attackDamage;
+      damage = ItemsManager.shieldDamage(damage);
+      this.healthBar = Math.max(0, this.healthBar - damage);
+      this.speed = this.speed * 0.9;
+
+      if (Math.abs(this.speed) > this.minDriftSpeed * 0.7) {
+        this.isDrifting = true;
+        this.movementAngle = this.angle;
+      }
+    }
+  }
+
+  buildingCollision() {
+    let damage = 5 * window.difficulty * (1 + this.speed / this.maxSpeed);
+    damage = ItemsManager.shieldDamage(damage);
+    this.healthBar = Math.max(0, this.healthBar - damage);
+    this.speed *= -0.5;
+  }
+
+  getHealth() {
     return this.healthBar;
   }
 }

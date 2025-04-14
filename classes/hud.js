@@ -8,7 +8,7 @@ function showHud(p, map, car, isPaused = false){
       //drawMinimap(p,map,4)
 
       // Only draws debug if debug is clicked
-      if (window.debug)
+      // if (window.debug)
         drawDebugInfo(p,car);
       drawMeters(p,car);
       drawTimer(p, isPaused);
@@ -22,40 +22,62 @@ function showHud(p, map, car, isPaused = false){
 }
 
 // Draws boost and health meters
-function drawMeters(p,car){
+function drawMeters(p, car) {
   // Labels
   p.fill(255);
-  p.textSize(16*window.scale);
-  p.text("Health", 10*window.widthScale, 18*window.heightScale);
-  p.text("Boost", 10*window.widthScale, 65*window.heightScale);
-  let maxHealth = (loadPersistentData().stats.health);  
+  p.textSize(16 * window.scale);
+  p.text("Health", 10 * window.widthScale, 18 * window.heightScale);
+  p.text("Boost", 10 * window.widthScale, 65 * window.heightScale);
+  p.text(`Speed: ${Math.round(car.speed*10)}`, 10 * window.widthScale, 110 * window.heightScale);
+  p.text(`Gear: ${car.gear}`, 110 * window.widthScale, 110 * window.heightScale);
+
+  let maxHealth = loadPersistentData().stats.health;
+
   // Draw Health Bar
   p.fill(50);
+  p.rect(10 * window.widthScale, 20 * window.heightScale, 200 * window.widthScale, 25 * window.heightScale);
 
-
-  p.rect(10*window.widthScale, 20*window.heightScale, 200*window.widthScale, 25*window.heightScale);
-  
-  //color change as health decreases
-  if(car.healthBar < maxHealth/4) //quarter health =  red
+  // Color change as health decreases
+  if (car.healthBar < maxHealth / 4) // Quarter health = red
     p.fill(240, 20, 20);
-  else if(car.healthBar < maxHealth /2) //half health =  yellow
+  else if (car.healthBar < maxHealth / 2) // Half health = yellow
     p.fill(223, 232, 100);
   else
     p.fill(0, 255, 0);
-  
-  p.rect(10*window.widthScale, 20*window.heightScale, (car.healthBar/maxHealth)*200*window.widthScale, 25*window.heightScale);
+
+  p.rect(10 * window.widthScale, 20 * window.heightScale, (car.healthBar / maxHealth) * 200 * window.widthScale, 25 * window.heightScale);
 
   // Draw Boost Meter
   p.fill(50);
-  p.rect(10*window.widthScale, 67*window.heightScale, 200*window.widthScale, 25*window.heightScale);
+  p.rect(10 * window.widthScale, 67 * window.heightScale, 200 * window.widthScale, 25 * window.heightScale);
   p.fill(255, 165, 0);
+  p.rect(10 * window.widthScale, 67 * window.heightScale, car.boostMeter * 2 * window.widthScale, 25 * window.heightScale);
 
+  // Draw RPM Bar
+  const rpm = car.rpm; // Assuming `car.rpm` contains the current RPM value
+  const maxRpm = 7000; // Maximum RPM
+  const rpmBarWidth = 200 * window.widthScale;
+  const rpmBarHeight = 25 * window.heightScale;
+  const rpmBarX = 10 * window.widthScale;
+  const rpmBarY = 115 * window.heightScale;
 
-  //console.log("boost" + car.boostMeter);
-  p.rect(10*window.widthScale, 67*window.heightScale, car.boostMeter * 2 * window.widthScale, 25*window.heightScale);
+  // Draw RPM Bar Background
+  p.fill(50);
+  p.rect(rpmBarX, rpmBarY, rpmBarWidth, rpmBarHeight);
 
+  // Determine RPM Bar Color
+  if (rpm <= 3000) {
+    p.fill("yellow"); 
+  } else if (rpm <= 5500) {
+    p.fill("orange"); 
+  } else {
+    p.fill("red"); 
+  }
+  const rpmPercentage = rpm / maxRpm;
+  p.rect(rpmBarX, rpmBarY, rpmPercentage * rpmBarWidth, rpmBarHeight);
 
 }
+
 
 // Draws the framerate and car position
 function drawDebugInfo(p,car){
