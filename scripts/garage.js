@@ -1,7 +1,11 @@
 class UpgradeButton extends Button {
+  constructor(label, x, y, callback, type = "upgrade", width = 180, height = 40) {
+    super(label, x, y, callback, type);
+    this.width = width;
+    this.height = height;
+  }
+
   display(p) {
-    this.width = 180;
-    this.height = 40;
     if (window.upgradeButton) {
       p.image(window.upgradeButton, this.x - this.width / 2, this.y - this.height / 2, this.width, this.height);
     } else {
@@ -9,19 +13,19 @@ class UpgradeButton extends Button {
       p.stroke(0);
       p.rect(this.x - this.width / 2, this.y - this.height / 2, this.width, this.height, 5);
     }
-  
+
     p.textFont(window.PixelFont);
-    p.textSize(20);
+    p.textSize(p.width * 0.009);
     p.textAlign(p.CENTER, p.CENTER);
     p.fill(0);
-  
-    if (this.label === "MAX") {
-      p.text("MAX", this.x, this.y);
+
+    if (this.label === "MAX" || this.label === "OWNED") {
+      p.text(this.label, this.x, this.y);
     } else {
       const labelWidth = p.textWidth(this.label);
       const totalWidth = labelWidth + 20;
       const startX = this.x - totalWidth / 2;
-  
+
       p.image(coinUp, startX, this.y - 10, 18, 18);
       p.textAlign(p.LEFT, p.CENTER);
       p.text(this.label, startX + 22, this.y);
@@ -29,16 +33,24 @@ class UpgradeButton extends Button {
   }
 }
 
+const ITEM_PRICES = {
+  wrench: 3000,
+  bomb: 5000,
+  oil: 10000,
+  shield: 15000
+};
+
 function GarageSketch(p) {
   console.log(CurrencyManager.getTotalCoins());
   let upgradeEngineLevel = 1, upgradeBodyLevel = 1, upgradeTransmissionLevel = 1, upgradeTiresLevel = 1;
   let selectedCarIndex = 0;
-  let BASE_UPGRADE_PRICE = window.debug ? 0 : 10;
+  let BASE_UPGRADE_PRICE = 25;
   const DEFAULT_CAR_STATS = { ...window.defaultData.stats };
   let savedStats = { ...DEFAULT_CAR_STATS };
   let upgrades = [], carBoxes = [], resetUpgradeButton;
   let purchasedCars = [true, false, false, false, false, false, false, false];
   const CAR_COLOR_COST = 10;
+  let debugAddCoinsButton;
 
   p.preload = function () {
     loadMusic(p);
@@ -51,8 +63,7 @@ function GarageSketch(p) {
   p.setup = function () {
     p.createCanvas(p.windowWidth, p.windowHeight);
     ExitIcon = new Button("ExitIcon", p.width - p.width * 0.05, p.height - p.height * 0.95, () => switchSketch(Mode.TITLE));
-
-    resetUpgradeButton = new Button("Reset", 80, p.height / 2, resetUpgrades, "gray");
+    if (window.debug) debugAddCoinsButton = new UpgradeButton("Coins", p.width * 0.04, p.height - p.height * 0.1, debugAddCoins, "gray");
 
     let savedConfig = loadPersistentData();
     if (savedConfig) {
@@ -63,8 +74,16 @@ function GarageSketch(p) {
       if (typeof savedConfig.selectedCar === "number") selectedCarIndex = savedConfig.selectedCar;
       if (Array.isArray(savedConfig.purchasedCars)) purchasedCars = savedConfig.purchasedCars;
     }
-
+    if (savedConfig?.unlockedItems) {
+      for (let key in savedConfig.unlockedItems) {
+        if (savedConfig.unlockedItems[key]) {
+          ItemsManager.unlockItem(key);
+        }
+      }
+    }
+  
     setupUpgradeLayout();
+    setupItemPurchaseButtons();
     setupCarBodySelector();
     bgMusic(Mode.GARAGE, p, "loop");
     window.LoadingScreen && window.LoadingScreen.hide();
@@ -72,21 +91,74 @@ function GarageSketch(p) {
 
   function setupUpgradeLayout() {
     upgrades = [];
-    let size = 196, spacing = 100, totalWidth = 4 * size + 3 * spacing;
-    let startX = (p.width - totalWidth) / 2;
-    let boxY = p.height - size - 20, buttonY = boxY - 20;
-
-    resetUpgradeButton = new UpgradeButton("Reset", 80, p.height / 2, resetUpgrades, "gray");
-
-    let types = ['engine', 'body', 'transmission', 'tires'];
+    const size = p.width * 0.1;
+    const spacing = p.width * 0.02;
+    const totalWidth = 4 * size + 3 * spacing;
+    const startX = (p.width - totalWidth) / 2;
+    const boxY = p.height - size - p.height * 0.03;
+    const buttonY = boxY - p.height * 0.023;
+  
+    if (window.debug) {
+      resetUpgradeButton = new UpgradeButton("Reset", p.width * 0.04, p.height - p.height * 0.05, resetUpgrades, "gray", p.width * 0.1, p.height * 0.045);
+    } else {
+      resetUpgradeButton = null;
+    }
+  
+    const types = ['engine', 'body', 'transmission', 'tires'];
     types.forEach((type, i) => {
-      let x = startX + i * (size + spacing);
-      let level = getUpgradeLevel(type);
-      let price = BASE_UPGRADE_PRICE * level;
-      let btn = new UpgradeButton(price, x + size / 2, buttonY, () => purchaseUpgrade(type), "upgrade");
+      const x = startX + i * (size + spacing);
+      const level = getUpgradeLevel(type);
+      const price = getPrice(type);
+      const btn = new UpgradeButton(price, x + size / 2, buttonY, () => purchaseUpgrade(type), "upgrade", p.width * 0.09, p.height * 0.045);
       upgrades.push({ type, label: type.charAt(0).toUpperCase() + type.slice(1), box: { x, y: boxY, w: size, h: size }, button: btn });
       updateUpgradeButtonText(upgrades[upgrades.length - 1]);
     });
+  }
+
+  function setupItemPurchaseButtons() {
+    const itemTypes = ['wrench','bomb', 'oil', 'shield'];
+    const spacing = p.height * 0.13;
+    const boxWidth = p.width * 0.05;
+    const boxHeight = p.height * 0.08;
+    const x = p.width * 0.04;
+    const startY = p.height * 0.3;
+
+    itemTypes.forEach((item, index) => {
+      const y = startY + index * spacing;
+      const label = item.charAt(0).toUpperCase() + item.slice(1);
+      const price = window.debug ? 0 : ITEM_PRICES[item];
+      const owned = ItemsManager.unlockedItems[item];
+      const btnLabel = owned ? "OWNED" : price;
+
+      const box = { x, y, w: boxWidth, h: boxHeight };
+      const buttonY = y - p.height * 0.017;
+      const btn = new UpgradeButton(btnLabel, x + boxWidth / 2, buttonY, () => purchaseItem(item), "item", boxWidth * 0.95, boxHeight * 0.4);
+      upgrades.push({ type: item, label, box, button: btn });
+  });
+}
+  
+
+  function purchaseItem(itemType) {
+    if (ItemsManager.unlockedItems[itemType]) {
+      console.log(itemType + " already unlocked.");
+      return;
+    }
+
+    const price = window.debug ? 0 : ITEM_PRICES[itemType];
+    if (CurrencyManager.getTotalCoins() >= price) {
+      if (price > 0) CurrencyManager.spendCoins(price);
+      ItemsManager.unlockItem(itemType);
+
+      upgrades.forEach(up => {
+        if (up.type === itemType) {
+          up.button.label = "OWNED";
+        }
+      });
+
+      saveConfiguration();
+    } else {
+      console.log("Not enough coins for " + itemType);
+    }
   }
 
   function setupCarBodySelector() {
@@ -114,12 +186,12 @@ function GarageSketch(p) {
 
   function updateUpgradeButtonText(up) {
     let level = getUpgradeLevel(up.type);
-    up.button.label = level === 10 ? "MAX" : BASE_UPGRADE_PRICE * level;
+    up.button.label = level === 10 ? "MAX" : getPrice(up.type);
   }
 
   function purchaseUpgrade(type) {
     let level = getUpgradeLevel(type);
-    let price = BASE_UPGRADE_PRICE * level;
+    let price = getPrice(type);
     if (CurrencyManager.getTotalCoins() >= price && level < 10) {
       if (typeof CurrencyManager.spendCoins === "function") {
         CurrencyManager.spendCoins(price);
@@ -159,10 +231,18 @@ function GarageSketch(p) {
     return fixed.indexOf('.') !== -1 ? fixed.replace(/\.0+$/, '') : fixed;
   }
 
+  function getPrice(partType){
+    if (window.debug) return 0;
+    const level = getUpgradeLevel(partType);
+    return Math.floor((BASE_UPGRADE_PRICE * 3 * Math.log(BASE_UPGRADE_PRICE) * (level * level) / 20));
+  }
+  
+
   p.draw = function () {
     p.background(bgImage || [30, 30, 30]);
     ExitIcon.display(p);
     if (resetUpgradeButton) resetUpgradeButton.display(p);
+    if (debugAddCoinsButton) debugAddCoinsButton.display(p);
 
     carBoxes.forEach(box => {
       p.stroke(0);
@@ -185,7 +265,7 @@ function GarageSketch(p) {
       
         p.image(coinUp, coinX, y - 14, 14, 14);
         p.fill(255, 215, 0);
-        p.textSize(12);
+        p.textSize(p.width * 0.00625);
         p.textAlign(p.LEFT, p.BOTTOM);
         p.text(CAR_COLOR_COST, textX, y);
       }
@@ -201,7 +281,7 @@ function GarageSketch(p) {
 
     let centerX = p.width / 2 - 160, centerY = p.height / 2 - 100;
     if (window.cars?.[selectedCarIndex]) {
-      p.image(window.cars[selectedCarIndex], centerX, centerY - 100, 320, 320);
+      p.image(window.cars[selectedCarIndex], centerX - (p.width * 0.022), centerY - (p.height * 0.0926), p.width * 0.166, p.height * 0.296);
     }
 
     upgrades.forEach(up => {
@@ -209,10 +289,22 @@ function GarageSketch(p) {
       p.fill(211);
       p.rect(up.box.x, up.box.y, up.box.w, up.box.h);
       p.fill(0);
-      p.textSize(16);
+      p.textSize(p.width * 0.00833);
       p.textAlign(p.CENTER, p.CENTER);
       p.text(up.label, up.box.x + up.box.w / 2, up.box.y + up.box.h / 2 - 10);
       p.text("Lvl " + getUpgradeLevel(up.type), up.box.x + up.box.w / 2, up.box.y + up.box.h / 2 + 15);
+      up.button.display(p);
+    });
+
+    const consumables = upgrades.filter(u => ["wrench", "bomb", "oil", "shield"].includes(u.type));
+    consumables.forEach(up => {
+      p.stroke(0);
+      p.fill(200);
+      p.rect(up.box.x, up.box.y, up.box.w, up.box.h);
+      p.fill(0);
+      p.textSize(p.width * 0.00833);
+      p.textAlign(p.CENTER, p.CENTER);
+      p.text(up.label, up.box.x + up.box.w / 2, up.box.y + up.box.h / 2 - 10);
       up.button.display(p);
     });
 
@@ -221,7 +313,7 @@ function GarageSketch(p) {
     p.noStroke();
     p.rect(panelX, panelY, 250, 200);
     p.fill(0);
-    p.textSize(16);
+    p.textSize(p.width * 0.00833);
     p.textAlign(p.LEFT, p.TOP);
     p.text("Stats", panelX + 10, panelY + 10);
     p.stroke(0);
@@ -242,7 +334,7 @@ function GarageSketch(p) {
     p.push();
     p.image(coinBg, 20, 20, 128, 64);
     p.fill(0);
-    p.textSize(16);
+    p.textSize(p.width * 0.00833);
     p.textAlign(p.LEFT, p.TOP);
     p.text(Math.floor(CurrencyManager.getTotalCoins()), 65, 45);
     p.pop();
@@ -259,10 +351,19 @@ function GarageSketch(p) {
         return;
       }
     }
+  
     for (let up of upgrades) {
-      if (up.button.isMouseOver(p)) return purchaseUpgrade(up.type);
+      if (["wrench", "bomb", "oil", "shield"].includes(up.type)) {
+        if (up.button.isMouseOver(p)) return purchaseItem(up.type);
+      } else {
+        if (up.button.isMouseOver(p)) return purchaseUpgrade(up.type);
+      }
     }
-    if (resetUpgradeButton.isMouseOver(p)) return resetUpgrades();
+  
+    if (resetUpgradeButton && window.debug && resetUpgradeButton.isMouseOver(p)) {
+      return resetUpgrades();
+    }
+    if (window.debug) if (debugAddCoinsButton.isMouseOver(p)) return debugAddCoins();
     if (ExitIcon.isMouseOver(p)) {
       bgMusic(Mode.GARAGE, p, "stop");
       ExitIcon.callback();
@@ -278,17 +379,18 @@ function GarageSketch(p) {
 
   p.windowResized = function () {
     p.resizeCanvas(p.windowWidth, p.windowHeight);
+    ExitIcon = new Button("ExitIcon", p.width - p.width * 0.05, p.height - p.height * 0.95, () => switchSketch(Mode.TITLE));
     setupUpgradeLayout();
+    setupItemPurchaseButtons();
     setupCarBodySelector();
-    resetUpgradeButton = new Button("Reset", 80, p.height / 2, resetUpgrades, "gray");
   };
-
   function saveConfiguration() {
     let config = {
       upgradeEngineLevel, upgradeBodyLevel, upgradeTransmissionLevel, upgradeTiresLevel,
       selectedCar: selectedCarIndex,
       purchasedCars,
-      stats: computeCalcStats()
+      stats: computeCalcStats(),
+      unlockedItems: ItemsManager.unlockedItems
     };
     savedStats = { ...config.stats };
     savePersistentData(config);
@@ -300,18 +402,38 @@ function GarageSketch(p) {
     upgradeTransmissionLevel = 1;
     upgradeTiresLevel = 1;
   
-    upgrades.forEach(updateUpgradeButtonText);
-    purchasedCars = [true, false, false, false, false, false, false, false];
+    ItemsManager.unlockedItems = {
+      wrench: false,
+      bomb: false,
+      oil: false,
+      shield: false
+    };
   
+    purchasedCars = [true, false, false, false, false, false, false, false];
     selectedCarIndex = 0;
   
-    saveConfiguration();
-    console.log("Upgrades and car purchases reset.");
-  }  
+    const itemPrices = {
+      wrench: window.debug ? 0 : ITEM_PRICES.wrench,
+      bomb: window.debug ? 0 : ITEM_PRICES.bomb,
+      oil: window.debug ? 0 : ITEM_PRICES.oil,
+      shield: window.debug ? 0 : ITEM_PRICES.shield
+    };
+
+    upgrades.forEach(up => {
+      if (["wrench", "bomb", "oil", "shield"].includes(up.type)) {
+        up.button.label = itemPrices[up.type];
+      } else {
+        updateUpgradeButtonText(up);
+      }
+    });    
   
-  p.keyPressed = function () {
-    if (p.keyCode === p.ESCAPE) {
-      switchSketch(Mode.TITLE);
-    }
-  };
+    saveConfiguration();
+    console.log("Upgrades and item purchases reset.");
+  }  
+}
+
+function debugAddCoins() {
+  if(window.debug){
+  CurrencyManager.updateTotalCoins(1000);
+  console.log("Debug: Added 1000 coins. Total coins:", CurrencyManager.getTotalCoins());}
 }
