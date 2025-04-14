@@ -331,7 +331,7 @@ class Bomb extends GameObject {
   }
 }
 class Oil extends GameObject {
-  constructor(p, x, y, size = 15) {
+  constructor(p, x, y, size = 25) {
     super(x, y);
     this.p = p;
     this.size = size;
@@ -341,7 +341,7 @@ class Oil extends GameObject {
     this.collider = new Collider(
       this,
       "polygon",
-      { offsetX: -8, offsetY: -9 },
+      { offsetX: -24, offsetY: -7 },
       window.animations["oil"][0]
     );
     this.animationStartTime = p.millis();
@@ -367,7 +367,7 @@ class Oil extends GameObject {
       p.translate(this.position.x, this.position.y);
       p.imageMode(p.CENTER);
       p.noStroke();
-      p.image(oilImg, 0, 0, this.size+10, this.size);
+      p.image(oilImg, 0, 0, this.size+20, this.size-5);
     p.pop();
     
   }
