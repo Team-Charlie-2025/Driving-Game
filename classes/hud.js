@@ -102,7 +102,7 @@ function drawTimer(p, isPaused = false){
     centerY = imageY + backingHeight / 2;
 
     p.textSize(16*window.scale);
-    p.fill(255);
+    p.fill(0);
     p.textAlign(p.CENTER, p.CENTER);
     p.text(`Time: ${secondsElapsed} sec`, centerX, centerY);
   p.pop();
@@ -121,7 +121,7 @@ function drawInventory(p, scale){
     let centerY = imageY + backingHeight / 2;
   
     p.textSize(16 * window.scale);
-    p.fill(255);
+    p.fill(0);
     p.textAlign(p.CENTER, p.CENTER);
     p.text(`Bombs: ${bombInventory}`, centerX, centerY);
   p.pop();
@@ -139,7 +139,7 @@ function drawInventory(p, scale){
     centerY = imageY + backingHeight / 2;
   
     p.textSize(16 * window.scale);
-    p.fill(255);
+    p.fill(0);
     p.textAlign(p.CENTER, p.CENTER);
     p.text(`Oil: ${oilInventory}`, centerX, centerY);
   p.pop();
@@ -156,7 +156,7 @@ function drawInventory(p, scale){
     centerY = imageY + backingHeight / 2;
 
     p.textSize(16*window.scale);
-    p.fill(255);
+    p.fill(0);
     p.textAlign(p.CENTER, p.CENTER);
     p.text(`Coins: ${window.coinsCollected}`, centerX, centerY);
   p.pop()
