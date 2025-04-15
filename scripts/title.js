@@ -129,6 +129,7 @@ function TitleSketch(p) {
     window.scale = (window.widthScale + window.heightScale)/2;
     buttons = [];
     levelButtons = [];
+    createHelpButton();
     createTitleButtons();
     createLevelButtons();
   };
@@ -215,7 +216,7 @@ function TitleSketch(p) {
   }
   function createHelpButton(){
     helpButton = 
-      new Button("HELP", p.width / 10, p.height - p.height * 0.97, function () {
+      new Button("HELP", p.width / 12, p.height - p.height * 0.97, function () {
         showHelpScreen = !showHelpScreen;
         console.log("help");
       }, "blue");
