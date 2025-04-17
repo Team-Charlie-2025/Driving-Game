@@ -11,7 +11,10 @@ function LeaderboardSketch(p) {
           leaderboardData = data.map(player => ({
             username: player.username || 'Unknown Player',  // Default username if missing
             score: player.score || 0  // Default score if missing
-          }));
+          }))
+          .sort((a, b) => b.score - a.score)
+          // Keep only top 10
+          .slice(0, 10);
         })
         .catch(error => {
           console.error("Error loading leaderboard:", error);
