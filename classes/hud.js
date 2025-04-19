@@ -19,6 +19,7 @@ function showHud(p, map, car, isPaused = false){
 
 }
 
+
 // Draws boost and health meters
 function drawMeters(p,car){
   // Labels
@@ -27,6 +28,7 @@ function drawMeters(p,car){
   p.text("Health", 10*window.widthScale, 18*window.heightScale);
   p.text("Boost", 10*window.widthScale, 65*window.heightScale);
   p.text("Fuel", 10*window.widthScale, 112*window.heightScale); // New fuel label
+  p.text(`Speed: ${Math.round(car.speed*10)}`, 225*window.widthScale, 50*window.heightScale);
   
   let maxHealth = (loadPersistentData().stats.health);  
   // Draw Health Bar

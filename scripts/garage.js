@@ -216,6 +216,7 @@ function GarageSketch(p) {
   }
 
   function computeCalcStats() {
+    console.log("traction: " + DEFAULT_CAR_STATS.traction);
     return {
       health: DEFAULT_CAR_STATS.health + (upgradeBodyLevel - 1) * 5,
       dmgRes: DEFAULT_CAR_STATS.dmgRes + (upgradeBodyLevel - 1),
