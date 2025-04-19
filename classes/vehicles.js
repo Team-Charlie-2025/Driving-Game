@@ -39,7 +39,7 @@ class Car extends GameObject {
     this.isDrifting = false;
 
     // Gear simulation
-    this.gearMultipliers = [0.04, 0.06, 0.07, 0.04, 0.02];
+    this.gearMultipliers = [0.05, 0.07, 0.09, 0.04, 0.012];
     this.maxRPM = 8000;
     this.idleRPM = 1000;
     this.currentRPM = this.idleRPM;
@@ -85,13 +85,13 @@ class Car extends GameObject {
     this.currentRPM = this.p.lerp(this.currentRPM, target, 0.1); // smooth rpm response
   }
   
-
-  getGear() {
+  // Sets the gear based on speed
+  getGear() { 
     let percent = Math.abs(this.speed) / this.maxSpeed;
-    if (percent < 0.2) return 0;
-    if (percent < 0.4) return 1;
-    if (percent < 0.6) return 2;
-    if (percent < 0.8) return 3;
+    if (percent < 0.15) return 0;
+    if (percent < 0.40) return 1;
+    if (percent < 0.65) return 2;
+    if (percent < 0.85) return 3;
     return 4;
   }
 
@@ -298,7 +298,7 @@ class Car extends GameObject {
 class Enemy extends Car{
   constructor(p, x, y, target) {
     const stats = {
-      acceleration: 0.8 * window.difficulty,
+      acceleration: 0.6 * window.difficulty,
       maxSpeed: 7.0 * window.difficulty,
       health: 100 * window.difficulty,
       friction: 0.03

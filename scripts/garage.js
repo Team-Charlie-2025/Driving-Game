@@ -221,8 +221,8 @@ function GarageSketch(p) {
       health: DEFAULT_CAR_STATS.health + (upgradeBodyLevel - 1) * 5,
       dmgRes: DEFAULT_CAR_STATS.dmgRes + (upgradeBodyLevel - 1),
       boost: DEFAULT_CAR_STATS.boost,
-      maxSpeed: DEFAULT_CAR_STATS.maxSpeed + (upgradeEngineLevel - 1) * 0.5,
-      acceleration: DEFAULT_CAR_STATS.acceleration + (upgradeTransmissionLevel - 1) * 0.2,
+      maxSpeed: DEFAULT_CAR_STATS.maxSpeed + ((upgradeTransmissionLevel+upgradeEngineLevel)/2 - 1) * 0.5,
+      acceleration: DEFAULT_CAR_STATS.acceleration + ((upgradeTransmissionLevel+upgradeEngineLevel)/2 - 1) * 0.1,
       traction: DEFAULT_CAR_STATS.traction + (upgradeTiresLevel - 1) * 0.05,
     };
   }
