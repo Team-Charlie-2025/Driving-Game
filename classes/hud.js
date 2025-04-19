@@ -31,8 +31,6 @@ function drawMeters(p,car){
   let maxHealth = (loadPersistentData().stats.health);  
   // Draw Health Bar
   p.fill(50);
-
-
   p.rect(10*window.widthScale, 20*window.heightScale, 200*window.widthScale, 25*window.heightScale);
   
   //color change as health decreases

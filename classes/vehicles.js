@@ -1,6 +1,6 @@
 // classes/_vehicles.js
-const carWidth = 50;
-const carHeight = 30;
+const carWidth = 64;
+const carHeight = 64;
 
 class Car extends GameObject {
   constructor(p, x, y, stats) {
@@ -217,6 +217,7 @@ class Car extends GameObject {
     return this.healthBar;
   }
 }
+
 
 class Enemy extends Car{
   constructor(p, x, y, target) {

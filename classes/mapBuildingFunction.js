@@ -6,22 +6,33 @@ This file holds all the functions for drawing buildings, lakes and other obstacl
 
 // Draws Buildings given the cordinates 
 function drawRectBuilding(p, xStart, yStart, xEnd, yEnd) {
-    for (let y = yStart; y < yEnd; y++) {
-      for (let x = xStart; x < xEnd; x++) {
-        if (map[y] && map[y][x] !== undefined) {
-          map[y][x] = new Building(
-            p,
-            x * gridSize + gridSize / 2,
-            y * gridSize + gridSize / 2,
-            gridSize,
-            gridSize,
-            buildingImg
-          );
-        }
+  const buildingWidth = Math.abs((xEnd - xStart)) * gridSize;
+  const buildingHeight = Math.abs((yEnd - yStart)) * gridSize;
+
+  const centerX = (xStart + xEnd) * gridSize / 2;
+  const centerY = (yStart + yEnd) * gridSize / 2;
+
+  //console.log(`Building dimensions: ${buildingWidth}x${buildingHeight}`);
+  //console.log(`Building center: (${centerX}, ${centerY})`);
+
+  p.image(buildingImg, centerX - buildingWidth / 2, centerY - buildingHeight / 2, buildingWidth, buildingHeight);
+
+  // Update the map to mark all tiles as part of the building
+  for (let y = yStart; y < yEnd; y++) {
+    for (let x = xStart; x < xEnd; x++) {
+      if (map[y] && map[y][x] !== undefined) {
+        map[y][x] = new Building(
+          p,
+          centerX,
+          centerY,
+          buildingWidth,
+          buildingHeight,
+          buildingImg // Pass the building image
+        );
       }
     }
   }
-  
+}
   
 /* 
   #######################################################################
