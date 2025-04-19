@@ -59,20 +59,20 @@ class Car extends GameObject {
 
   update() {
     const p = this.p;
-
+  
     if (this.healthBar <= 0) {
       this.healthBar = 0;
       window.isGameOver = true;
       return;
     }
-
+  
     // Inputs
     const accelerating = p.keyIsDown(getKeyForAction("forward"));
     const braking = p.keyIsDown(getKeyForAction("backward"));
     const turnLeft = p.keyIsDown(getKeyForAction("left"));
     const turnRight = p.keyIsDown(getKeyForAction("right"));
     const boostKey = p.keyIsDown(getKeyForAction("boost"));
-
+  
     // Boost
     if (accelerating && boostKey && this.boostMeter > 0) {
       this.isBoosting = true;
@@ -84,7 +84,7 @@ class Car extends GameObject {
         this.boostMeter = Math.min(this.boostMax, this.boostMeter + this.boostRegenRate);
       }
     }
-
+  
     // Gears
     if (this.engineRPM > 7000 && this.gear < this.maxGear) {
       this.gear++;
@@ -94,10 +94,10 @@ class Car extends GameObject {
     } else if (this.engineRPM < 2500 && this.gear > 1) {
       this.gear--;
     }
-
+  
     const gearRatio = this.gearRatios[this.gear];
     const totalDriveRatio = gearRatio * this.finalDrive;
-
+  
     if (accelerating) {
       if (this.engineRPM <= 2000) this.engineRPM += this.accelerationRate * 100;
       else if (this.engineRPM <= 3500) this.engineRPM += this.accelerationRate * 250;
@@ -106,68 +106,46 @@ class Car extends GameObject {
     } else {
       this.engineRPM -= this.accelerationRate * 100;
     }
-
+  
     this.engineRPM = p.constrain(this.engineRPM, 1000, 8000);
-
+  
     const wheelRPM = this.engineRPM / 125 / totalDriveRatio;
     const wheelCircumference = this.tireCircumference * gridSize;
     const newSpeed = (wheelRPM * wheelCircumference) / 60;
     const maxAllowedSpeed = this.isBoosting ? this.maxSpeed * 1.75 : this.maxSpeed;
     this.speed = p.constrain(newSpeed, this.reverseSpeed, maxAllowedSpeed);
-
+  
     if (!accelerating && !braking) {
       this.speed *= 1 - this.friction;
       if (Math.abs(this.speed) < 0.05) this.speed = 0;
     }
-
+  
     // Steering
     let steerTarget = 0;
     if (turnLeft) steerTarget -= 1;
     if (turnRight) steerTarget += 1;
     this.steerInput += (steerTarget - this.steerInput) * this.steeringSmooth;
     const turnAmount = this.maxTurnRate * this.steerInput * (1 + Math.abs(this.speed) / 10);
-
+  
     // Calculate next position
     const moveAngle = this.angle;
     const proposedX = this.position.x + this.speed * p.cos(moveAngle);
     const proposedY = this.position.y + this.speed * p.sin(moveAngle);
-    const oldX = this.position.x;
-    const oldY = this.position.y;
-
+  
+    // Check for building collision
+    if (isBuildingTile(proposedX, proposedY)) {
+      this.buildingCollision();
+      return; // Stop further movement if colliding with a building
+    }
+  
     // Move temporarily
     this.position.x = proposedX;
     this.position.y = proposedY;
     this.velocity.set(this.speed * p.cos(moveAngle), this.speed * p.sin(moveAngle));
-
-    // Update collider
-    if (this.collider && this.collider.update) {
-      this.collider.update(this);
-    }
-
-    // Let collisions handle logic via onCollisionEnter
-    if (this.collider.collidingObjects?.length > 0) {
-      for (let other of this.collider.collidingObjects) {
-        if (other?.onCollisionEnter) {
-          other.onCollisionEnter(this);
-        }
-        if (this.onCollisionEnter) {
-          this.onCollisionEnter(other);
-        }
-      }
-
-      // Revert position if collided with a building (solid)
-      const collidedWithSolid = this.collider.collidingObjects.some(obj => obj instanceof Building);
-      if (collidedWithSolid) {
-        this.buildingCollision();
-        this.position.x = oldX;
-        this.position.y = oldY;
-        this.velocity.set(0, 0);
-        this.speed *= -.5;
-      }
-    }
-
+  
     this.angle += turnAmount;
-
+  
+    // Boundary check
     this.position.x = p.constrain(this.position.x, 0, mapSize * gridSize);
     this.position.y = p.constrain(this.position.y, 0, mapSize * gridSize);
   }
@@ -215,7 +193,7 @@ class Car extends GameObject {
     let damage = 5 * window.difficulty * (1 + this.speed / this.maxSpeed);
     damage = ItemsManager.shieldDamage(damage);
     this.healthBar = Math.max(0, this.healthBar - damage);
-    //this.speed *= -0.5;
+    this.speed *= -0.5;
   }
 
   getHealth() {
