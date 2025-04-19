@@ -72,11 +72,11 @@ class Car extends GameObject {
     
     if(this.isBoosting) {
       if (terrainType === "grass") {
-        this.acceleration = this.baseAcceleration * 1.5; //smaller boost on grass
-        this.maxSpeed = this.baseMaxSpeed * 1.75; //lower maxSpeed increase on grass
+        this.acceleration = this.baseAcceleration * 1.25; //smaller boost on grass
+        this.maxSpeed = this.baseMaxSpeed * 1.4; //lower maxSpeed increase on grass
       } else {
-        this.acceleration = this.baseAcceleration * 2.5;
-        this.maxSpeed = this.baseMaxSpeed * 3;
+        this.acceleration = this.baseAcceleration * 1.5;
+        this.maxSpeed = this.baseMaxSpeed * 1.75;
       }
     } else {
       if (terrainType === "grass") {

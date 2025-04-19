@@ -8,8 +8,8 @@ window.defaultData = {
     health: 100,
     boost: 50,
     maxSpeed: 8,
-    acceleration: 0.4,
-    turn: 0.08,
+    acceleration: 0.3,
+    traction: 0.5,   // This is now our drift variable, .5-1
     dmgRes: 10
   }
 };
