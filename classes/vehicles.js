@@ -22,13 +22,11 @@ class Car extends GameObject {
     this.baseMaxSpeed = SAVED_STATS.maxSpeed;
     this.acceleration = SAVED_STATS.acceleration;
     this.maxSpeed = SAVED_STATS.maxSpeed;
-    //this.tireTraction = SAVED_STATS.traction;
-    this.tireTraction = 1.0;
-    //console.log("tire traction: " + this.tireTraction);
+    this.tireTraction = SAVED_STATS.traction;
     this.friction = 0.02;
     this.reverseSpeed = -4;
     this.turnSpeed = 0.05;
-
+    this.turnFrames=1;   // Amount of frames youve been turning
     // Drift physics stats
     this.spunOut = false;
     this.normalTraction = 0.1;
@@ -126,12 +124,21 @@ class Car extends GameObject {
         this.maxSpeed
       );
     }
-    console.log("turn angle: " + (this.prevAngle));
-    if (p.keyIsDown(getKeyForAction("left")) && !this.controlDisabled) this.angle -= this.turnSpeed;
-    if (p.keyIsDown(getKeyForAction("right")) && !this.controlDisabled) this.angle += this.turnSpeed;
-
+    if (p.keyIsDown(getKeyForAction("left")) && !this.controlDisabled) {
+      if(this.turnFrames>-10) 
+        this.turnFrames -= 1;
+    } 
+    else if (p.keyIsDown(getKeyForAction("right")) && !this.controlDisabled) {
+      if(this.turnFrames<10)
+        this.turnFrames+= 1;
+    }else{
+      if (this.turnFrames>=-10 && this.turnFrames<=-2) this.turnFrames += 2
+      else if(this.turnFrames<=10 && this.turnFrames>=2) this.turnFrames-=2
+      else this.turnFrames=0;
+    }
+    this.angle += this.turnSpeed*(this.turnFrames/10);
     this.turnDelta = Math.abs(this.angle - this.prevAngle);
-
+    console.log("turn delta:" + this.turnDelta)
     if (!p.keyIsDown(getKeyForAction("forward")) && !p.keyIsDown(getKeyForAction("backward"))) {
       this.speed *= 1 - this.friction;
       if (Math.abs(this.speed) < 0.01) this.speed = 0;

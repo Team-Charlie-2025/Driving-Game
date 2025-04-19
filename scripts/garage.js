@@ -216,7 +216,7 @@ function GarageSketch(p) {
   }
 
   function computeCalcStats() {
-    console.log("traction: " + DEFAULT_CAR_STATS.traction);
+    //console.log("traction: " + DEFAULT_CAR_STATS.traction);
     return {
       health: DEFAULT_CAR_STATS.health + (upgradeBodyLevel - 1) * 5,
       dmgRes: DEFAULT_CAR_STATS.dmgRes + (upgradeBodyLevel - 1),
@@ -394,6 +394,7 @@ function GarageSketch(p) {
       unlockedItems: ItemsManager.unlockedItems
     };
     savedStats = { ...config.stats };
+    console.log("saved stats" + config.stats.traction)
     savePersistentData(config);
   }
 
