@@ -126,6 +126,7 @@ class Car extends GameObject {
         this.maxSpeed
       );
     }
+    console.log("turn angle: " + (this.prevAngle));
     if (p.keyIsDown(getKeyForAction("left")) && !this.controlDisabled) this.angle -= this.turnSpeed;
     if (p.keyIsDown(getKeyForAction("right")) && !this.controlDisabled) this.angle += this.turnSpeed;
 
@@ -265,6 +266,7 @@ class Car extends GameObject {
     let damage = 5 * window.difficulty;
     damage = ItemsManager.shieldDamage(damage);
     this.healthBar = Math.max(0, this.healthBar - damage);
+    this.speed *=-.25;
   }
 
   getHealth(){
