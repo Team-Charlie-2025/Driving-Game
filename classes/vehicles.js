@@ -25,18 +25,20 @@ class Car extends GameObject {
     this.tireTraction = SAVED_STATS.traction;
     this.friction = 0.02;
     this.reverseSpeed = -4;
-    this.turnSpeed = 0.05;
+    this.turnSpeed = 0.07;
     this.turnFrames = 1;
 
     // Drift physics
     this.spunOut = false;
+    this.isDrifting = false;
     this.normalTraction = 0.1;
     this.driftTraction = 0.3;
     this.traction = this.normalTraction;
     this.movementAngle = this.angle;
     this.driftAccumulator = 0;
-    this.spinOutThreshold = 3.0;
-    this.isDrifting = false;
+    this.spinOutThreshold = 5.0;
+    this.driftDirection = 0;
+
 
     // Gear simulation
     this.gearMultipliers = [0.05, 0.07, 0.09, 0.04, 0.012];
@@ -158,8 +160,10 @@ class Car extends GameObject {
       else if (this.turnFrames <= turnFrameDelay && this.turnFrames >= 2) this.turnFrames -= 2;
       else this.turnFrames = 0;
     }
-
-    this.angle += this.turnSpeed * (this.turnFrames / turnFrameDelay) * Math.min(1, this.speed / 5);
+    if(this.isDrifting)
+      this.angle += this.turnSpeed * (this.turnFrames / turnFrameDelay) * Math.min(1, this.speed / 5)*2;
+    else
+      this.angle += this.turnSpeed * (this.turnFrames / turnFrameDelay) * Math.min(1, this.speed / 5);
     this.turnDelta = Math.abs(this.angle - this.prevAngle);
 
     if (!p.keyIsDown(getKeyForAction("forward")) && !p.keyIsDown(getKeyForAction("backward"))) {
@@ -170,24 +174,40 @@ class Car extends GameObject {
     // Drift physics
     let currentSpeed = this.speed;
     let driftKeyPressed = p.keyIsDown(getKeyForAction("drift"));
-    let aboveMax = currentSpeed > this.maxSpeed;
+    let aboveMax = currentSpeed > this.maxSpeed*.95;
     let lerpAmount = 1;
-
-    if (currentSpeed > this.maxSpeed) lerpAmount = 0.001;
-    else if (currentSpeed >= this.maxSpeed * 0.95) lerpAmount = 0.005;
-    else if (currentSpeed >= this.maxSpeed * 0.9) lerpAmount = 0.01;
-    else if (currentSpeed < this.maxSpeed * 0.8) lerpAmount = 0.25;
+    
+    // Need to incorporate traction along with maxspeed to determine lerp
+    if (currentSpeed > this.maxSpeed) lerpAmount = 0.0001;  // This is a real drift
+    else if (currentSpeed >= this.maxSpeed * 0.95) lerpAmount = 0.0005;
+    else if (currentSpeed >= this.maxSpeed * 0.9) lerpAmount = 0.0015;
+    else if (currentSpeed >= this.maxSpeed * 0.85) lerpAmount = 0.0025;
+    else if (currentSpeed < this.maxSpeed * 0.8) lerpAmount = 0.05;
     else lerpAmount = 0.85;
 
-    if ((aboveMax || driftKeyPressed) && this.turnDelta > 0.04) {
+    if ((aboveMax || driftKeyPressed) && this.turnDelta > 0.05) {
       this.isDrifting = true;
-      this.speed *= 1 - this.friction * 2;
+      this.speed *= 1 - this.friction;
+    
+      if (this.turnFrames > 0) this.driftDirection = 1;
+      else if (this.turnFrames < 0) this.driftDirection = -1;
+      else this.driftDirection = 0;
     }
-
+    
+    
+    // Spin out logic
     if (this.isDrifting) {
-      this.driftAccumulator += this.turnDelta * 1.5;
+      // Counter steer logic
+      const steerDir = this.turnFrames > 0 ? 1 : this.turnFrames < 0 ? -1 : 0;
+      if (steerDir !== 0 && steerDir !== this.driftDirection) {
+        this.driftAccumulator = Math.max(0, this.driftAccumulator - 0.05); // countersteering reduces spinout
+      } else {
+        this.driftAccumulator += this.turnDelta;
+      }
+
       if (this.driftAccumulator > this.spinOutThreshold || this.spunOut) {
-        this.speed *= 0.4;
+        this.speed *= 0.8;
+        console.log("spinning out")
         if (this.spunOut && this.driftAccumulator <= 1) {
           if (this.angle - this.prevAngle >= 0) {
             this.angle += this.turnSpeed * 4;
