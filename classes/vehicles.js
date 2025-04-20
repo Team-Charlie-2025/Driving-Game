@@ -41,7 +41,7 @@ class Car extends GameObject {
 
 
     // Gear simulation
-    this.gearMultipliers = [0.05, 0.07, 0.09, 0.04, 0.012];
+    this.gearMultipliers = [0.05, 0.07, 0.09, 0.04, 0.012, -0.06];
     this.maxRPM = 8000;
     this.idleRPM = 1000;
     this.currentRPM = this.idleRPM;
@@ -89,7 +89,7 @@ class Car extends GameObject {
   
   // Sets the gear based on speed
   getGear() { 
-    let percent = Math.abs(this.speed) / this.maxSpeed;
+    let percent = this.speed / this.maxSpeed;
     if (percent < 0.15) return 0;
     if (percent < 0.40) return 1;
     if (percent < 0.65) return 2;
@@ -143,7 +143,7 @@ class Car extends GameObject {
 
     if (p.keyIsDown(getKeyForAction("backward")) && !this.controlDisabled) {
       this.speed = p.constrain(
-        this.speed - this.acceleration,
+        this.speed + this.acceleration * this.gearMultipliers[5],
         this.reverseSpeed,
         this.maxSpeed
       );
