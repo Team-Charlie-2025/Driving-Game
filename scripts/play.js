@@ -53,6 +53,7 @@ function PlaySketch(p) {
     //generateSmartChunkedMap(p, mapSize, mapSize);
     //generateRefactoredDFSMap(p, mapSize, mapSize); // Weird gaps
     generateImprovedCityMap(p,500,500); // Has weird gen but usable
+    window.driveGrid = buildDrivableGrid(map);  //cache drivable grid
     window.runCoinsCalculated = false;
     window.isGameOver = false;
 
@@ -194,7 +195,7 @@ function PlaySketch(p) {
     const elapsedTime = (p.millis() - p.startTime)/1000;
 
     const BIKE_UNLOCK_TIME = 40;  //40 sec
-    const TRUCK_UNLOCK_TIME = 70;  //70 sec
+    const TRUCK_UNLOCK_TIME = 60;  //60 sec
 
     //initially just cop cars
     let enemy;
@@ -210,7 +211,7 @@ function PlaySketch(p) {
       }
     } else {  //cops, bikes, and trucks
       const timeSinceTruckUnlock = elapsedTime - TRUCK_UNLOCK_TIME;
-      const MAX_TRANSITION_TIME = 230;  //this + TRUCK_UNLOCK_TIME = 5 min cap
+      const MAX_TRANSITION_TIME = 120;  //this + TRUCK_UNLOCK_TIME = 3 min cap
       const t = Math.min(timeSinceTruckUnlock / MAX_TRANSITION_TIME, 1.0);  //0 to 1
 
       //spawn ratios change over time
