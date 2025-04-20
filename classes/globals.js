@@ -96,8 +96,8 @@ function loadButtons(p){
     window.basicButton["purple"] = p.loadImage("graphics/basicButton/purpButton.png");
     window.basicButton["teal"] = p.loadImage("graphics/basicButton/tealButton.png");
 
-    window.PixelFont = p.loadFont('assets/fonts/pixelFont.ttf');
-    window.FatPixelFont = p.loadFont('assets/fonts/ThaleahFat.ttf')
+    //window.PixelFont = p.loadFont('assets/fonts/pixelFont.ttf'); //old font
+    window.PixelFont = p.loadFont('assets/fonts/ThaleahFat.ttf');
 
   console.log("buttons loaded");
 }
@@ -107,23 +107,16 @@ function loadAnimations(p) {
 
   // map[key = name of object to be animated], which holds array of frames
   window.animations["coin"] = [];
-  window.animations["coin"].push(p.loadImage("graphics/coinAnimation/tile000.png"));
-  window.animations["coin"].push(p.loadImage("graphics/coinAnimation/tile001.png"));
-  window.animations["coin"].push(p.loadImage("graphics/coinAnimation/tile002.png"));
-  window.animations["coin"].push(p.loadImage("graphics/coinAnimation/tile003.png"));
-  window.animations["coin"].push(p.loadImage("graphics/coinAnimation/tile004.png"));
+  for(i =1; i <= 4; i++)
+    window.animations["coin"].push(p.loadImage(`graphics/coinAnimation/tile00${i}.png`));
 
   window.animations["shield"] = [];
-  window.animations["shield"].push(p.loadImage("graphics/shieldAnimation/shield1.png"));
-  window.animations["shield"].push(p.loadImage("graphics/shieldAnimation/shield2.png"));
-  window.animations["shield"].push(p.loadImage("graphics/shieldAnimation/shield3.png"));
-  window.animations["shield"].push(p.loadImage("graphics/shieldAnimation/shield4.png"));
+  for(i =1; i <= 4; i++)
+    window.animations["shield"].push(p.loadImage(`graphics/shieldAnimation/shield${i}.png`));
   
   window.animations["wrench"] = [];
-  window.animations["wrench"].push(p.loadImage("graphics/wenchAnimation/wrench1.png"));
-  window.animations["wrench"].push(p.loadImage("graphics/wenchAnimation/wrench2.png"));
-  window.animations["wrench"].push(p.loadImage("graphics/wenchAnimation/wrench3.png"));
-  window.animations["wrench"].push(p.loadImage("graphics/wenchAnimation/wrench4.png"));
+  for(i =1; i <= 4; i++)
+    window.animations["wrench"].push(p.loadImage(`graphics/wenchAnimation/wrench${i}.png`));
 
   window.animations["bomb"] = [];
   window.animations["bomb"].push(p.loadImage("graphics/bombAnimation/bomb1.png"));
@@ -135,19 +128,20 @@ function loadAnimations(p) {
   window.animations["bombExplosion"].push(p.loadImage("graphics/bombAnimation/bomb6.png"));
 
   window.animations["oil"] = [];
-  window.animations["oil"].push(p.loadImage("graphics/oilAnimation/oil1.png"));
-  window.animations["oil"].push(p.loadImage("graphics/oilAnimation/oil2.png"));
-  window.animations["oil"].push(p.loadImage("graphics/oilAnimation/oil3.png"));
-  window.animations["oil"].push(p.loadImage("graphics/oilAnimation/oil4.png"));
+  for(i =1; i <= 4; i++)
+    window.animations["oil"].push(p.loadImage(`graphics/oilAnimation/oil${i}.png`));
   window.animations["oilSpill"] = [];
   window.animations["oilSpill"].push(p.loadImage("graphics/oilAnimation/oilSpill.png"));
 
   window.animations["gas"] = [];
-  window.animations["gas"].push(p.loadImage("graphics/gasAnimation/GasCan1.png"));
-  window.animations["gas"].push(p.loadImage("graphics/gasAnimation/GasCan2.png"));
-  window.animations["gas"].push(p.loadImage("graphics/gasAnimation/GasCan3.png"));
-  window.animations["gas"].push(p.loadImage("graphics/gasAnimation/GasCan4.png"));
-  window.animations["gas"].push(p.loadImage("graphics/gasAnimation/GasCan5.png"));
+  for(i =1; i <= 5; i++)
+    window.animations["gas"].push(p.loadImage(`graphics/gasAnimation/GasCan${i}.png`));
+
+  window.animations["hourglass"]=[];
+  for(i =1; i <= 5; i++)
+    window.animations["hourglass"].push(p.loadImage(`graphics/hourglassAnimation/${i}.png`));
+    //window.animations["hourglass"].push(p.loadImage(`graphics/hourglassAnimation/hourglass${i}.png`));
+
 
   console.log("animations loaded");
 }

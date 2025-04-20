@@ -9,6 +9,7 @@ function TitleSketch(p) {
   let showHelpScreen = false;
   let showLevelSelection = false;
   let ExitIcon;
+  let githubLink;
   let windowHeightScale, windowWidthScale, windowScale;
 
   p.preload = function() {    
@@ -26,6 +27,11 @@ function TitleSketch(p) {
     createTitleButtons();
     createLevelButtons();
     createHelpButton();
+    githubLink = p.createA('https://github.com/Team-Charlie-2025/Driving-Game', 'Github', '_blank');
+    githubLink.style('font-size', 30*window.scale);
+    githubLink.style('font-family', 'PixelFont')
+    githubLink.style('color', 'black');
+    githubLink.hide();
 
     if (window.debug === undefined) {
       window.debug = false;
@@ -59,12 +65,14 @@ function TitleSketch(p) {
       helpButton.display(p);
       p.fill(255, 255, 255, 200);
       p.noStroke();
-      p.rect(p.width / 2 - (1400 *window.widthScale/2), p.height / 2 - (375*window.heightScale/2), (1400 *window.widthScale), (375*window.heightScale), 15);
+      p.rect(p.width / 2 - (1200 *window.widthScale/2), p.height / 2 - (475*window.heightScale/2), (1200 *window.widthScale), (475*window.heightScale), 15);
 
       p.fill(0);
-      p.textSize(25*window.widthScale);
+      p.textSize(30*window.scale);
       p.text("Drive and survive the police chasing you! \n \nAvoid getting hit by utilizing items to assist in your escape. \n\nItems like bombs and oil spills to hurt enemies,\n and sheilds to stop damage to your car and wrenches to restore health.\n Check out the settings to adjust the keybinds \nthen hit play to select your difficulity and begin your drive. \n\n Any issues? Let us know on our GitHub.", 
       p.width / 2, p.height / 2);
+      githubLink.position(p.width / 2 -(5*window.scale), p.height / 2 + (400 * window.heightScale / 2));
+      githubLink.show();
     }
     else {
       for (let btn of buttons) {
@@ -98,7 +106,11 @@ function TitleSketch(p) {
         showLevelSelection = false;
       }
   
-    } else {
+    } 
+    else if (helpButton.isMouseOver(p)){
+      helpButton.callback();
+    }
+    else if(!showHelpScreen){
       for (let btn of buttons) {
         if (btn.isMouseOver(p)) {
           if (btn.label !== "Play") {
@@ -107,9 +119,6 @@ function TitleSketch(p) {
           btn.callback();
           break;
         }
-      }
-      if (helpButton.isMouseOver(p)){
-        helpButton.callback();
       }
     }
   };
@@ -219,6 +228,7 @@ function TitleSketch(p) {
       new Button("HELP", p.width / 12, p.height - p.height * 0.97, function () {
         showHelpScreen = !showHelpScreen;
         console.log("help");
+        githubLink.hide();
       }, "blue");
   }
 }

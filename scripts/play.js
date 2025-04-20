@@ -116,23 +116,22 @@ function PlaySketch(p) {
     p.showGameOverScreen = function () {
         bgMusic(Mode.PLAY, p, "stop");
         if(gameOverSound) {soundEffect("gameOver", p, "play"); gameOverSound = false;} //only play once
-      
+        p.textFont(window.PixelFont);
         p.push();
         p.fill(150, 0, 0, 180); // Semi-transparent red overlay
         p.rect(0, 0, p.width, p.height);
         
         p.fill(255);
-        p.textSize(50);
+        p.textSize(120 * window.scale);
         p.textAlign(p.CENTER, p.CENTER);
         p.text("GAME OVER", p.width / 2, p.height / 3);
-        p.textSize(30);
+
+        p.textSize(40* window.scale);
         p.text(`Your Final Score: ${window.finalScore || 0}`, p.width / 2, p.height / 2.5 );
 
-
-        p.textSize(30);
         p.fill(255);
         p.text("Press R to Restart", p.width / 2, p.height / 2);
-        p.text("Press M for Main Menu", p.width / 2, p.height / 1.5);
+        p.text("Press M for Main Menu", p.width / 2, p.height / 1.8);
         p.pop();
     };
   };
@@ -252,7 +251,7 @@ function PlaySketch(p) {
       p.rect(0, 0, p.width, p.height);
       
       p.textFont(window.PixelFont);
-      p.textSize(60 * window.scale);
+      p.textSize(90 * window.scale);
       p.fill(255);
       p.textAlign(p.CENTER, p.CENTER);
       p.text("PAUSED", p.width / 2, p.height / 3);

@@ -19,11 +19,11 @@ function SettingsSketch(p){
     createKeybindButtons(p);
 
     musicSlider = p.createSlider(0, 1, getMusicVolume(p), 0.01);
-    musicSlider.position(p.width / 2 - 75, p.height / 2 + 300);
+    musicSlider.position(p.width / 2 - 75, p.height / 3 + 25*window.heightScale);
     musicSlider.style('width', '150px');
 
     effectsSlider = p.createSlider(0, 1, getEffectsVolume(p), 0.01);
-    effectsSlider.position(p.width / 2 - 75, p.height / 2 + 360);
+    effectsSlider.position(p.width / 2 - 75, p.height / 3 + 100*window.heightScale);
     effectsSlider.style('width', '150px');
 
     ExitIcon = new Button(
@@ -42,7 +42,7 @@ function SettingsSketch(p){
 
   function createKeybindButtons(p) {
     const actions = Object.keys(keybindConfig);
-    const startY = p.height / 2 - 100;
+    const startY = p.height / 2 + 20*window.heightScale;
     const spacing = 40;
   
     const keyCodeToString = code => {
@@ -67,6 +67,7 @@ function SettingsSketch(p){
       btn.position(p.width / 2 - 75, startY + i * spacing);
       btn.size(150, 30);
       btn.style("font-family", "PixelFont");
+      btn.style("font-size", '20px');
       btn.mousePressed(() => {
         rebinding = action;
         console.log(`Click to rebind ${action}`);
@@ -80,15 +81,16 @@ function SettingsSketch(p){
     p.background(100, 193, 232);
     ExitIcon.display(p);
 
-    p.fill(50);
-    p.textSize(48);
+    p.fill(0);
+    p.textSize(100 * window.scale);
     p.textFont(window.PixelFont);
     p.text("Settings", p.width / 2, p.height / 4);
-
-    p.textSize(24);
+    
+    p.textSize(40 * window.scale);
     p.textFont(window.PixelFont);
-    p.text("Music Volume: " + Math.trunc(musicSlider.value()*100), p.width / 2, p.height / 2 + 280);
-    p.text("Effects Volume: " + Math.trunc(effectsSlider.value()*100), p.width / 2, p.height / 2 + 340);
+    p.text("Music Volume: " + Math.trunc(musicSlider.value()*100), p.width / 2, p.height / 3);
+    p.text("Effects Volume: " + Math.trunc(effectsSlider.value()*100), p.width / 2, p.height / 3 + 75*window.heightScale);
+    p.text("Keybinds", p.width / 2, p.height / 2 - 20*window.heightScale);
 
     setMusicVolume(p, musicSlider.value());
     setEffectsVolume(p, effectsSlider.value());
@@ -96,7 +98,7 @@ function SettingsSketch(p){
     if (rebinding) {
       p.push();
       p.textAlign(p.RIGHT, p.CENTER);
-      p.textSize(20);
+      p.textSize(20 * window.scale);
       p.fill(255, 0, 0);
       p.text(`Press a key for ${rebinding.toUpperCase()}`, p.width - 20, p.height - 30);
       p.pop();

@@ -1,6 +1,6 @@
 function LeaderboardSketch(p) {
     let leaderboardData = [];
-    let ExitIcon;
+    let ExitIcon, bgImage;
 
 
     function loadLeaderboard() {
@@ -24,36 +24,47 @@ function LeaderboardSketch(p) {
     p.setup = function () {
         p.createCanvas(p.windowWidth, p.windowHeight);
         p.textAlign(p.CENTER, p.CENTER);
-        p.textSize(32);
+        p.textSize(32* window.widthScale);
         p.background(240);
+        p.fill(0);
+        p.textFont(window.PixelFont);
+        bgImage = p.loadImage("graphics/leaderBackground.png");
   
         // Exit button to go back to title
-        ExitIcon = new Button("ExitIcon", p.width - 80, 30, function () {
-          switchSketch(Mode.TITLE);
-        });
+        ExitIcon = new Button("ExitIcon",
+          p.width - p.width * 0.05,
+          p.height - p.height * 0.95,
+          function() {
+            bgMusic(Mode.SETTINGS, p, "stop");
+            switchSketch(Mode.TITLE);
+          });
         window.LoadingScreen.hide();
         loadLeaderboard();
       };
 
       
     p.draw = function () {
-      p.background(240);
+      if (bgImage) {
+        p.background(bgImage);
+      } else {
+        p.background(222, 236, 250);
+      }
 
       // Title
-      p.fill(50);
-      p.textSize(60);
-      p.text("🏆 Leaderboard", p.width / 2, 100);
+      p.fill(0);
+      p.textSize(120 * window.scale);
+      p.text("Leaderboard", p.width / 2, 250*window.heightScale);
 
       // Leaderboard entries
-      p.textSize(28);
+      p.textSize(35* window.scale);
       if (leaderboardData.length === 0) {
         p.text("Loading...", p.width / 2, p.height / 2);
       } else {
         for (let i = 0; i < leaderboardData.length; i++) {
           const player = leaderboardData[i];
-          const y = 180 + i * 40;
+          const y = 375*window.heightScale + i * 45*window.heightScale;
           p.fill(i === 0 ? "#DAA520" : "#000"); // Gold for 1st
-          p.text(`${i + 1}. ${player.username} - 💰 ${player.score || 0} score`, p.width / 2, y);
+          p.text(`${i + 1}. ${player.username} - ${player.score || 0} score`, p.width / 2, y);
         }
       }
 

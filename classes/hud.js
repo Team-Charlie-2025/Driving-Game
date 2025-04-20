@@ -1,15 +1,29 @@
 //scripts/hud.js
 let windowHeightScale, windowWidthScale, windowScale;
+let coinImg, bombImg, oilImg, timeImg
 function showHud(p, map, car, isPaused = false){
+  let animationTime = isPaused ? this.animationStartTime : p.millis();
+
+  frameIndex = Math.floor(animationTime / frameDuration) % window.animations["coin"].length;
+  coinImg = window.animations["coin"][frameIndex];
+
+  frameIndex = Math.floor(animationTime / frameDuration) % window.animations["bomb"].length;
+  bombImg = window.animations["bomb"][frameIndex];
+
+  frameIndex = Math.floor(animationTime / frameDuration) % window.animations["oil"].length;
+  oilImg = window.animations["oil"][frameIndex];
+  
+  frameIndex = Math.floor(animationTime / frameDuration) % window.animations["hourglass"].length;
+  timeImg = window.animations["hourglass"][frameIndex];
+
 
     // UI
     p.push();
-      
       //drawMinimap(p,map,4)
 
       // Only draws debug if debug is clicked
       //if (window.debug)
-        drawDebugInfo(p,car);
+      drawDebugInfo(p,car);
       drawMeters(p,car);
       drawTimer(p, isPaused);
       ItemsManager.shieldDisplayBar(p, isPaused);
@@ -23,7 +37,8 @@ function showHud(p, map, car, isPaused = false){
 function drawMeters(p,car){
   // Labels
   p.fill(255);
-  p.textSize(16*window.scale);
+  p.textSize(20*window.scale);
+  p.textFont(window.PixelFont);
   p.text("Health", 10*window.widthScale, 18*window.heightScale);
   p.text("Boost", 10*window.widthScale, 65*window.heightScale);
   p.text("Fuel", 10*window.widthScale, 112*window.heightScale); // New fuel label
@@ -61,9 +76,9 @@ function drawMeters(p,car){
   // Change fuel meter color based on level
   const fuelPercentage = ItemsManager.getFuelPercentage();
   if (fuelPercentage < 0.25) // Below 25%
-    p.fill(240, 20, 20);
+    p.fill(179, 43, 43);
   else if (fuelPercentage < 0.5) // Below 50%
-    p.fill(223, 232, 100);
+    p.fill(165, 179, 43);
   else
     p.fill(34, 139, 34); // Green
 
@@ -114,10 +129,16 @@ function drawTimer(p, isPaused = false){
     centerX = imageX + backingWidth / 2;
     centerY = imageY + backingHeight / 2;
 
-    p.textSize(16*window.scale);
+    p.textSize(20*window.scale);
     p.fill(0);
     p.textAlign(p.CENTER, p.CENTER);
-    p.text(`Time: ${secondsElapsed} sec`, centerX, centerY);
+    p.text(`  ${secondsElapsed} sec`, centerX, centerY);
+
+
+    p.translate(centerX- backingWidth / 4, centerY);
+    p.imageMode(p.CENTER);
+    p.noStroke();
+    p.image(timeImg, 0, 0, 20*window.widthScale, 20*window.heightScale);
   p.pop();
 }
 function drawInventory(p, scale){
@@ -133,10 +154,16 @@ function drawInventory(p, scale){
     let centerX = imageX + backingWidth / 2;
     let centerY = imageY + backingHeight / 2;
   
-    p.textSize(16 * window.scale);
+    p.textSize(20 * window.scale);
+    p.textFont(window.PixelFont);
     p.fill(0);
     p.textAlign(p.CENTER, p.CENTER);
-    p.text(`Bombs: ${bombInventory}`, centerX, centerY);
+    p.text(`  ${bombInventory}`, centerX, centerY);
+
+    p.translate(centerX- backingWidth / 4, centerY);
+    p.imageMode(p.CENTER);
+    p.noStroke();
+    p.image(bombImg, 0, 0, 20*window.widthScale, 20*window.heightScale);
   p.pop();
 
   p.push(); //Oils
@@ -151,10 +178,16 @@ function drawInventory(p, scale){
     centerX = imageX + backingWidth / 2;
     centerY = imageY + backingHeight / 2;
   
-    p.textSize(16 * window.scale);
+    p.textSize(20 * window.scale);
     p.fill(0);
+    p.textFont(window.PixelFont);
     p.textAlign(p.CENTER, p.CENTER);
-    p.text(`Oil: ${oilInventory}`, centerX, centerY);
+    p.text(`  ${oilInventory}`, centerX, centerY);
+
+    p.translate(centerX- backingWidth / 4, centerY);
+    p.imageMode(p.CENTER);
+    p.noStroke();
+    p.image(oilImg, 0, 0, 25*window.widthScale, 20*window.heightScale);
   p.pop();
 
 
@@ -168,10 +201,16 @@ function drawInventory(p, scale){
     centerX = imageX + backingWidth / 2;
     centerY = imageY + backingHeight / 2;
 
-    p.textSize(16*window.scale);
+    p.textSize(20*window.scale);
+    p.textFont(window.PixelFont);
     p.fill(0);
     p.textAlign(p.CENTER, p.CENTER);
-    p.text(`Coins: ${window.coinsCollected}`, centerX, centerY);
+    p.text(`  ${window.coinsCollected}`, centerX, centerY);
+
+    p.translate(centerX- backingWidth / 4, centerY);
+    p.imageMode(p.CENTER);
+    p.noStroke();
+    p.image(coinImg, 0, 0, 20*window.widthScale, 20*window.heightScale);
   p.pop()
 }
 

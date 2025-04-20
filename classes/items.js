@@ -89,8 +89,8 @@ class ItemsManager {
 
       p.fill(255);
 
-      p.textSize(16*window.scale);
-      p.text("Shield", 300*window.widthScale, 20*window.heightScale);
+      p.textSize(20*window.scale);
+      p.text("Shield", 260*window.widthScale, 20*window.heightScale);
     }
     
     static shieldCollected(){ //a shield has been collected
