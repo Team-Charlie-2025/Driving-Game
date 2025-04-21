@@ -219,13 +219,14 @@ function GarageSketch(p) {
   }
 
   function computeCalcStats() {
+    //console.log("traction: " + DEFAULT_CAR_STATS.traction);
     return {
       health: DEFAULT_CAR_STATS.health + (upgradeBodyLevel - 1) * 5,
       dmgRes: DEFAULT_CAR_STATS.dmgRes + (upgradeBodyLevel - 1),
       boost: DEFAULT_CAR_STATS.boost,
-      maxSpeed: DEFAULT_CAR_STATS.maxSpeed + (upgradeEngineLevel - 1) * 0.5,
-      acceleration: DEFAULT_CAR_STATS.acceleration + (upgradeTransmissionLevel - 1) * 0.1,
-      turn: DEFAULT_CAR_STATS.turn + (upgradeTiresLevel - 1) * 0.05,
+      maxSpeed: DEFAULT_CAR_STATS.maxSpeed + ((upgradeTransmissionLevel+upgradeEngineLevel)/2 - 1) * 0.5,
+      acceleration: DEFAULT_CAR_STATS.acceleration + ((upgradeTransmissionLevel+upgradeEngineLevel)/2 - 1) * 0.1,
+      traction: DEFAULT_CAR_STATS.traction + (upgradeTiresLevel - 1) * 0.05,
     };
   }
 
@@ -327,9 +328,9 @@ function GarageSketch(p) {
     p.noStroke();
     p.strokeWeight(0);
 
-    let names = ["Health", "Boost", "Speed", "Accel", "Turn", "Dmg Res"];
-    let bases = [savedStats.health, savedStats.boost, savedStats.maxSpeed, savedStats.acceleration, savedStats.turn, savedStats.dmgRes];
-    let vals = [stats.health, stats.boost, stats.maxSpeed, stats.acceleration, stats.turn, stats.dmgRes];
+    let names = ["Health", "Boost", "Max Speed", "Acceleration", "Traction", "Dmg Res"];
+    let bases = [savedStats.health, savedStats.boost, savedStats.maxSpeed, savedStats.acceleration, savedStats.traction, savedStats.dmgRes];
+    let vals = [stats.health, stats.boost, stats.maxSpeed, stats.acceleration, stats.traction, stats.dmgRes];
     for (let i = 0; i < names.length; i++) {
       let y = panelY + 35 + i * 20;
       p.textAlign(p.LEFT); p.text(names[i], panelX + 10, y);
@@ -400,6 +401,7 @@ function GarageSketch(p) {
       unlockedItems: ItemsManager.unlockedItems
     };
     savedStats = { ...config.stats };
+    console.log("saved stats" + config.stats.traction)
     savePersistentData(config);
   }
 

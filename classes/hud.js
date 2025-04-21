@@ -25,12 +25,47 @@ function showHud(p, map, car, isPaused = false){
       //if (window.debug)
       drawDebugInfo(p,car);
       drawMeters(p,car);
+      drawCarDash(p,car);
       drawTimer(p, isPaused);
       ItemsManager.shieldDisplayBar(p, isPaused);
       drawInventory(p, scale);
       
     p.pop();
 
+}
+
+function drawCarDash(p,car){
+  p.fill(255);
+  p.textSize(32*window.scale);
+  p.text(`Speed: ${Math.round(car.speed*10)}`, 260*window.widthScale, 50*window.heightScale);
+  p.textSize(16*window.scale);
+  p.text("Gear: " + (car.getGear()+1), 250*window.widthScale, 75*window.heightScale);
+  // Draw RPM Bar
+  let tempRPM = car.currentRPM;
+  if(car.isBoosting){
+    tempRPM = tempRPM*1.5;
+  }
+  const rpm = tempRPM; // Assuming `car.rpm` contains the current RPM value
+  const maxRpm = 8000; // Maximum RPM
+  const rpmBarHeight = 120 * window.widthScale;
+  const rpmBarWidth = 20 * window.heightScale;
+  const rpmBarX = 225 * window.widthScale;
+  const rpmBarY = 10 * window.heightScale;
+  
+  // Draw RPM Bar Background
+  p.fill(50);
+  p.rect(rpmBarX, rpmBarY, rpmBarWidth, rpmBarHeight);
+
+  // Determine RPM Bar Color
+  if (rpm <= 3000) {
+    p.fill("yellow"); 
+  } else if (rpm <= 5500) {
+    p.fill("orange"); 
+  } else {
+    p.fill("red"); 
+  }
+  const rpmPercentage = rpm / maxRpm;
+  p.rect(rpmBarX, rpmBarY+rpmBarHeight, rpmBarWidth, -rpmPercentage * rpmBarHeight);
 }
 
 // Draws boost and health meters
@@ -43,11 +78,10 @@ function drawMeters(p,car){
   p.text("Boost", 10*window.widthScale, 65*window.heightScale);
   p.text("Fuel", 10*window.widthScale, 112*window.heightScale); // New fuel label
   
+
   let maxHealth = (loadPersistentData().stats.health);  
   // Draw Health Bar
   p.fill(50);
-
-
   p.rect(10*window.widthScale, 20*window.heightScale, 200*window.widthScale, 25*window.heightScale);
   
   //color change as health decreases

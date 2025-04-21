@@ -5,23 +5,34 @@ This file holds all the functions for drawing buildings, lakes and other obstacl
 
 
 // Draws Buildings given the cordinates 
-function drawRectBuilding(p, xStart, yStart, xEnd, yEnd) {
-    for (let y = yStart; y < yEnd; y++) {
-      for (let x = xStart; x < xEnd; x++) {
-        if (map[y] && map[y][x] !== undefined) {
-          map[y][x] = new Building(
-            p,
-            x * gridSize + gridSize / 2,
-            y * gridSize + gridSize / 2,
-            gridSize,
-            gridSize,
-            buildingImg
-          );
-        }
+function drawRectBuilding(p, xStart, yStart, xEnd, yEnd, buildImg = buildingImg) {
+  const buildingWidth = Math.abs((xEnd - xStart)) * gridSize;
+  const buildingHeight = Math.abs((yEnd - yStart)) * gridSize;
+
+  const centerX = (xStart + xEnd) * gridSize / 2;
+  const centerY = (yStart + yEnd) * gridSize / 2;
+
+  //console.log(`Building dimensions: ${buildingWidth}x${buildingHeight}`);
+  //console.log(`Building center: (${centerX}, ${centerY})`);
+
+  p.image(buildImg, centerX - buildingWidth / 2, centerY - buildingHeight / 2, buildingWidth, buildingHeight);
+
+  // Update the map to mark all tiles as part of the building
+  for (let y = yStart; y < yEnd; y++) {
+    for (let x = xStart; x < xEnd; x++) {
+      if (map[y] && map[y][x] !== undefined) {
+        map[y][x] = new Building(
+          p,
+          centerX,
+          centerY,
+          buildingWidth,
+          buildingHeight,
+          buildImg // Pass the building image
+        );
       }
     }
   }
-  
+}
   
 /* 
   #######################################################################
@@ -32,10 +43,15 @@ function drawRectBuilding(p, xStart, yStart, xEnd, yEnd) {
   #########################################################################
 */
 
-function fillBuildingsDynamically(p, xPosStart, yPosStart, xPosEnd, yPosEnd) {
+function fillBuildingsDynamically(p, xPosStart, yPosStart, xPosEnd, yPosEnd, buildImages = p.houseImages) {
+  let imageIndex;
+  let buildImage;
   for (let yStart = yPosStart; yStart < yPosEnd; yStart++) {
     for (let xStart = xPosStart; xStart < xPosEnd; xStart++) {
-      // Check if this tile is empty (grass) and has the required gap from other buildings
+      //imageIndex = Math.random() * buildImages.length;
+      imageIndex = Math.round(Math.random() * buildImages.length-1);
+      buildImage = buildImages[imageIndex];
+      // Check if this tile is empty (grass) and has the required g ap from other buildings
       if (
         map[yStart][xStart] instanceof Grass &&
         hasBuildingGap(p, xStart, yStart, 3) && 
@@ -57,7 +73,7 @@ function fillBuildingsDynamically(p, xPosStart, yPosStart, xPosEnd, yPosEnd) {
 
         // Ensure space is free for the building
         if (canPlaceBuilding(p, finalXStart, finalYStart, finalXEnd, finalYEnd)) {
-          drawRectBuilding(p, finalXStart, finalYStart, finalXEnd, finalYEnd);
+          drawRectBuilding(p, finalXStart, finalYStart, finalXEnd, finalYEnd,buildImage);
         }
       }
     }
@@ -65,10 +81,14 @@ function fillBuildingsDynamically(p, xPosStart, yPosStart, xPosEnd, yPosEnd) {
 }
 
 
-function fillShopsDynamically(p, xPosStart, yPosStart, xPosEnd, yPosEnd) {
+function fillShopsDynamically(p, xPosStart, yPosStart, xPosEnd, yPosEnd, buildImages = p.buildingImages) {
+  let imageIndex;
+  let buildImage;
   for (let yStart = yPosStart; yStart < yPosEnd; yStart++) {
     for (let xStart = xPosStart; xStart < xPosEnd; xStart++) {
-      // Check if this tile is empty (grass) and is adjacent to a road
+      imageIndex = Math.round(Math.random() * buildImages.length-1);
+      buildImage = buildImages[imageIndex];
+      // Check if this tile is empty and is adjacent to a road
       if (map[yStart][xStart] instanceof Grass && isAdjacentToRoad(p, xStart, yStart)) {
         // Randomize shop dimensions
         let shopLength = Math.floor(Math.random() * 11) + 5; // 5-15 tiles long
@@ -95,7 +115,8 @@ function fillShopsDynamically(p, xPosStart, yPosStart, xPosEnd, yPosEnd) {
 
         // Ensure space is free for the shop
         if (canPlaceBuilding(p, xStart, yStart, xEnd, yEnd)) {
-          drawRectBuilding(p, xStart, yStart, xEnd, yEnd);
+          console.log("shop built")
+          drawRectBuilding(p, xStart, yStart, xEnd, yEnd,buildImage);
         }
       }
     }
