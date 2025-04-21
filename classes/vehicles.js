@@ -109,8 +109,8 @@ class Car extends GameObject {
     let terrainType = getTileTypeAt(this.position.x, this.position.y);
 
     if (this.isBoosting) {
-      this.acceleration = this.baseAcceleration * (terrainType === "grass" ? 1.25 : 1.5);
-      this.maxSpeed = this.baseMaxSpeed * (terrainType === "grass" ? 1.25 : 1.75);
+      this.acceleration = this.baseAcceleration * (terrainType === "grass" ? 1.5 : 2);
+      this.maxSpeed = this.baseMaxSpeed * (terrainType === "grass" ? 1.3 : 1.75);
     } else {
       this.acceleration = this.baseAcceleration * (terrainType === "grass" ? 0.65 : 1);
       this.maxSpeed = this.baseMaxSpeed * (terrainType === "grass" ? 0.65 : 1);
@@ -123,7 +123,7 @@ class Car extends GameObject {
         this.lastBoostTime = Date.now();
         if (this.speed < 0) this.speed = 0.01;
         this.speed = p.constrain(
-          this.speed + this.acceleration * 1.5 * this.gearMultipliers[this.getGear()],
+          this.speed + this.acceleration * 2 * this.gearMultipliers[this.getGear()],
           this.reverseSpeed * 2,
           this.baseMaxSpeed * 1.75
         );

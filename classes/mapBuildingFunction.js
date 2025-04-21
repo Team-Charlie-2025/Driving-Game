@@ -44,6 +44,7 @@ function drawRectBuilding(p, xStart, yStart, xEnd, yEnd, buildingImg = buildingI
 */
 
 function fillBuildingsDynamically(p, xPosStart, yPosStart, xPosEnd, yPosEnd, buildImages = p.houseImages) {
+  let imageIndex = Math.random() * buildImages.length;
   for (let yStart = yPosStart; yStart < yPosEnd; yStart++) {
     for (let xStart = xPosStart; xStart < xPosEnd; xStart++) {
       // Check if this tile is empty (grass) and has the required gap from other buildings
@@ -68,7 +69,7 @@ function fillBuildingsDynamically(p, xPosStart, yPosStart, xPosEnd, yPosEnd, bui
 
         // Ensure space is free for the building
         if (canPlaceBuilding(p, finalXStart, finalYStart, finalXEnd, finalYEnd)) {
-          drawRectBuilding(p, finalXStart, finalYStart, finalXEnd, finalYEnd,p.houseImages[2]);
+          drawRectBuilding(p, finalXStart, finalYStart, finalXEnd, finalYEnd,buildImages[2]);
         }
       }
     }
