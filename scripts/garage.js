@@ -15,7 +15,7 @@ class UpgradeButton extends Button {
     }
 
     p.textFont(window.PixelFont);
-    p.textSize(18 * window.scale);
+    p.textSize(p.width * 0.009);
     p.textAlign(p.CENTER, p.CENTER);
     p.fill(0);
 
@@ -23,14 +23,12 @@ class UpgradeButton extends Button {
       p.text(this.label, this.x, this.y);
     } else {
       const labelWidth = p.textWidth(this.label);
-      const totalWidth = labelWidth + 20 * window.widthScale;
+      const totalWidth = labelWidth + 20;
       const startX = this.x - totalWidth / 2;
-      
-      const coinSize = 18 * window.widthScale;
-      p.image(coinUp, startX, this.y - coinSize/2, coinSize, coinSize);
-      
+
+      p.image(coinUp, startX, this.y - 10, 18, 18);
       p.textAlign(p.LEFT, p.CENTER);
-      p.text(this.label, startX + coinSize + 4 * window.widthScale, this.y);
+      p.text(this.label, startX + 22, this.y);
     }
   }
 }
@@ -64,8 +62,8 @@ function GarageSketch(p) {
 
   p.setup = function () {
     p.createCanvas(p.windowWidth, p.windowHeight);
-    ExitIcon = new Button("ExitIcon", p.width - 45 * window.widthScale, 45 * window.heightScale, () => switchSketch(Mode.TITLE));
-    if (window.debug) debugAddCoinsButton = new UpgradeButton("Coins", 80 * window.widthScale, p.height - 80 * window.heightScale, debugAddCoins, "gray");
+    ExitIcon = new Button("ExitIcon", p.width - p.width * 0.05, p.height - p.height * 0.95, () => switchSketch(Mode.TITLE));
+    if (window.debug) debugAddCoinsButton = new UpgradeButton("Coins", p.width * 0.04, p.height - p.height * 0.1, debugAddCoins, "gray");
 
     let savedConfig = loadPersistentData();
     if (savedConfig) {
@@ -93,15 +91,15 @@ function GarageSketch(p) {
 
   function setupUpgradeLayout() {
     upgrades = [];
-    const size = 192 * window.widthScale;
-    const spacing = 38.4 * window.widthScale;
+    const size = p.width * 0.1;
+    const spacing = p.width * 0.02;
     const totalWidth = 4 * size + 3 * spacing;
     const startX = (p.width - totalWidth) / 2;
-    const boxY = p.height - size - 32.4 * window.heightScale;
-    const buttonY = boxY - 24.84 * window.heightScale;
+    const boxY = p.height - size - p.height * 0.03;
+    const buttonY = boxY - p.height * 0.023;
   
     if (window.debug) {
-      resetUpgradeButton = new UpgradeButton("Reset", 76.8 * window.widthScale, p.height - 54 * window.heightScale, resetUpgrades, "gray", 192 * window.widthScale, 48.6 * window.heightScale);
+      resetUpgradeButton = new UpgradeButton("Reset", p.width * 0.04, p.height - p.height * 0.05, resetUpgrades, "gray", p.width * 0.1, p.height * 0.045);
     } else {
       resetUpgradeButton = null;
     }
@@ -111,7 +109,7 @@ function GarageSketch(p) {
       const x = startX + i * (size + spacing);
       const level = getUpgradeLevel(type);
       const price = getPrice(type);
-      const btn = new UpgradeButton(price, x + size / 2, buttonY, () => purchaseUpgrade(type), "upgrade", 172.8 * window.widthScale, 48.6 * window.heightScale);
+      const btn = new UpgradeButton(price, x + size / 2, buttonY, () => purchaseUpgrade(type), "upgrade", p.width * 0.09, p.height * 0.045);
       upgrades.push({ type, label: type.charAt(0).toUpperCase() + type.slice(1), box: { x, y: boxY, w: size, h: size }, button: btn });
       updateUpgradeButtonText(upgrades[upgrades.length - 1]);
     });
@@ -119,11 +117,11 @@ function GarageSketch(p) {
 
   function setupItemPurchaseButtons() {
     const itemTypes = ['wrench','bomb', 'oil', 'shield'];
-    const spacing = 140.4 * window.heightScale;
-    const boxWidth = 96 * window.widthScale;
-    const boxHeight = 86.4 * window.heightScale;
-    const x = 76.8 * window.widthScale;
-    const startY = 324 * window.heightScale;
+    const spacing = p.height * 0.13;
+    const boxWidth = p.width * 0.05;
+    const boxHeight = p.height * 0.08;
+    const x = p.width * 0.04;
+    const startY = p.height * 0.3;
 
     itemTypes.forEach((item, index) => {
       const y = startY + index * spacing;
@@ -133,11 +131,12 @@ function GarageSketch(p) {
       const btnLabel = owned ? "OWNED" : price;
 
       const box = { x, y, w: boxWidth, h: boxHeight };
-      const buttonY = y - 18.36 * window.heightScale;
+      const buttonY = y - p.height * 0.017;
       const btn = new UpgradeButton(btnLabel, x + boxWidth / 2, buttonY, () => purchaseItem(item), "item", boxWidth * 0.95, boxHeight * 0.4);
       upgrades.push({ type: item, label, box, button: btn });
-    });
-  }
+  });
+}
+  
 
   function purchaseItem(itemType) {
     if (ItemsManager.unlockedItems[itemType]) {
@@ -164,12 +163,10 @@ function GarageSketch(p) {
 
   function setupCarBodySelector() {
     carBoxes = [];
-    let carBoxSize = 96 * window.widthScale;
-    let cols = 8;
-    let spacing = 10 * window.widthScale;
+    let carBoxSize = 96, cols = 8, spacing = 10;
     let totalWidth = cols * carBoxSize + (cols - 1) * spacing;
     let startX = (p.width - totalWidth) / 2;
-    let startY = 20 * window.heightScale;
+    let startY = 20;
 
     for (let i = 0; i < cols; i++) {
       carBoxes.push({ x: startX + i * (carBoxSize + spacing), y: startY, w: carBoxSize, h: carBoxSize, index: i });
@@ -240,6 +237,7 @@ function GarageSketch(p) {
     return Math.floor((BASE_UPGRADE_PRICE * 3 * Math.log(BASE_UPGRADE_PRICE) * (level * level) / 20));
   }
   
+
   p.draw = function () {
     p.background(bgImage || [30, 30, 30]);
     ExitIcon.display(p);
@@ -261,14 +259,13 @@ function GarageSketch(p) {
       }
 
       if (!purchasedCars[box.index]) {
-        const coinSize = 14 * window.widthScale;
-        let coinX = box.x + box.w / 2 - coinSize - 4 * window.widthScale;
-        let textX = coinX + coinSize + 4 * window.widthScale;
+        let coinX = box.x + box.w / 2 - 18;
+        let textX = coinX + 18;
         let y = box.y + box.h;
       
-        p.image(coinUp, coinX, y - coinSize, coinSize, coinSize);
+        p.image(coinUp, coinX, y - 14, 14, 14);
         p.fill(255, 215, 0);
-        p.textSize(12 * window.scale);
+        p.textSize(p.width * 0.00625);
         p.textAlign(p.LEFT, p.BOTTOM);
         p.text(CAR_COLOR_COST, textX, y);
       }
@@ -282,14 +279,9 @@ function GarageSketch(p) {
       }
     });
 
-    let centerX = p.width / 2 - 160 * window.widthScale;
-    let centerY = p.height / 2 - 100 * window.heightScale;
+    let centerX = p.width / 2 - 160, centerY = p.height / 2 - 100;
     if (window.cars?.[selectedCarIndex]) {
-      p.image(window.cars[selectedCarIndex], 
-             centerX - (42.24 * window.widthScale),
-             centerY - (100 * window.heightScale),
-             318.72 * window.widthScale,
-             319.68 * window.heightScale);
+      p.image(window.cars[selectedCarIndex], centerX - (p.width * 0.022), centerY - (p.height * 0.0926), p.width * 0.166, p.height * 0.296);
     }
 
     upgrades.forEach(up => {
@@ -297,10 +289,10 @@ function GarageSketch(p) {
       p.fill(211);
       p.rect(up.box.x, up.box.y, up.box.w, up.box.h);
       p.fill(0);
-      p.textSize(16 * window.scale);
+      p.textSize(p.width * 0.00833);
       p.textAlign(p.CENTER, p.CENTER);
-      p.text(up.label, up.box.x + up.box.w / 2, up.box.y + up.box.h / 2 - 10 * window.heightScale);
-      p.text("Lvl " + getUpgradeLevel(up.type), up.box.x + up.box.w / 2, up.box.y + up.box.h / 2 + 15 * window.heightScale);
+      p.text(up.label, up.box.x + up.box.w / 2, up.box.y + up.box.h / 2 - 10);
+      p.text("Lvl " + getUpgradeLevel(up.type), up.box.x + up.box.w / 2, up.box.y + up.box.h / 2 + 15);
       up.button.display(p);
     });
 
@@ -310,45 +302,41 @@ function GarageSketch(p) {
       p.fill(200);
       p.rect(up.box.x, up.box.y, up.box.w, up.box.h);
       p.fill(0);
-      p.textSize(16 * window.scale);
+      p.textSize(p.width * 0.00833);
       p.textAlign(p.CENTER, p.CENTER);
-      p.text(up.label, up.box.x + up.box.w / 2, up.box.y + up.box.h / 2 - 10 * window.heightScale);
+      p.text(up.label, up.box.x + up.box.w / 2, up.box.y + up.box.h / 2 - 10);
       up.button.display(p);
     });
 
-    let stats = computeCalcStats();
-    let panelX = p.width - 270 * window.widthScale;
-    let panelY = (p.height - 200 * window.heightScale) / 2;
+    let stats = computeCalcStats(), panelX = p.width - 270, panelY = (p.height - 200) / 2;
     p.fill(255, 255, 255, 204);
     p.noStroke();
-    p.rect(panelX, panelY, 250 * window.widthScale, 200 * window.heightScale);
+    p.rect(panelX, panelY, 250, 200);
     p.fill(0);
-    p.textSize(16 * window.scale);
+    p.textSize(p.width * 0.00833);
     p.textAlign(p.LEFT, p.TOP);
-    p.text("Stats", panelX + 10 * window.widthScale, panelY + 10 * window.heightScale);
+    p.text("Stats", panelX + 10, panelY + 10);
     p.stroke(0);
-    p.line(panelX + 10 * window.widthScale, panelY + 28 * window.heightScale, 
-           panelX + 240 * window.widthScale, panelY + 28 * window.heightScale);
+    p.line(panelX + 10, panelY + 28, panelX + 240, panelY + 28);
     p.noStroke();
 
     let names = ["Health", "Boost", "Max Speed", "Acceleration", "Turn", "Dmg Res"];
     let bases = [savedStats.health, savedStats.boost, savedStats.maxSpeed, savedStats.acceleration, savedStats.turn, savedStats.dmgRes];
     let vals = [stats.health, stats.boost, stats.maxSpeed, stats.acceleration, stats.turn, stats.dmgRes];
     for (let i = 0; i < names.length; i++) {
-      let y = panelY + 35 * window.heightScale + i * 20 * window.heightScale;
-      p.textAlign(p.LEFT); 
-      p.text(names[i], panelX + 10 * window.widthScale, y);
+      let y = panelY + 35 + i * 20;
+      p.textAlign(p.LEFT); p.text(names[i], panelX + 10, y);
       p.textAlign(p.RIGHT);
       let d = Math.abs(vals[i] - bases[i]), v = formatNumber(vals[i]), b = formatNumber(bases[i]);
-      p.text(d < 0.01 ? v : `${v} (${b})`, panelX + 240 * window.widthScale, y);
+      p.text(d < 0.01 ? v : `${v} (${b})`, panelX + 240, y);
     }
 
     p.push();
-    p.image(coinBg, 20 * window.widthScale, 20 * window.heightScale, 128 * window.widthScale, 64 * window.heightScale);
+    p.image(coinBg, 20, 20, 128, 64);
     p.fill(0);
-    p.textSize(16 * window.scale);
+    p.textSize(p.width * 0.00833);
     p.textAlign(p.LEFT, p.TOP);
-    p.text(Math.floor(CurrencyManager.getTotalCoins()), 65 * window.widthScale, 45 * window.heightScale);
+    p.text(Math.floor(CurrencyManager.getTotalCoins()), 65, 45);
     p.pop();
   };
 
@@ -391,18 +379,11 @@ function GarageSketch(p) {
 
   p.windowResized = function () {
     p.resizeCanvas(p.windowWidth, p.windowHeight);
-    window.heightScale = p.windowHeight / 1080;
-    window.widthScale = p.windowWidth / 1920;
-    window.scale = (window.heightScale + window.widthScale) / 2;
-    
-    ExitIcon = new Button("ExitIcon", p.width - 45 * window.widthScale, 45 * window.heightScale, () => switchSketch(Mode.TITLE));
-    if (window.debug) debugAddCoinsButton = new UpgradeButton("Coins", 80 * window.widthScale, p.height - 80 * window.heightScale, debugAddCoins, "gray");
-    
+    ExitIcon = new Button("ExitIcon", p.width - p.width * 0.05, p.height - p.height * 0.95, () => switchSketch(Mode.TITLE));
     setupUpgradeLayout();
     setupItemPurchaseButtons();
     setupCarBodySelector();
   };
-
   function saveConfiguration() {
     let config = {
       upgradeEngineLevel, upgradeBodyLevel, upgradeTransmissionLevel, upgradeTiresLevel,
