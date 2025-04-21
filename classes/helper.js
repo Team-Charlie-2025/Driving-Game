@@ -1,17 +1,17 @@
-// classes/helper.js
+// classes/_helper.js
 
 function pointInPolygon(point, polygon) {
-    let inside = false;
-    for (let i = 0, j = polygon.length - 1; i < polygon.length; j = i++) {
-      let xi = polygon[i].x, yi = polygon[i].y;
-      let xj = polygon[j].x, yj = polygon[j].y;
-      let intersect = ((yi > point.y) !== (yj > point.y)) &&
-        (point.x < (xj - xi) * (point.y - yi) / (yj - yi) + xi);
-      if (intersect) inside = !inside;
-    }
-    return inside;
+  let inside = false;
+  for (let i = 0, j = polygon.length - 1; i < polygon.length; j = i++) {
+    let xi = polygon[i].x, yi = polygon[i].y;
+    let xj = polygon[j].x, yj = polygon[j].y;
+    let intersect = ((yi > point.y) !== (yj > point.y)) &&
+      (point.x < (xj - xi) * (point.y - yi) / (yj - yi) + xi);
+    if (intersect) inside = !inside;
   }
-  
+  return inside;
+}
+
 function lineIntersects(p1, p2, p3, p4) {
   let denom = (p4.y - p3.y) * (p2.x - p1.x) - (p4.x - p3.x) * (p2.y - p1.y);
   if (denom === 0) return false;
@@ -129,20 +129,68 @@ function checkShieldCollisions(shields, car, p) {
   return shields.filter(shield => !shield.collected);
 }
 
-/*
-function isCoinCollidingWithBuilding(coin) {
-  const tileX = Math.floor(coin.position.x / gridSize);
-  const tileY = Math.floor(coin.position.y / gridSize);
-  for (let j = tileY - 1; j <= tileY + 1; j++) {
-    for (let i = tileX - 1; i <= tileX + 1; i++) {
-      if (map[j] && map[j][i] instanceof Building) {
-        let building = map[j][i];
-        if (coin.collider.intersects(building.collider)) {
-          return true;
-        }
+function checkGasCollisions(gas, car, p) {
+  if (!car) return gas;
+  for (let canister of gas) {
+    if (!canister.collected && canister.collider && canister.collider.intersects(car.collider)) {
+      canister.collected = true;
+      ItemsManager.gasCollected();
+    }
+  }
+  return gas.filter(canister => !canister.collected);
+}
+
+function checkWrenchCollisions(wrenches, car, p) {
+  if (!car) return wrenches;
+  for (let wrench of wrenches) {
+    if (!wrench.collected && wrench.collider && wrench.collider.intersects(car.collider)) {
+      if (ItemsManager.canUseWrench(car)) {
+        wrench.collected = true;
+        ItemsManager.wrenchCollected(car, wrench);
       }
     }
   }
-  return false;
+  return wrenches.filter(wrench => !wrench.collected);
 }
-*/
+
+function checkBombCollisions(bombs, car, p) {
+  if (!car) return bombs;
+  for (let bomb of bombs) {
+    if (!bomb.collected && bomb.collider && bomb.collider.intersects(car.collider)) { 
+      if(!bomb.placed && !(car instanceof Enemy)){ //user car collect bomb obj
+        bomb.collected = true;
+        console.log("Bomb collected");
+        ItemsManager.bombCollected(car);
+      }
+      else if (bomb.placed && bomb.timeHit == null){// *active* user placed bomb hit
+        bomb.timeHit = p.millis(); //time when hit
+        car.onCollisionEnter(bomb);
+        console.log ("BOMB HIT");
+      }
+    }
+    if(bomb.timeHit != null && p.millis() - bomb.timeHit >= 300)
+        bomb.collected = true; //clears bomb off page
+  }
+  return bombs.filter(bomb => !bomb.collected);
+}
+
+function checkOilCollisions(oils, car, p) {
+  if (!car) return oils;
+
+  for (let oil of oils) {
+    if (!oil.collected && oil.collider && oil.collider.intersects(car.collider)) { //there is an oil collision
+
+      if(!oil.placed && !(car instanceof Enemy)){ //user car collect oil obj
+        oil.collected = true;
+        console.log("oil collected");
+        ItemsManager.oilCollected(car);
+      }
+
+      else if (oil.placed){// *active* user placed oil
+        car.onCollisionEnter(oil);
+        console.log ("OIL HIT");
+      }
+    } 
+  }
+  return oils.filter(oil => !oil.collected);  
+}

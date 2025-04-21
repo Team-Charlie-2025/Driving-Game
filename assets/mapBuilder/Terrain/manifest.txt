@@ -1,0 +1,7 @@
+barrier.png
+dirt.png
+grass.png
+ice.png
+lava.png
+mud.png
+water.png

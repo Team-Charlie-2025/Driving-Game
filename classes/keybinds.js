@@ -1,10 +1,13 @@
 let keybindConfig = {
-  boost: 70,     // 'f'
+  boost: 32,     // 'space'
   forward: 87,   // 'w'
   backward: 83,  // 's'
   left: 65,      // 'a'
   right: 68,     // 'd'
-  drift: 16      // Shift
+  drift: 16,      // Shift
+  placebomb: 66,  // 'b'
+  spilloil: 72, // 'h'
+  pause: 80      // 'p'
 };
 
 function loadKeybinds() {
