@@ -36,10 +36,10 @@ function showHud(p, map, car, isPaused = false){
 
 function drawCarDash(p,car){
   p.fill(255);
-  p.textSize(32*window.scale);
+  p.textSize(35*window.scale);
   p.text(`Speed: ${Math.round(car.speed*10)}`, 260*window.widthScale, 50*window.heightScale);
-  p.textSize(16*window.scale);
-  p.text("Gear: " + (car.getGear()+1), 250*window.widthScale, 75*window.heightScale);
+  p.textSize(20*window.scale);
+  p.text("Gear: " + (car.getGear()+1), 260*window.widthScale, 75*window.heightScale);
   // Draw RPM Bar
   let tempRPM = car.currentRPM;
   if(car.isBoosting){
