@@ -313,29 +313,29 @@ function GarageSketch(p) {
       up.button.display(p);
     });
 
-    let stats = computeCalcStats(), panelX = p.width - 270, panelY = (p.height - 200) / 2;
+    let stats = computeCalcStats(), panelX = p.width - 350, panelY = (p.height - 200) / 2;
     p.fill(255, 255, 255, 204);
     p.noStroke();
-    p.rect(panelX, panelY, 300* window.widthScale, 250* window.heightScale);
+    p.rect(panelX, panelY, 300, 200);
     p.fill(0);
     p.textSize(Math.round(25 * window.scale));
     p.textAlign(p.LEFT, p.TOP);
-    p.text("Stats", panelX + 10, panelY + 10);
+    p.text("Stats", panelX + 90, panelY + 10);
     p.stroke(0);
     p.strokeWeight(1);
-    p.line(panelX + 10, panelY + 28, panelX + 240, panelY + 28);
+    p.line(panelX + 10, panelY + 28, panelX + 290, panelY + 28);
     p.noStroke();
     p.strokeWeight(0);
 
-    let names = ["Health", "Boost", "Max Speed", "Acceleration", "Turn", "Dmg Res"];
+    let names = ["Health", "Boost", "Speed", "Accel", "Turn", "Dmg Res"];
     let bases = [savedStats.health, savedStats.boost, savedStats.maxSpeed, savedStats.acceleration, savedStats.turn, savedStats.dmgRes];
     let vals = [stats.health, stats.boost, stats.maxSpeed, stats.acceleration, stats.turn, stats.dmgRes];
     for (let i = 0; i < names.length; i++) {
       let y = panelY + 35 + i * 20;
       p.textAlign(p.LEFT); p.text(names[i], panelX + 10, y);
       p.textAlign(p.RIGHT);
-      let d = Math.abs(vals[i] - bases[i]), v = formatNumber(vals[i]), b = formatNumber(bases[i]);
-      p.text(d < 0.01 ? v : `${v} (${b})`, panelX + 240, y);
+      let v = formatNumber(vals[i]);
+      p.text(v, panelX + 290, y);
     }
 
     p.push();
