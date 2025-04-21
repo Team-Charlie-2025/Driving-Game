@@ -331,6 +331,15 @@ class Enemy extends Car{
     this.attackCooldown = 1500 / window.difficulty;
     this.currentImage = p.enemyImg;
     this.removeFromWorld = false;
+
+    this.path = [];
+    this.pathIndex = 0;
+    this.lastPathUpdate = 0;
+    this.pathUpdateInterval = 250;  //milliseconds between recalculating path
+    this.maxSightDistance = 300;  //how far enemies can see
+    this.inLOS = false;
+    this.lastLOSCheck = 0;
+    this.LOSPersistenceTime = 1000;  //stay in LOS mode for at least 1 sec
     
     this.baseAcceleration = stats.acceleration;
     this.baseMaxSpeed = stats.maxSpeed;
@@ -380,61 +389,169 @@ class Enemy extends Car{
     }
     //console.log(`Max Speed: ${this.maxSpeed.toFixed(2)}`);
 
-    // Calculate desired direction to target
-    this.desired = p5.Vector.sub(this.target.position, this.position);
-    
-    // Apply turn radius limitation by adding an intermediate target
-    if (this.turnRadius > 0) {
-      // Get current direction and desired direction
-      const currentDir = p5.Vector.fromAngle(this.angle);
-      const desiredDir = this.desired.copy().normalize();
-      
-      // Calculate angle between current and desired direction
-      let angleDiff = this.p.atan2(
-        currentDir.x * desiredDir.y - currentDir.y * desiredDir.x,
-        currentDir.x * desiredDir.x + currentDir.y * desiredDir.y
-      );
-      
-      // Limit the angle change based on turn radius
-      const maxAngleChange = this.turnRadius;
-      angleDiff = this.p.constrain(angleDiff, -maxAngleChange, maxAngleChange);
-      
-      // Create a new direction based on the limited angle change
-      const newDir = p5.Vector.fromAngle(this.angle + angleDiff);
-      newDir.setMag(this.desired.mag());
-      this.desired = newDir;
+    const now = Date.now();
+
+    //try using LOS
+    if (now - this.lastLOSCheck > 100) {
+      const hasLOS = this.hasLineOfSightTo(this.target.position);
+
+      const distToPlayer = p5.Vector.dist(this.position, this.target.position);
+
+      if (hasLOS && distToPlayer < this.maxSightDistance && !this.hasObstacleInFront(32)) {
+        let predictedPlayerPos = this.target.position.copy();
+        if (this.target.velocity) {
+          const lead = this.target.velocity.copy().normalize().mult(32);
+          predictedPlayerPos.add(lead);
+        }
+        this.inLOS = true;
+        this.lastSeenPlayerPos = predictedPlayerPos.copy();
+        this.lastLOSModeEntered = now;
+        this.path = [];  //clear path if close enough and can see the player
+      } else if (this.inLOS && now - this.lastLOSModeEntered > this.LOSPersistenceTime) {
+        this.inLOS = false;
+      }
+      this.lastLOSCheck = now;
     }
-    
-    this.desired.setMag(this.maxSpeed);
-  
-    // Calculate steering force
-    this.steer = p5.Vector.sub(this.desired, this.velocity);
-    this.steer.limit(this.maxForce);
-    
-    // Apply acceleration
-    // this.steer.mult(this.acceleration);
-    this.velocity.add(this.steer);
-    
-    // Apply friction
-    this.velocity.mult(1 - this.friction);
-    
-    // Limit final velocity
-    this.velocity.limit(this.maxSpeed);
-  
-    // Update position
-    this.position.add(this.velocity);
-  
-    // Update angle to face movement direction
-    if (this.velocity.mag() > 0.1) {
-      this.angle = this.velocity.heading();
+
+    if (this.inLOS) {
+
+      let predictedPlayerPos = this.target.position.copy();
+
+      if (this.target.velocity) {
+        const lead = this.target.velocity.copy().normalize().mult(32);  //lead by 32 pixels
+        predictedPlayerPos.add(lead);
+      }
+
+      this.desired = p5.Vector.sub(predictedPlayerPos, this.position);
+
+      if (this.turnRadius > 0) {
+        const currentDir = p5.Vector.fromAngle(this.angle);
+        const desiredDir = this.desired.copy().normalize();
+        let angleDiff = this.p.atan2(
+          currentDir.x * desiredDir.y - currentDir.y * desiredDir.x,
+          currentDir.x * desiredDir.x + currentDir.y * desiredDir.y
+        );
+
+        const maxAngleChange = this.turnRadius;
+        angleDiff = this.p.constrain(angleDiff, -maxAngleChange, maxAngleChange);
+
+        const newDir = p5.Vector.fromAngle(this.angle + angleDiff);
+        newDir.setMag(this.desired.mag());
+        this.desired = newDir;
+      }
+
+      this.desired.setMag(this.maxSpeed);
+      this.steer = p5.Vector.sub(this.desired, this.velocity);
+      this.steer.limit(this.maxForce);
+      this.velocity.add(this.steer);
+      this.velocity.mult(1 - this.friction);
+      this.velocity.limit(this.maxSpeed);
+      if (this.hasObstacleInFront(32)) {
+        const nudge = p5.Vector.random2D().mult(1.5);
+        this.velocity.add(nudge);
+      }
+      this.position.add(this.velocity);
+
+      if (this.velocity.mag() > 0.1) {
+        this.angle = this.velocity.heading();
+      }
+
+    } else {  //use A* path following
+      if (now - this.lastPathUpdate > this.pathUpdateInterval) {
+        this.lastPathUpdate = now;
+      
+        const enemyGrid = worldToGrid(this.position.x, this.position.y, gridSize, gridSize);
+        const targetGrid = worldToGrid(this.target.position.x, this.target.position.y, gridSize, gridSize);
+      
+        const driveGrid = window.driveGrid;
+
+        const newPath = astar(driveGrid, enemyGrid, targetGrid);
+        if (newPath.length > 0) {
+          this.path = newPath;
+          this.pathIndex = 1;  //start at next step
+        }
+      }
+
+      //determine look-ahead path target
+      if (this.path && this.pathIndex < this.path.length) {
+        const current = this.path[this.pathIndex];
+        const next = this.path[this.pathIndex + 1];
+
+        let steeringTarget;
+        if (next) {
+          const currPos = gridToWorld(current.x, current.y, gridSize, gridSize);
+          const nextPos = gridToWorld(next.x, next.y, gridSize, gridSize);
+          steeringTarget = p5.Vector.lerp(
+            this.p.createVector(currPos.x, currPos.y),
+            this.p.createVector(nextPos.x, nextPos.y), 
+            0.5  //halfway between the two
+          );
+        } else {
+          const currPos = gridToWorld(current.x, current.y, gridSize, gridSize);
+          steeringTarget = this.p.createVector(currPos.x, currPos.y);
+        }
+
+        if (p5.Vector.dist(this.position, steeringTarget) < 8) {
+          this.pathIndex++;
+        }
+
+        this.desired = p5.Vector.sub(steeringTarget, this.position).normalize().mult(this.maxSpeed);
+        this.steer = p5.Vector.sub(this.desired, this.velocity);
+        this.steer.limit(this.maxForce);
+        this.velocity.add(this.steer);
+        this.velocity.mult(1 - this.friction);
+        this.velocity.limit(this.maxSpeed);
+        this.position.add(this.velocity);
+
+        if (this.velocity.mag() > 0.1) {
+          this.angle = this.velocity.heading();
+        }
+      }
     }
-  
+
     // Boundary check
     const margin = 2000;
     if (this.position.x < -margin || this.position.x > mapSize * gridSize + margin ||
         this.position.y < -margin || this.position.y > mapSize * gridSize + margin) {
       this.removeFromWorld = true;
     }
+  }
+
+  hasLineOfSightTo(targetPos) {
+    const p0 = this.p.createVector(this.position.x, this.position.y);
+    const p1 = this.p.createVector(targetPos.x, targetPos.y);
+    const dist = p5.Vector.dist(p0, p1);
+  
+    if (dist > this.maxSightDistance) return false;
+  
+    const steps = Math.floor(dist / (gridSize / 2));
+    for (let i = 0; i <= steps; i++) {
+      const t = i / steps;
+      const x = p0.x + (p1.x - p0.x) * t;
+      const y = p0.y + (p1.y - p0.y) * t;
+  
+      const tileX = Math.floor(x / gridSize);
+      const tileY = Math.floor(y / gridSize);
+      const tile = map[tileY]?.[tileX];
+  
+      if (!tile || !(tile instanceof Road || tile instanceof Grass)) {
+        return false;
+      }
+    }
+    return true;
+  }
+
+  hasObstacleInFront(distance = 32) {
+    const front = this.p.createVector(
+      this.position.x + this.p.cos(this.angle) * distance,
+      this.position.y + this.p.sin(this.angle) * distance
+    );
+  
+    const tileX = Math.floor(front.x / gridSize);
+    const tileY = Math.floor(front.y / gridSize);
+    const tile = map[tileY]?.[tileX];
+  
+    return tile && !(tile instanceof Road || tile instanceof Grass);
   }
   
   onCollisionEnter(other) {
@@ -511,8 +628,8 @@ class Truck extends Enemy {
     // Adjust width and height separately for truck proportions
     // Make the truck longer than it is wide
     if (this.currentImage) {
-      this.width = 146 // Wider/longer
-      this.height = 59 // Less tall
+      this.width = 133 // Wider/longer
+      this.height = 54 // Less tall
       
       // Update collider to match new dimensions
       this.collider = new Collider(
