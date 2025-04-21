@@ -37,7 +37,7 @@ function PlaySketch(p) {
     p.enemyImg = p.loadImage("assets/police+car.png");   // Regular cop car image
     p.truckImg = p.loadImage("assets/police+truck.png"); // Truck image
     p.bikeImg = p.loadImage("assets/police+bike.png");   // Motorcycle image
-
+    p.buildImages = [];
     p.houseImages = [
       p.loadImage("assets/Buildings/house_01.png"),
       p.loadImage("assets/Buildings/house_02.png"),
@@ -50,7 +50,16 @@ function PlaySketch(p) {
       p.loadImage("assets/Buildings/house_09.png"),
       p.loadImage("assets/Buildings/house_10.png"),
     ];
-    
+    p.buildImages = [
+      p.loadImage("assets/Buildings/building_04.png"),
+      p.loadImage("assets/Buildings/building_05.png"),
+      p.loadImage("assets/Buildings/building_06.png"),
+      p.loadImage("assets/Buildings/building_07.png"),
+      p.loadImage("assets/Buildings/building_08.png"),
+      p.loadImage("assets/Buildings/building_09.png"),
+      p.loadImage("assets/Buildings/fire_station.png"),
+      p.loadImage("assets/Buildings/hospital.png"),
+    ];
     // will be moved to globals eventually
     grassImg = p.loadImage("assets/mapBuilder/Terrain/grass.png");
     waterImg = p.loadImage("assets/mapBuilder/Terrain/water.png")
@@ -254,7 +263,7 @@ function PlaySketch(p) {
   }
 
   p.draw = function () {
-    p.background(255);
+    p.background(0);
   
     // Handle pause overlay and drawing
     if (isPaused && !window.isGameOver) {
