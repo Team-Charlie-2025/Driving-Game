@@ -37,9 +37,9 @@ class Button { //regular rect button class
         p.image(window.setButton, this.x-drawWidth /2, this.y-drawHeight/1.5, drawWidth , drawHeight * 1.8);
 
         p.textFont(window.PixelFont);
-        p.textSize(drawWidth/8);
+        p.textSize(drawWidth/5);
         p.textAlign(p.CENTER, p.CENTER);
-        p.text(this.label, this.x + this.width/20, this.y + this.height/16);
+        p.text(this.label, this.x + this.width/20, this.y + this.height/28);
         return;
       }
       else if(this.label == "LEADERBOARD" ){ //specfic image for button
@@ -51,25 +51,25 @@ class Button { //regular rect button class
 
 
         p.textFont(window.PixelFont);
-        p.textSize(drawWidth/11);
+        p.textSize(drawWidth/7);
         p.textAlign(p.CENTER, p.CENTER);
-        p.text(this.label, this.x+ this.width/75, this.y + this.height/14);
+        p.text(this.label, this.x+ this.width/75, this.y + this.height/20);
         return;
       }
       else if (this.size == "small"){
         this.width = 125 * window.widthScale;
         this.height = 40 * window.heightScale;
-        this.textSize = 8;
+        this.textSize = 5;
       }
       else if (this.size == "medium"){
         this.width = 325 * window.widthScale;
         this.height = 100 * window.heightScale;
-        this.textSize = 9
+        this.textSize = 5;
       }
       else if(this.size == "large"){
         this.width = 375 * window.widthScale;
         this.height = 140 * window.heightScale;
-        this.textSize = 6;
+        this.textSize = 4;
       }
       let buttonImg  = window.basicButton[this.color];
       let drawWidth = this.width * hoverScale;
@@ -80,7 +80,7 @@ class Button { //regular rect button class
       p.textSize(drawWidth/ this.textSize)
       p.textFont(window.PixelFont);
       p.textAlign(p.CENTER, p.CENTER);
-      p.text(this.label, this.x, this.y);
+      p.text(this.label, this.x, this.y - this.height*0.05);
       
     }
   

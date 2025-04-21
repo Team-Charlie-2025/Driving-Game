@@ -6,6 +6,7 @@ class UpgradeButton extends Button {
   }
 
   display(p) {
+
     if (window.upgradeButton) {
       p.image(window.upgradeButton, this.x - this.width / 2, this.y - this.height / 2, this.width, this.height);
     } else {
@@ -15,7 +16,7 @@ class UpgradeButton extends Button {
     }
 
     p.textFont(window.PixelFont);
-    p.textSize(p.width * 0.009);
+    p.textSize(Math.round(25 * window.scale));
     p.textAlign(p.CENTER, p.CENTER);
     p.fill(0);
 
@@ -26,7 +27,7 @@ class UpgradeButton extends Button {
       const totalWidth = labelWidth + 20;
       const startX = this.x - totalWidth / 2;
 
-      p.image(coinUp, startX, this.y - 10, 18, 18);
+      p.image(coinUp, startX, this.y - 8, 18, 18);
       p.textAlign(p.LEFT, p.CENTER);
       p.text(this.label, startX + 22, this.y);
     }
@@ -61,6 +62,8 @@ function GarageSketch(p) {
   };
 
   p.setup = function () {
+    p.textFont(window.PixelFont);
+    p.textSize(Math.round(30 * window.scale));
     p.createCanvas(p.windowWidth, p.windowHeight);
     ExitIcon = new Button("ExitIcon", p.width - p.width * 0.05, p.height - p.height * 0.95, () => switchSketch(Mode.TITLE));
     if (window.debug) debugAddCoinsButton = new UpgradeButton("Coins", p.width * 0.04, p.height - p.height * 0.1, debugAddCoins, "gray");
@@ -264,9 +267,9 @@ function GarageSketch(p) {
         let textX = coinX + 18;
         let y = box.y + box.h;
       
-        p.image(coinUp, coinX, y - 14, 14, 14);
+        p.image(coinUp, coinX, y - 20, 14, 14);
         p.fill(255, 215, 0);
-        p.textSize(p.width * 0.00625);
+        p.textSize(Math.round(30 * window.scale));
         p.textAlign(p.LEFT, p.BOTTOM);
         p.text(CAR_COLOR_COST, textX, y);
       }
@@ -282,7 +285,7 @@ function GarageSketch(p) {
 
     let centerX = p.width / 2 - 160, centerY = p.height / 2 - 100;
     if (window.cars?.[selectedCarIndex]) {
-      p.image(window.cars[selectedCarIndex], centerX - (p.width * 0.022), centerY - (p.height * 0.0926), p.width * 0.166, p.height * 0.296);
+      p.image(window.cars[selectedCarIndex], centerX, centerY - (31*window.heightScale), p.width * 0.166, p.height * 0.296);
     }
 
     upgrades.forEach(up => {
@@ -290,11 +293,13 @@ function GarageSketch(p) {
       p.fill(211);
       p.rect(up.box.x, up.box.y, up.box.w, up.box.h);
       p.fill(0);
-      p.textSize(p.width * 0.00833);
+      p.textSize(Math.round(34*window.scale));
       p.textAlign(p.CENTER, p.CENTER);
+      p.strokeWeight(0);
       p.text(up.label, up.box.x + up.box.w / 2, up.box.y + up.box.h / 2 - 10);
       p.text("Lvl " + getUpgradeLevel(up.type), up.box.x + up.box.w / 2, up.box.y + up.box.h / 2 + 15);
       up.button.display(p);
+
     });
 
     const consumables = upgrades.filter(u => ["wrench", "bomb", "oil", "shield"].includes(u.type));
@@ -303,23 +308,25 @@ function GarageSketch(p) {
       p.fill(200);
       p.rect(up.box.x, up.box.y, up.box.w, up.box.h);
       p.fill(0);
-      p.textSize(p.width * 0.00833);
+      p.textSize(Math.round(30 * window.scale));
       p.textAlign(p.CENTER, p.CENTER);
       p.text(up.label, up.box.x + up.box.w / 2, up.box.y + up.box.h / 2 - 10);
       up.button.display(p);
     });
 
-    let stats = computeCalcStats(), panelX = p.width - 270, panelY = (p.height - 200) / 2;
+    let stats = computeCalcStats(), panelX = p.width - 350, panelY = (p.height - 200) / 2;
     p.fill(255, 255, 255, 204);
     p.noStroke();
-    p.rect(panelX, panelY, 250, 200);
+    p.rect(panelX, panelY, 300, 200);
     p.fill(0);
-    p.textSize(p.width * 0.00833);
+    p.textSize(Math.round(25 * window.scale));
     p.textAlign(p.LEFT, p.TOP);
-    p.text("Stats", panelX + 10, panelY + 10);
+    p.text("Stats", panelX + 90, panelY + 10);
     p.stroke(0);
-    p.line(panelX + 10, panelY + 28, panelX + 240, panelY + 28);
+    p.strokeWeight(1);
+    p.line(panelX + 10, panelY + 28, panelX + 290, panelY + 28);
     p.noStroke();
+    p.strokeWeight(0);
 
     let names = ["Health", "Boost", "Max Speed", "Acceleration", "Traction", "Dmg Res"];
     let bases = [savedStats.health, savedStats.boost, savedStats.maxSpeed, savedStats.acceleration, savedStats.traction, savedStats.dmgRes];
@@ -328,16 +335,16 @@ function GarageSketch(p) {
       let y = panelY + 35 + i * 20;
       p.textAlign(p.LEFT); p.text(names[i], panelX + 10, y);
       p.textAlign(p.RIGHT);
-      let d = Math.abs(vals[i] - bases[i]), v = formatNumber(vals[i]), b = formatNumber(bases[i]);
-      p.text(d < 0.01 ? v : `${v} (${b})`, panelX + 240, y);
+      let v = formatNumber(vals[i]);
+      p.text(v, panelX + 290, y);
     }
 
     p.push();
-    p.image(coinBg, 20, 20, 128, 64);
+    p.image(coinBg, 20*window.widthScale, 20*window.heightScale, 128*window.widthScale, 64*window.heightScale);
     p.fill(0);
-    p.textSize(p.width * 0.00833);
+    p.textSize(Math.floor(30 * window.scale));
     p.textAlign(p.LEFT, p.TOP);
-    p.text(Math.floor(CurrencyManager.getTotalCoins()), 65, 45);
+    p.text(Math.floor(CurrencyManager.getTotalCoins()), 65*window.widthScale, 40*window.heightScale);
     p.pop();
   };
 

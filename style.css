@@ -10,8 +10,8 @@ canvas {
   width: 100%;
   height: 100%;
   background: rgb(100, 193, 232); /*background */
-  color: white;
-  font-size: 35px;
+  color: rgb(0,0,0);
+  font-size: 50px;
   font-family: 'PixelFont', sans-serif; /* Apply PixelFont */
   display: flex;
   justify-content: center;
@@ -65,5 +65,5 @@ tr:hover {
 
 @font-face { /* load in new font name is PixelFont*/
   font-family: 'PixelFont';
-  src: url('assets/fonts/pixelFont.ttf') format('truetype');
+  src: url('assets/fonts/ThaleahFat.ttf') format('truetype');
 }
