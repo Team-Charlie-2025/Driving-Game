@@ -15,9 +15,7 @@ class UpgradeButton extends Button {
     }
 
     p.textFont(window.PixelFont);
-    // Use a fixed size value for the font to prevent blurriness
-    let scaledFontSize = Math.round(18 * window.widthScale);
-    p.textSize(scaledFontSize);
+    p.textSize(18 * window.scale);
     p.textAlign(p.CENTER, p.CENTER);
     p.fill(0);
 
@@ -28,7 +26,6 @@ class UpgradeButton extends Button {
       const totalWidth = labelWidth + 20 * window.widthScale;
       const startX = this.x - totalWidth / 2;
       
-      // Calculate coin sprite size based on scale
       const coinSize = 18 * window.widthScale;
       p.image(coinUp, startX, this.y - coinSize/2, coinSize, coinSize);
       
@@ -68,7 +65,7 @@ function GarageSketch(p) {
   p.setup = function () {
     p.createCanvas(p.windowWidth, p.windowHeight);
     ExitIcon = new Button("ExitIcon", p.width - 45 * window.widthScale, 45 * window.heightScale, () => switchSketch(Mode.TITLE));
-    if (window.debug) debugAddCoinsButton = new UpgradeButton("Coins", 80 * window.widthScale, p.height - p.height * 0.1, debugAddCoins, "gray");
+    if (window.debug) debugAddCoinsButton = new UpgradeButton("Coins", 80 * window.widthScale, p.height - 80 * window.heightScale, debugAddCoins, "gray");
 
     let savedConfig = loadPersistentData();
     if (savedConfig) {
@@ -96,15 +93,15 @@ function GarageSketch(p) {
 
   function setupUpgradeLayout() {
     upgrades = [];
-    const size = 192 * window.widthScale; // 0.1 * 1920 = 192
-    const spacing = 38.4 * window.widthScale; // 0.02 * 1920 = 38.4
+    const size = 192 * window.widthScale;
+    const spacing = 38.4 * window.widthScale;
     const totalWidth = 4 * size + 3 * spacing;
     const startX = (p.width - totalWidth) / 2;
-    const boxY = p.height - size - 32.4 * window.heightScale; // 0.03 * 1080 = 32.4
-    const buttonY = boxY - 24.84 * window.heightScale; // 0.023 * 1080 = 24.84
+    const boxY = p.height - size - 32.4 * window.heightScale;
+    const buttonY = boxY - 24.84 * window.heightScale;
   
     if (window.debug) {
-      resetUpgradeButton = new UpgradeButton("Reset", 76.8 * window.widthScale, p.height - 54 * window.heightScale, resetUpgrades, "gray", 192 * window.widthScale, 48.6 * window.heightScale); // 0.04 * 1920 = 76.8, 0.05 * 1080 = 54, 0.045 * 1080 = 48.6
+      resetUpgradeButton = new UpgradeButton("Reset", 76.8 * window.widthScale, p.height - 54 * window.heightScale, resetUpgrades, "gray", 192 * window.widthScale, 48.6 * window.heightScale);
     } else {
       resetUpgradeButton = null;
     }
@@ -114,7 +111,7 @@ function GarageSketch(p) {
       const x = startX + i * (size + spacing);
       const level = getUpgradeLevel(type);
       const price = getPrice(type);
-      const btn = new UpgradeButton(price, x + size / 2, buttonY, () => purchaseUpgrade(type), "upgrade", 172.8 * window.widthScale, 48.6 * window.heightScale); // 0.09 * 1920 = 172.8, 0.045 * 1080 = 48.6
+      const btn = new UpgradeButton(price, x + size / 2, buttonY, () => purchaseUpgrade(type), "upgrade", 172.8 * window.widthScale, 48.6 * window.heightScale);
       upgrades.push({ type, label: type.charAt(0).toUpperCase() + type.slice(1), box: { x, y: boxY, w: size, h: size }, button: btn });
       updateUpgradeButtonText(upgrades[upgrades.length - 1]);
     });
@@ -122,11 +119,11 @@ function GarageSketch(p) {
 
   function setupItemPurchaseButtons() {
     const itemTypes = ['wrench','bomb', 'oil', 'shield'];
-    const spacing = 140.4 * window.heightScale; // 0.13 * 1080 = 140.4
-    const boxWidth = 96 * window.widthScale; // 0.05 * 1920 = 96
-    const boxHeight = 86.4 * window.heightScale; // 0.08 * 1080 = 86.4
-    const x = 76.8 * window.widthScale; // 0.04 * 1920 = 76.8
-    const startY = 324 * window.heightScale; // 0.3 * 1080 = 324
+    const spacing = 140.4 * window.heightScale;
+    const boxWidth = 96 * window.widthScale;
+    const boxHeight = 86.4 * window.heightScale;
+    const x = 76.8 * window.widthScale;
+    const startY = 324 * window.heightScale;
 
     itemTypes.forEach((item, index) => {
       const y = startY + index * spacing;
@@ -136,7 +133,7 @@ function GarageSketch(p) {
       const btnLabel = owned ? "OWNED" : price;
 
       const box = { x, y, w: boxWidth, h: boxHeight };
-      const buttonY = y - 18.36 * window.heightScale; // 0.017 * 1080 = 18.36
+      const buttonY = y - 18.36 * window.heightScale;
       const btn = new UpgradeButton(btnLabel, x + boxWidth / 2, buttonY, () => purchaseItem(item), "item", boxWidth * 0.95, boxHeight * 0.4);
       upgrades.push({ type: item, label, box, button: btn });
     });
@@ -167,12 +164,12 @@ function GarageSketch(p) {
 
   function setupCarBodySelector() {
     carBoxes = [];
-    let carBoxSize = 96 * window.widthScale; // 96px at 1920 width
+    let carBoxSize = 96 * window.widthScale;
     let cols = 8;
-    let spacing = 10 * window.widthScale; // 10px at 1920 width
+    let spacing = 10 * window.widthScale;
     let totalWidth = cols * carBoxSize + (cols - 1) * spacing;
     let startX = (p.width - totalWidth) / 2;
-    let startY = 20 * window.heightScale; // 20px at 1080 height
+    let startY = 20 * window.heightScale;
 
     for (let i = 0; i < cols; i++) {
       carBoxes.push({ x: startX + i * (carBoxSize + spacing), y: startY, w: carBoxSize, h: carBoxSize, index: i });
@@ -243,7 +240,6 @@ function GarageSketch(p) {
     return Math.floor((BASE_UPGRADE_PRICE * 3 * Math.log(BASE_UPGRADE_PRICE) * (level * level) / 20));
   }
   
-
   p.draw = function () {
     p.background(bgImage || [30, 30, 30]);
     ExitIcon.display(p);
@@ -265,7 +261,6 @@ function GarageSketch(p) {
       }
 
       if (!purchasedCars[box.index]) {
-        // Scale the coin icon properly
         const coinSize = 14 * window.widthScale;
         let coinX = box.x + box.w / 2 - coinSize - 4 * window.widthScale;
         let textX = coinX + coinSize + 4 * window.widthScale;
@@ -273,8 +268,7 @@ function GarageSketch(p) {
       
         p.image(coinUp, coinX, y - coinSize, coinSize, coinSize);
         p.fill(255, 215, 0);
-        // Use Math.round for font size to prevent blurriness
-        p.textSize(Math.round(12 * window.widthScale)); // 0.00625 * 1920 = 12
+        p.textSize(12 * window.scale);
         p.textAlign(p.LEFT, p.BOTTOM);
         p.text(CAR_COLOR_COST, textX, y);
       }
@@ -288,14 +282,14 @@ function GarageSketch(p) {
       }
     });
 
-    let centerX = p.width / 2 - 160 * window.widthScale; // 160px at 1920 width
-    let centerY = p.height / 2 - 100 * window.heightScale; // 100px at 1080 height
+    let centerX = p.width / 2 - 160 * window.widthScale;
+    let centerY = p.height / 2 - 100 * window.heightScale;
     if (window.cars?.[selectedCarIndex]) {
       p.image(window.cars[selectedCarIndex], 
-             centerX - (42.24 * window.widthScale), // 0.022 * 1920 = 42.24
-             centerY - (100 * window.heightScale), // 0.0926 * 1080 = 100
-             318.72 * window.widthScale, // 0.166 * 1920 = 318.72
-             319.68 * window.heightScale); // 0.296 * 1080 = 319.68
+             centerX - (42.24 * window.widthScale),
+             centerY - (100 * window.heightScale),
+             318.72 * window.widthScale,
+             319.68 * window.heightScale);
     }
 
     upgrades.forEach(up => {
@@ -303,8 +297,7 @@ function GarageSketch(p) {
       p.fill(211);
       p.rect(up.box.x, up.box.y, up.box.w, up.box.h);
       p.fill(0);
-      // Use Math.round for font size to prevent blurriness
-      p.textSize(Math.round(16 * window.widthScale)); // 0.00833 * 1920 = 16
+      p.textSize(16 * window.scale);
       p.textAlign(p.CENTER, p.CENTER);
       p.text(up.label, up.box.x + up.box.w / 2, up.box.y + up.box.h / 2 - 10 * window.heightScale);
       p.text("Lvl " + getUpgradeLevel(up.type), up.box.x + up.box.w / 2, up.box.y + up.box.h / 2 + 15 * window.heightScale);
@@ -317,22 +310,20 @@ function GarageSketch(p) {
       p.fill(200);
       p.rect(up.box.x, up.box.y, up.box.w, up.box.h);
       p.fill(0);
-      // Use Math.round for font size to prevent blurriness
-      p.textSize(Math.round(16 * window.widthScale)); // 0.00833 * 1920 = 16
+      p.textSize(16 * window.scale);
       p.textAlign(p.CENTER, p.CENTER);
       p.text(up.label, up.box.x + up.box.w / 2, up.box.y + up.box.h / 2 - 10 * window.heightScale);
       up.button.display(p);
     });
 
     let stats = computeCalcStats();
-    let panelX = p.width - 270 * window.widthScale; // 270px at 1920 width
-    let panelY = (p.height - 200 * window.heightScale) / 2; // 200px at 1080 height
+    let panelX = p.width - 270 * window.widthScale;
+    let panelY = (p.height - 200 * window.heightScale) / 2;
     p.fill(255, 255, 255, 204);
     p.noStroke();
     p.rect(panelX, panelY, 250 * window.widthScale, 200 * window.heightScale);
     p.fill(0);
-    // Use Math.round for font size to prevent blurriness
-    p.textSize(Math.round(16 * window.widthScale)); // 0.00833 * 1920 = 16
+    p.textSize(16 * window.scale);
     p.textAlign(p.LEFT, p.TOP);
     p.text("Stats", panelX + 10 * window.widthScale, panelY + 10 * window.heightScale);
     p.stroke(0);
@@ -355,8 +346,7 @@ function GarageSketch(p) {
     p.push();
     p.image(coinBg, 20 * window.widthScale, 20 * window.heightScale, 128 * window.widthScale, 64 * window.heightScale);
     p.fill(0);
-    // Use Math.round for font size to prevent blurriness
-    p.textSize(Math.round(16 * window.widthScale)); // 0.00833 * 1920 = 16
+    p.textSize(16 * window.scale);
     p.textAlign(p.LEFT, p.TOP);
     p.text(Math.floor(CurrencyManager.getTotalCoins()), 65 * window.widthScale, 45 * window.heightScale);
     p.pop();
@@ -406,7 +396,7 @@ function GarageSketch(p) {
     window.scale = (window.heightScale + window.widthScale) / 2;
     
     ExitIcon = new Button("ExitIcon", p.width - 45 * window.widthScale, 45 * window.heightScale, () => switchSketch(Mode.TITLE));
-    if (window.debug) debugAddCoinsButton = new UpgradeButton("Coins", 80 * window.widthScale, p.height - p.height * 0.1, debugAddCoins, "gray");
+    if (window.debug) debugAddCoinsButton = new UpgradeButton("Coins", 80 * window.widthScale, p.height - 80 * window.heightScale, debugAddCoins, "gray");
     
     setupUpgradeLayout();
     setupItemPurchaseButtons();
