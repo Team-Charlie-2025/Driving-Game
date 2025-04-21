@@ -28,14 +28,29 @@ function PlaySketch(p) {
   const RESUME_BUTTON_Y_PERCENT = 0.5; // 50% from top
   const MAIN_MENU_BUTTON_Y_PERCENT = 0.65; // 65% from top
   
+  p.houseImages = []; // Array to stores all the house photos
   p.preload = function() {
     loadMusic(p);
     loadSoundEffects(p);
+    
     p.buildingImg = p.loadImage("assets/building.png");
     p.enemyImg = p.loadImage("assets/police+car.png");   // Regular cop car image
     p.truckImg = p.loadImage("assets/police+truck.png"); // Truck image
     p.bikeImg = p.loadImage("assets/police+bike.png");   // Motorcycle image
 
+    p.houseImages = [
+      p.loadImage("assets/Buildings/house_01.png"),
+      p.loadImage("assets/Buildings/house_02.png"),
+      p.loadImage("assets/Buildings/house_03.png"),
+      p.loadImage("assets/Buildings/house_04.png"),
+      p.loadImage("assets/Buildings/house_05.png"),
+      p.loadImage("assets/Buildings/house_06.png"),
+      p.loadImage("assets/Buildings/house_07.png"),
+      p.loadImage("assets/Buildings/house_08.png"),
+      p.loadImage("assets/Buildings/house_09.png"),
+      p.loadImage("assets/Buildings/house_10.png"),
+    ];
+    
     // will be moved to globals eventually
     grassImg = p.loadImage("assets/mapBuilder/Terrain/grass.png");
     waterImg = p.loadImage("assets/mapBuilder/Terrain/water.png")

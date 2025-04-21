@@ -5,7 +5,7 @@ This file holds all the functions for drawing buildings, lakes and other obstacl
 
 
 // Draws Buildings given the cordinates 
-function drawRectBuilding(p, xStart, yStart, xEnd, yEnd) {
+function drawRectBuilding(p, xStart, yStart, xEnd, yEnd, buildingImg = buildingImg) {
   const buildingWidth = Math.abs((xEnd - xStart)) * gridSize;
   const buildingHeight = Math.abs((yEnd - yStart)) * gridSize;
 
@@ -43,7 +43,7 @@ function drawRectBuilding(p, xStart, yStart, xEnd, yEnd) {
   #########################################################################
 */
 
-function fillBuildingsDynamically(p, xPosStart, yPosStart, xPosEnd, yPosEnd) {
+function fillBuildingsDynamically(p, xPosStart, yPosStart, xPosEnd, yPosEnd, buildImages = p.houseImages) {
   for (let yStart = yPosStart; yStart < yPosEnd; yStart++) {
     for (let xStart = xPosStart; xStart < xPosEnd; xStart++) {
       // Check if this tile is empty (grass) and has the required gap from other buildings
@@ -68,7 +68,7 @@ function fillBuildingsDynamically(p, xPosStart, yPosStart, xPosEnd, yPosEnd) {
 
         // Ensure space is free for the building
         if (canPlaceBuilding(p, finalXStart, finalYStart, finalXEnd, finalYEnd)) {
-          drawRectBuilding(p, finalXStart, finalYStart, finalXEnd, finalYEnd);
+          drawRectBuilding(p, finalXStart, finalYStart, finalXEnd, finalYEnd,p.houseImages[2]);
         }
       }
     }
