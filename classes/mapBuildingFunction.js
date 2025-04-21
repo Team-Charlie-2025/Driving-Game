@@ -5,7 +5,7 @@ This file holds all the functions for drawing buildings, lakes and other obstacl
 
 
 // Draws Buildings given the cordinates 
-function drawRectBuilding(p, xStart, yStart, xEnd, yEnd, buildingImg = buildingImg) {
+function drawRectBuilding(p, xStart, yStart, xEnd, yEnd, buildImg = buildingImg) {
   const buildingWidth = Math.abs((xEnd - xStart)) * gridSize;
   const buildingHeight = Math.abs((yEnd - yStart)) * gridSize;
 
@@ -15,7 +15,7 @@ function drawRectBuilding(p, xStart, yStart, xEnd, yEnd, buildingImg = buildingI
   //console.log(`Building dimensions: ${buildingWidth}x${buildingHeight}`);
   //console.log(`Building center: (${centerX}, ${centerY})`);
 
-  p.image(buildingImg, centerX - buildingWidth / 2, centerY - buildingHeight / 2, buildingWidth, buildingHeight);
+  p.image(buildImg, centerX - buildingWidth / 2, centerY - buildingHeight / 2, buildingWidth, buildingHeight);
 
   // Update the map to mark all tiles as part of the building
   for (let y = yStart; y < yEnd; y++) {
@@ -27,7 +27,7 @@ function drawRectBuilding(p, xStart, yStart, xEnd, yEnd, buildingImg = buildingI
           centerY,
           buildingWidth,
           buildingHeight,
-          buildingImg // Pass the building image
+          buildImg // Pass the building image
         );
       }
     }
@@ -44,10 +44,14 @@ function drawRectBuilding(p, xStart, yStart, xEnd, yEnd, buildingImg = buildingI
 */
 
 function fillBuildingsDynamically(p, xPosStart, yPosStart, xPosEnd, yPosEnd, buildImages = p.houseImages) {
-  let imageIndex = Math.random() * buildImages.length;
+  let imageIndex;
+  let buildImage;
   for (let yStart = yPosStart; yStart < yPosEnd; yStart++) {
     for (let xStart = xPosStart; xStart < xPosEnd; xStart++) {
-      // Check if this tile is empty (grass) and has the required gap from other buildings
+      //imageIndex = Math.random() * buildImages.length;
+      imageIndex = Math.round(Math.random() * 9);
+      //buildImage = buildImage[imageIndex];
+      // Check if this tile is empty (grass) and has the required g ap from other buildings
       if (
         map[yStart][xStart] instanceof Grass &&
         hasBuildingGap(p, xStart, yStart, 3) && 
@@ -69,7 +73,7 @@ function fillBuildingsDynamically(p, xPosStart, yPosStart, xPosEnd, yPosEnd, bui
 
         // Ensure space is free for the building
         if (canPlaceBuilding(p, finalXStart, finalYStart, finalXEnd, finalYEnd)) {
-          drawRectBuilding(p, finalXStart, finalYStart, finalXEnd, finalYEnd,buildImages[2]);
+          drawRectBuilding(p, finalXStart, finalYStart, finalXEnd, finalYEnd,p.houseImages[imageIndex]);
         }
       }
     }
