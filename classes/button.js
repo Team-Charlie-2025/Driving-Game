@@ -80,7 +80,7 @@ class Button { //regular rect button class
       p.textSize(drawWidth/ this.textSize)
       p.textFont(window.PixelFont);
       p.textAlign(p.CENTER, p.CENTER);
-      p.text(this.label, this.x, this.y);
+      p.text(this.label, this.x, this.y - this.height*0.05);
       
     }
   
