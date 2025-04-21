@@ -16,7 +16,7 @@ class UpgradeButton extends Button {
     }
 
     p.textFont(window.PixelFont);
-    p.textSize(Math.round(30 * window.scale));
+    p.textSize(Math.round(25 * window.scale));
     p.textAlign(p.CENTER, p.CENTER);
     p.fill(0);
 
@@ -27,7 +27,7 @@ class UpgradeButton extends Button {
       const totalWidth = labelWidth + 20;
       const startX = this.x - totalWidth / 2;
 
-      p.image(coinUp, startX, this.y - 10, 18, 18);
+      p.image(coinUp, startX, this.y - 8, 18, 18);
       p.textAlign(p.LEFT, p.CENTER);
       p.text(this.label, startX + 22, this.y);
     }
@@ -266,7 +266,7 @@ function GarageSketch(p) {
         let textX = coinX + 18;
         let y = box.y + box.h;
       
-        p.image(coinUp, coinX, y - 14, 14, 14);
+        p.image(coinUp, coinX, y - 20, 14, 14);
         p.fill(255, 215, 0);
         p.textSize(Math.round(30 * window.scale));
         p.textAlign(p.LEFT, p.BOTTOM);
@@ -292,7 +292,7 @@ function GarageSketch(p) {
       p.fill(211);
       p.rect(up.box.x, up.box.y, up.box.w, up.box.h);
       p.fill(0);
-      p.textSize(Math.round(30*window.scale));
+      p.textSize(Math.round(34*window.scale));
       p.textAlign(p.CENTER, p.CENTER);
       p.strokeWeight(0);
       p.text(up.label, up.box.x + up.box.w / 2, up.box.y + up.box.h / 2 - 10);
@@ -322,8 +322,10 @@ function GarageSketch(p) {
     p.textAlign(p.LEFT, p.TOP);
     p.text("Stats", panelX + 10, panelY + 10);
     p.stroke(0);
+    p.strokeWeight(1);
     p.line(panelX + 10, panelY + 28, panelX + 240, panelY + 28);
     p.noStroke();
+    p.strokeWeight(0);
 
     let names = ["Health", "Boost", "Max Speed", "Acceleration", "Turn", "Dmg Res"];
     let bases = [savedStats.health, savedStats.boost, savedStats.maxSpeed, savedStats.acceleration, savedStats.turn, savedStats.dmgRes];
