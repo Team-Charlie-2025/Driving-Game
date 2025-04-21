@@ -50,7 +50,7 @@ function PlaySketch(p) {
       p.loadImage("assets/Buildings/house_09.png"),
       p.loadImage("assets/Buildings/house_10.png"),
     ];
-    p.buildImages = [
+    p.buildingImages = [
       p.loadImage("assets/Buildings/building_04.png"),
       p.loadImage("assets/Buildings/building_05.png"),
       p.loadImage("assets/Buildings/building_06.png"),
@@ -263,7 +263,7 @@ function PlaySketch(p) {
   }
 
   p.draw = function () {
-    p.background(0);
+    p.background("white");
   
     // Handle pause overlay and drawing
     if (isPaused && !window.isGameOver) {

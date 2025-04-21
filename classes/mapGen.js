@@ -611,6 +611,7 @@ function generateImprovedCityMap(p, rows, cols) {
       generateCountryTree(p, pt.x, pt.y, visited, 0, 10);
     }
   }
+  fillShopsDynamically(p,200,200,300,300);
   fillBuildingsDynamically(p,0,0,rows,cols);
 }
 

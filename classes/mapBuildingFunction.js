@@ -81,10 +81,14 @@ function fillBuildingsDynamically(p, xPosStart, yPosStart, xPosEnd, yPosEnd, bui
 }
 
 
-function fillShopsDynamically(p, xPosStart, yPosStart, xPosEnd, yPosEnd) {
+function fillShopsDynamically(p, xPosStart, yPosStart, xPosEnd, yPosEnd, buildImages = p.buildingImages) {
+  let imageIndex;
+  let buildImage;
   for (let yStart = yPosStart; yStart < yPosEnd; yStart++) {
     for (let xStart = xPosStart; xStart < xPosEnd; xStart++) {
-      // Check if this tile is empty (grass) and is adjacent to a road
+      imageIndex = Math.round(Math.random() * buildImages.length-1);
+      buildImage = buildImages[imageIndex];
+      // Check if this tile is empty and is adjacent to a road
       if (map[yStart][xStart] instanceof Grass && isAdjacentToRoad(p, xStart, yStart)) {
         // Randomize shop dimensions
         let shopLength = Math.floor(Math.random() * 11) + 5; // 5-15 tiles long
@@ -111,7 +115,8 @@ function fillShopsDynamically(p, xPosStart, yPosStart, xPosEnd, yPosEnd) {
 
         // Ensure space is free for the shop
         if (canPlaceBuilding(p, xStart, yStart, xEnd, yEnd)) {
-          drawRectBuilding(p, xStart, yStart, xEnd, yEnd);
+          console.log("shop built")
+          drawRectBuilding(p, xStart, yStart, xEnd, yEnd,buildImage);
         }
       }
     }
