@@ -1,15 +1,18 @@
 // classes/_vehicles.js
-const carWidth = 50;
-const carHeight = 30;
+const carWidth = 64;
+const carHeight = 64;
 
+// Full Car Class with Snap Oversteer Drift Physics — Fixed Traction, No Scaling
 class Car extends GameObject {
   constructor(p, x, y, stats) {
     super(x, y);
     this.p = p;
     this.speed = 0;
     this.angle = 0;
+    this.prevAngle = 0;
+    this.turnDelta = 0;
     this.velocity = new p5.Vector(0, 0);
-    this.attackDamage = 10; //damage done to enemy on hit
+    this.attackDamage = 10;
 
     const data = loadPersistentData();
     const SAVED_STATS = data.stats;
@@ -19,8 +22,30 @@ class Car extends GameObject {
     this.baseMaxSpeed = SAVED_STATS.maxSpeed;
     this.acceleration = SAVED_STATS.acceleration;
     this.maxSpeed = SAVED_STATS.maxSpeed;
-    this.friction = 0.05;
+    this.tireTraction = SAVED_STATS.traction;
+    this.friction = 0.02;
     this.reverseSpeed = -4;
+    this.turnSpeed = 0.07;
+    this.turnFrames = 1;
+
+    // Drift physics
+    this.spunOut = false;
+    this.isDrifting = false;
+    this.normalTraction = 0.1;
+    this.driftTraction = 0.3;
+    this.traction = this.normalTraction;
+    this.movementAngle = this.angle;
+    this.driftAccumulator = 0;
+    this.spinOutThreshold = 5.0;
+    this.driftDirection = 0;
+
+
+    // Gear simulation
+    this.gearMultipliers = [0.05, 0.07, 0.09, 0.04, 0.012, -0.06];
+    this.maxRPM = 8000;
+    this.idleRPM = 1000;
+    this.currentRPM = this.idleRPM;
+
 
     this.currentImage = window.cars[selectedCarIndex] || null;
     this.removeFromWorld = false;
@@ -28,12 +53,7 @@ class Car extends GameObject {
     if (this.currentImage) {
       this.width = 64;
       this.height = 64;
-      this.collider = new Collider(
-        this,
-        "polygon",
-        { offsetX: -32, offsetY: -32 },
-        this.currentImage
-      );
+      this.collider = new Collider(this, "polygon", { offsetX: -32, offsetY: -32 }, this.currentImage);
     } else {
       this.width = carWidth;
       this.height = carHeight;
@@ -58,107 +78,181 @@ class Car extends GameObject {
     this.isBoosting = false;
   }
 
+  updateRPM() {
+    const gear = this.getGear();
+    const percentInGear = Math.min(1, (Math.abs(this.speed) / this.maxSpeed - gear * 0.2) / 0.2);
+    const gearPeak = [0.9, 1.0, 1.0, 0.9, 0.8]; // peak rpm per gear
+  
+    const target = this.idleRPM + (this.maxRPM - this.idleRPM) * percentInGear * gearPeak[gear];
+    this.currentRPM = this.p.lerp(this.currentRPM, target, 0.1); // smooth rpm response
+  }
+  
+  // Sets the gear based on speed
+  getGear() { 
+    let percent = this.speed / this.maxSpeed;
+    if (percent < 0.15) return 0;
+    if (percent < 0.40) return 1;
+    if (percent < 0.65) return 2;
+    if (percent < 0.85) return 3;
+    return 4;
+  }
+
   update() {
     const p = this.p;
+    this.prevAngle = this.angle;
 
     if (this.healthBar <= 0) {
       this.healthBar = 0;
       window.isGameOver = true;
-      console.log("Game Over Triggered!");
     }
-    //check terrain type
+
     let terrainType = getTileTypeAt(this.position.x, this.position.y);
-    //console.log(`Car is on: ${terrainType} at (${this.position.x}, {$this.position.y})`)
-    
-    if(this.isBoosting) {
-      if (terrainType === "grass") {
-        this.acceleration = this.baseAcceleration * 1.5; //smaller boost on grass
-        this.maxSpeed = this.baseMaxSpeed * 1.75; //lower maxSpeed increase on grass
-      } else {
-        this.acceleration = this.baseAcceleration * 2.5;
-        this.maxSpeed = this.baseMaxSpeed * 3;
-      }
+
+    if (this.isBoosting) {
+      this.acceleration = this.baseAcceleration * (terrainType === "grass" ? 1.5 : 2);
+      this.maxSpeed = this.baseMaxSpeed * (terrainType === "grass" ? 1.3 : 1.75);
     } else {
-      if (terrainType === "grass") {
-        this.acceleration = this.baseAcceleration * 0.65; //reduce acceleration
-        this.maxSpeed = this.baseMaxSpeed * 0.65; //reduce max speed
-      } else {
-        this.acceleration = this.baseAcceleration;
-        this.maxSpeed = this.baseMaxSpeed;
-      }
-    }  
-    
+      this.acceleration = this.baseAcceleration * (terrainType === "grass" ? 0.65 : 1);
+      this.maxSpeed = this.baseMaxSpeed * (terrainType === "grass" ? 0.65 : 1);
+    }
 
     if (p.keyIsDown(getKeyForAction("forward")) && !this.controlDisabled) {
       if (p.keyIsDown(getKeyForAction("boost")) && this.boostMeter > 0) {
         this.isBoosting = true;
         this.boostMeter = Math.max(0, this.boostMeter - 2.5);
         this.lastBoostTime = Date.now();
-
         if (this.speed < 0) this.speed = 0.01;
-        //make sure speed does not exceed max allowed for terrain
-        this.speed = Math.min(this.speed, this.maxSpeed);
         this.speed = p.constrain(
-          this.speed + this.acceleration * 2.5,
+          this.speed + this.acceleration * 2 * this.gearMultipliers[this.getGear()],
           this.reverseSpeed * 2,
-          this.maxSpeed * 3
+          this.baseMaxSpeed * 1.75
         );
-        //console.log(`Boost activated. Speed: ${this.speed.toFixed(2)}, Max Speed: ${this.maxSpeed.toFixed(2)}`);
       } else {
         this.isBoosting = false;
         if (this.speed > this.maxSpeed) {
           this.speed -= this.acceleration;
         } else {
           this.speed = p.constrain(
-            this.speed + this.acceleration,
+            this.speed + this.acceleration * this.gearMultipliers[this.getGear()],
             this.reverseSpeed,
             this.maxSpeed
           );
         }
       }
-      //console.log(`Boost ended. Speed: ${this.speed.toFixed(2)}, Max Speed: ${this.maxSpeed.toFixed(2)}`);
     }
 
     if (p.keyIsDown(getKeyForAction("backward")) && !this.controlDisabled) {
       this.speed = p.constrain(
-        this.speed - this.acceleration,
+        this.speed + this.acceleration * this.gearMultipliers[5],
         this.reverseSpeed,
         this.maxSpeed
       );
     }
 
-    const turnSpeed = 0.05;
+    // Turning
+    let turnFrameDelay = 8;
     if (p.keyIsDown(getKeyForAction("left")) && !this.controlDisabled) {
-      this.angle -= p.keyIsDown(16) ? turnSpeed * 2 : turnSpeed;
+      if (this.turnFrames > -turnFrameDelay) this.turnFrames -= 1;
+    } else if (p.keyIsDown(getKeyForAction("right")) && !this.controlDisabled) {
+      if (this.turnFrames < turnFrameDelay) this.turnFrames += 1;
+    } else {
+      if (this.turnFrames >= -turnFrameDelay && this.turnFrames <= -2) this.turnFrames += 2;
+      else if (this.turnFrames <= turnFrameDelay && this.turnFrames >= 2) this.turnFrames -= 2;
+      else this.turnFrames = 0;
     }
-    if (p.keyIsDown(getKeyForAction("right")) && !this.controlDisabled) {
-      this.angle += p.keyIsDown(16) ? turnSpeed * 2 : turnSpeed;
-    }
-    
-    if (
-      !(p.keyIsDown(getKeyForAction("forward")) && !this.controlDisabled) &&
-      !(p.keyIsDown(getKeyForAction("backward")) && !this.controlDisabled)
-    ) {
+    if(this.isDrifting)
+      this.angle += this.turnSpeed * (this.turnFrames / turnFrameDelay) * Math.min(1, this.speed / 5)*2;
+    else
+      this.angle += this.turnSpeed * (this.turnFrames / turnFrameDelay) * Math.min(1, this.speed / 5);
+    this.turnDelta = Math.abs(this.angle - this.prevAngle);
+
+    if (!p.keyIsDown(getKeyForAction("forward")) && !p.keyIsDown(getKeyForAction("backward"))) {
       this.speed *= 1 - this.friction;
       if (Math.abs(this.speed) < 0.01) this.speed = 0;
     }
 
-    this.position.x += this.speed * p.cos(this.angle);
-    this.position.y += this.speed * p.sin(this.angle);
+    // Drift physics
+    let currentSpeed = this.speed;
+    let driftKeyPressed = p.keyIsDown(getKeyForAction("drift"));
+    let aboveMax = currentSpeed > this.maxSpeed*.95;
+    let lerpAmount = 1;
+    
+    // Need to incorporate traction along with maxspeed to determine lerp
+    if (currentSpeed > this.maxSpeed) lerpAmount = 0.0001;  // This is a real drift
+    else if (currentSpeed >= this.maxSpeed * 0.95) lerpAmount = 0.0005;
+    else if (currentSpeed >= this.maxSpeed * 0.9) lerpAmount = 0.0015;
+    else if (currentSpeed >= this.maxSpeed * 0.85) lerpAmount = 0.0025;
+    else if (currentSpeed < this.maxSpeed * 0.8) lerpAmount = 0.05;
+    else lerpAmount = 0.85;
 
-    this.velocity.set(
-      this.speed * this.p.cos(this.angle),
-      this.speed * this.p.sin(this.angle)
+    if ((aboveMax || driftKeyPressed) && this.turnDelta > 0.05) {
+      this.isDrifting = true;
+      this.speed *= 1 - this.friction;
+    
+      if (this.turnFrames > 0) this.driftDirection = 1;
+      else if (this.turnFrames < 0) this.driftDirection = -1;
+      else this.driftDirection = 0;
+    }
+    
+    
+    // Spin out logic
+    if (this.isDrifting) {
+      // Counter steer logic
+      const steerDir = this.turnFrames > 0 ? 1 : this.turnFrames < 0 ? -1 : 0;
+      if (steerDir !== 0 && steerDir !== this.driftDirection) {
+        this.driftAccumulator = Math.max(0, this.driftAccumulator - 0.05); // countersteering reduces spinout
+      } else {
+        this.driftAccumulator += this.turnDelta;
+      }
+
+      if (this.driftAccumulator > this.spinOutThreshold || this.spunOut) {
+        this.speed *= 0.8;
+        console.log("spinning out")
+        if (this.spunOut && this.driftAccumulator <= 1) {
+          if (this.angle - this.prevAngle >= 0) {
+            this.angle += this.turnSpeed * 4;
+          } else {
+            this.angle -= this.turnSpeed * 4;
+          }
+          this.driftAccumulator += 0.03;
+        } else if (this.driftAccumulator > this.spinOutThreshold) {
+          this.spunOut = true;
+          this.driftAccumulator = 0.03;
+        } else {
+          this.isDrifting = false;
+          this.driftAccumulator = 0;
+          this.spunOut = false;
+        }
+      }
+    }
+
+    if (!aboveMax && !driftKeyPressed && this.turnDelta < 0.02) {
+      this.isDrifting = false;
+      this.driftAccumulator = 0;
+    }
+
+    let desired = this.p.createVector(
+      this.p.cos(this.angle) * currentSpeed,
+      this.p.sin(this.angle) * currentSpeed
     );
 
-    if (this.position.x < 0) this.position.x = 0;
-    else if (this.position.x > mapSize * gridSize) this.position.x = mapSize * gridSize;
-    if (this.position.y < 0) this.position.y = 0;
-    else if (this.position.y > mapSize * gridSize) this.position.y = mapSize * gridSize;
+    if (this.isDrifting) {
+      this.velocity.lerp(desired, lerpAmount);
+    } else {
+      this.velocity.set(desired);
+    }
+
+    this.position.x += this.velocity.x;
+    this.position.y += this.velocity.y;
+
+    this.position.x = p.constrain(this.position.x, 0, mapSize * gridSize);
+    this.position.y = p.constrain(this.position.y, 0, mapSize * gridSize);
 
     if (!this.isBoosting && Date.now() - this.lastBoostTime > this.boostRegenDelay) {
       this.boostMeter = Math.min(this.boostMax, this.boostMeter + this.boostRegenRate);
     }
+    this.updateRPM();
+
   }
 
   display() {
@@ -176,6 +270,7 @@ class Car extends GameObject {
 
     p.pop();
   }
+
 
   onCollisionEnter(other) {
     //super.onCollisionEnter(other);
@@ -208,9 +303,10 @@ class Car extends GameObject {
   }
 
   buildingCollision(){
-    let damage = 5 * window.difficulty;
+    let damage = 5 * window.difficulty * (10*this.speed/this.baseMaxSpeed);
     damage = ItemsManager.shieldDamage(damage);
     this.healthBar = Math.max(0, this.healthBar - damage);
+    this.speed *=-.25;
   }
 
   getHealth(){
@@ -218,10 +314,11 @@ class Car extends GameObject {
   }
 }
 
+
 class Enemy extends Car{
   constructor(p, x, y, target) {
     const stats = {
-      acceleration: 0.8 * window.difficulty,
+      acceleration: 0.6 * window.difficulty,
       maxSpeed: 7.0 * window.difficulty,
       health: 100 * window.difficulty,
       friction: 0.03
