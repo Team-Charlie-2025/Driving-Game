@@ -16,7 +16,7 @@ class UpgradeButton extends Button {
     }
 
     p.textFont(window.PixelFont);
-    p.textSize(30 * window.scale);
+    p.textSize(Math.round(30 * window.scale));
     p.textAlign(p.CENTER, p.CENTER);
     p.fill(0);
 
@@ -63,7 +63,7 @@ function GarageSketch(p) {
 
   p.setup = function () {
     p.textFont(window.PixelFont);
-    p.textSize(30 * window.scale);
+    p.textSize(Math.round(30 * window.scale));
     p.createCanvas(p.windowWidth, p.windowHeight);
     ExitIcon = new Button("ExitIcon", p.width - p.width * 0.05, p.height - p.height * 0.95, () => switchSketch(Mode.TITLE));
     if (window.debug) debugAddCoinsButton = new UpgradeButton("Coins", p.width * 0.04, p.height - p.height * 0.1, debugAddCoins, "gray");
@@ -268,7 +268,7 @@ function GarageSketch(p) {
       
         p.image(coinUp, coinX, y - 14, 14, 14);
         p.fill(255, 215, 0);
-        p.textSize(30 * window.scale);;
+        p.textSize(Math.round(30 * window.scale));
         p.textAlign(p.LEFT, p.BOTTOM);
         p.text(CAR_COLOR_COST, textX, y);
       }
@@ -292,11 +292,13 @@ function GarageSketch(p) {
       p.fill(211);
       p.rect(up.box.x, up.box.y, up.box.w, up.box.h);
       p.fill(0);
-      p.textSize(30*window.scale);
+      p.textSize(Math.round(30*window.scale));
       p.textAlign(p.CENTER, p.CENTER);
+      p.strokeWeight(0);
       p.text(up.label, up.box.x + up.box.w / 2, up.box.y + up.box.h / 2 - 10);
       p.text("Lvl " + getUpgradeLevel(up.type), up.box.x + up.box.w / 2, up.box.y + up.box.h / 2 + 15);
       up.button.display(p);
+
     });
 
     const consumables = upgrades.filter(u => ["wrench", "bomb", "oil", "shield"].includes(u.type));
@@ -305,7 +307,7 @@ function GarageSketch(p) {
       p.fill(200);
       p.rect(up.box.x, up.box.y, up.box.w, up.box.h);
       p.fill(0);
-      p.textSize(30 * window.scale);
+      p.textSize(Math.round(30 * window.scale));
       p.textAlign(p.CENTER, p.CENTER);
       p.text(up.label, up.box.x + up.box.w / 2, up.box.y + up.box.h / 2 - 10);
       up.button.display(p);
@@ -316,7 +318,7 @@ function GarageSketch(p) {
     p.noStroke();
     p.rect(panelX, panelY, 300* window.widthScale, 250* window.heightScale);
     p.fill(0);
-    p.textSize(25 * window.scale);
+    p.textSize(Math.round(25 * window.scale));
     p.textAlign(p.LEFT, p.TOP);
     p.text("Stats", panelX + 10, panelY + 10);
     p.stroke(0);
