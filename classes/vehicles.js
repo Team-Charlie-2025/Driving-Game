@@ -239,10 +239,10 @@ class Enemy extends Car{
     this.pathIndex = 0;
     this.lastPathUpdate = 0;
     this.pathUpdateInterval = 250;  //milliseconds between recalculating path
-    this.maxSightDistance = 200;  //how far enemies can see
+    this.maxSightDistance = 300;  //how far enemies can see
     this.inLOS = false;
     this.lastLOSCheck = 0;
-    this.LOSPersistenceTime = 1500;  //stay in LOS mode for at least 1.5 sec
+    this.LOSPersistenceTime = 1000;  //stay in LOS mode for at least 1 sec
     
     this.baseAcceleration = stats.acceleration;
     this.baseMaxSpeed = stats.maxSpeed;
@@ -298,11 +298,18 @@ class Enemy extends Car{
     if (now - this.lastLOSCheck > 100) {
       const hasLOS = this.hasLineOfSightTo(this.target.position);
 
-      if (hasLOS) {
+      const distToPlayer = p5.Vector.dist(this.position, this.target.position);
+
+      if (hasLOS && distToPlayer < this.maxSightDistance && !this.hasObstacleInFront(32)) {
+        let predictedPlayerPos = this.target.position.copy();
+        if (this.target.velocity) {
+          const lead = this.target.velocity.copy().normalize().mult(32);
+          predictedPlayerPos.add(lead);
+        }
         this.inLOS = true;
-        this.lastSeenPlayerPos = this.target.position.copy();
+        this.lastSeenPlayerPos = predictedPlayerPos.copy();
         this.lastLOSModeEntered = now;
-        this.path = [];  //clear path if we're close enough and can see the player
+        this.path = [];  //clear path if close enough and can see the player
       } else if (this.inLOS && now - this.lastLOSModeEntered > this.LOSPersistenceTime) {
         this.inLOS = false;
       }
@@ -342,6 +349,10 @@ class Enemy extends Car{
       this.velocity.add(this.steer);
       this.velocity.mult(1 - this.friction);
       this.velocity.limit(this.maxSpeed);
+      if (this.hasObstacleInFront(32)) {
+        const nudge = p5.Vector.random2D().mult(1.5);
+        this.velocity.add(nudge);
+      }
       this.position.add(this.velocity);
 
       if (this.velocity.mag() > 0.1) {
@@ -355,7 +366,7 @@ class Enemy extends Car{
         const enemyGrid = worldToGrid(this.position.x, this.position.y, gridSize, gridSize);
         const targetGrid = worldToGrid(this.target.position.x, this.target.position.y, gridSize, gridSize);
       
-        const driveGrid = buildDrivableGrid(map);
+        const driveGrid = window.driveGrid;
 
         const newPath = astar(driveGrid, enemyGrid, targetGrid);
         if (newPath.length > 0) {
@@ -432,6 +443,19 @@ class Enemy extends Car{
     }
     return true;
   }
+
+  hasObstacleInFront(distance = 32) {
+    const front = this.p.createVector(
+      this.position.x + this.p.cos(this.angle) * distance,
+      this.position.y + this.p.sin(this.angle) * distance
+    );
+  
+    const tileX = Math.floor(front.x / gridSize);
+    const tileY = Math.floor(front.y / gridSize);
+    const tile = map[tileY]?.[tileX];
+  
+    return tile && !(tile instanceof Road || tile instanceof Grass);
+  }
   
   onCollisionEnter(other) {
     // Only apply damage if the collided object is the player car (not an Enemy)
@@ -507,8 +531,8 @@ class Truck extends Enemy {
     // Adjust width and height separately for truck proportions
     // Make the truck longer than it is wide
     if (this.currentImage) {
-      this.width = 146 // Wider/longer
-      this.height = 59 // Less tall
+      this.width = 133 // Wider/longer
+      this.height = 54 // Less tall
       
       // Update collider to match new dimensions
       this.collider = new Collider(
