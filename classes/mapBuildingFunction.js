@@ -49,8 +49,8 @@ function fillBuildingsDynamically(p, xPosStart, yPosStart, xPosEnd, yPosEnd, bui
   for (let yStart = yPosStart; yStart < yPosEnd; yStart++) {
     for (let xStart = xPosStart; xStart < xPosEnd; xStart++) {
       //imageIndex = Math.random() * buildImages.length;
-      imageIndex = Math.round(Math.random() * 9);
-      //buildImage = buildImage[imageIndex];
+      imageIndex = Math.round(Math.random() * buildImages.length-1);
+      buildImage = buildImages[imageIndex];
       // Check if this tile is empty (grass) and has the required g ap from other buildings
       if (
         map[yStart][xStart] instanceof Grass &&
@@ -73,7 +73,7 @@ function fillBuildingsDynamically(p, xPosStart, yPosStart, xPosEnd, yPosEnd, bui
 
         // Ensure space is free for the building
         if (canPlaceBuilding(p, finalXStart, finalYStart, finalXEnd, finalYEnd)) {
-          drawRectBuilding(p, finalXStart, finalYStart, finalXEnd, finalYEnd,p.houseImages[imageIndex]);
+          drawRectBuilding(p, finalXStart, finalYStart, finalXEnd, finalYEnd,buildImage);
         }
       }
     }
