@@ -140,8 +140,6 @@ function loadAnimations(p) {
   window.animations["hourglass"]=[];
   for(i =1; i <= 5; i++)
     window.animations["hourglass"].push(p.loadImage(`graphics/hourglassAnimation/${i}.png`));
-    //window.animations["hourglass"].push(p.loadImage(`graphics/hourglassAnimation/hourglass${i}.png`));
-
 
   console.log("animations loaded");
 }
