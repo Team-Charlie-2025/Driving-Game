@@ -36,12 +36,14 @@ function TitleSketch(p) {
     if (window.debug === undefined) {
       window.debug = false;
     }
+    /*
     debugCheckbox = p.createCheckbox("Debug", window.debug);
-    debugCheckbox.position(10*window.widthScale, 10*window.heightScale);
+    debugCheckbox.position(50*window.widthScale, 10*window.heightScale);
     debugCheckbox.changed(() => {
       window.debug = debugCheckbox.checked();
       console.log("Debug mode set to:", window.debug);
     });
+    */
 
     bgMusic(Mode.TITLE, p, "loop");
     p.windowResized();
@@ -171,13 +173,13 @@ function TitleSketch(p) {
       })
     );    
     buttons.push(
-      new Button("Signup", p.width/ 1.05, p.height - p.height * 0.10, function () {
+      new Button("Signup", p.width / 18, p.height - p.height * 0.92, function () {
         switchSketch(Mode.SIGNUP);
       })
     );
   
     buttons.push(
-      new Button("Login", p.width/ 1.05, p.height - p.height * 0.15, function () {
+      new Button("Login", p.width / 18, p.height - p.height * 0.87, function () {
         switchSketch(Mode.LOGIN);
       })
     );
@@ -225,10 +227,10 @@ function TitleSketch(p) {
   }
   function createHelpButton(){
     helpButton = 
-      new Button("HELP", p.width / 12, p.height - p.height * 0.97, function () {
+      new Button("HELP", p.width / 18, p.height - p.height * 0.97, function () {
         showHelpScreen = !showHelpScreen;
         console.log("help");
         githubLink.hide();
-      }, "blue");
+      }, "green");
   }
 }

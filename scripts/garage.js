@@ -303,7 +303,7 @@ function GarageSketch(p) {
       p.fill(211);
       p.rect(up.box.x, up.box.y, up.box.w, up.box.h);
       p.fill(0);
-      p.textSize(24 * window.scale);
+      p.textSize(30 * window.scale);
       p.textAlign(p.CENTER, p.CENTER);
       p.strokeWeight(0);
       p.text(up.label, up.box.x + up.box.w / 2, up.box.y + up.box.h / 2 - 10 * window.heightScale);
@@ -317,7 +317,7 @@ function GarageSketch(p) {
       p.fill(200);
       p.rect(up.box.x, up.box.y, up.box.w, up.box.h);
       p.fill(0);
-      p.textSize(24 * window.scale);
+      p.textSize(26 * window.scale);
       p.textAlign(p.CENTER, p.CENTER);
       p.text(up.label, up.box.x + up.box.w / 2, up.box.y + up.box.h / 2 - 10 * window.heightScale);
       up.button.display(p);
