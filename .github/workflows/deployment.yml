@@ -1,21 +1,26 @@
 #name: Deployment Workflow
-
-#on: 
-  #workflow_dispatch:
-
-#jobs:
-  #deployment:
-    #runs-on: ubuntu-latest
-    #steps:
-      #- name: Install SSH key
-        #uses: shimataro/ssh-key-action@v2
-        #with:
-          #key: ${{ secrets.ID_RSA }}
-          #name: id_rsa
-          #known_hosts: ${{ secrets.KNOWN_HOSTS }}
-      #- name: Get files
-        #uses: actions/checkout@v2
-      #- name: Deploy
-        #run: |
-          #ssh ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} "cd ${{ secrets.WORK_DIR }} && git checkout ${{ secrets.MAIN_BRANCH }} && git pull"
-          
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+  
+jobs:
+  run_pull:
+    name: run pull
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: install ssh keys
+      run: |
+        install -m 600 -D /dev/null ~/.ssh/id_rsa
+        echo "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/id_rsa
+        ssh-keyscan -H ${{ secrets.SSH_HOST }} > ~/.ssh/known_hosts
+    - name: connect and pull
+      run:
+        ssh ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} "cd ${{ secrets.WORK_DIR }} && git checkout ${{ secrets.MAIN_BRANCH }} && git pull"
+    - name: run server
+      run:
+        ssh -T ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} screen -dmS SwiggleServer bash -c “python -m http.server -d ~/${{ secrets.WORK_DIR }} ${{ secrets.HTTP_PORT }}”
+    - name: cleanup
+      run: rm -rf ~/.ssh
