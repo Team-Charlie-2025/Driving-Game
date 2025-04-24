@@ -13,7 +13,6 @@ function SettingsSketch(p){
   p.setup = function () {
     p.createCanvas(p.windowWidth, p.windowHeight);
     p.textAlign(p.CENTER, p.CENTER);
-    p.textSize(48);
     p.fill(50);
 
     createKeybindButtons(p);
@@ -36,7 +35,7 @@ function SettingsSketch(p){
 
   function createKeybindButtons(p) {
     const actions = Object.keys(keybindConfig);
-    const startY = p.height / 2 - 60*window.heightScale;
+    const startY = p.height / 2 - 20*window.heightScale;
     spacing = 60*window.heightScale;
   
     const keyCodeToString = code => {
@@ -61,7 +60,7 @@ function SettingsSketch(p){
       btn.position(p.width / 2 - 112*window.widthScale, startY + i * spacing);
       btn.size(224*window.widthScale, 40 * window.heightScale);
       btn.style("font-family", "PixelFont");
-      btn.style("font-size", 20*window.widthScale);
+      btn.style("font-size", (25 * window.widthScale) + "px");
       btn.mousePressed(() => {
         rebinding = action;
         console.log(`Click to rebind ${action}`);
@@ -102,13 +101,14 @@ function SettingsSketch(p){
 
     if (rebinding) {
       p.push();
-      p.textAlign(p.RIGHT, p.CENTER);
-      p.textSize(20 * window.scale);
-      p.fill(255, 0, 0);
-      p.text(`Press a key for ${rebinding.toUpperCase()}`, p.width - 20, p.height - 30);
+      p.textAlign(p.center, p.CENTER);
+      p.textSize(25 * window.scale);
+      p.fill(215, 0, 0);
+      p.text(`Press a key for ${rebinding.toUpperCase()}`, p.width / 2, p.height / 2 - 40*window.heightScale);
       p.pop();
     }
   };
+  
   p.windowResized = function (){
     p.resizeCanvas(p.windowWidth, p.windowHeight);
     window.heightScale = p.windowHeight / 1080;

@@ -5,7 +5,7 @@ function TitleSketch(p) {
   let bgImage;
   let imgTitle;
   let debugCheckbox; 
-  let helpButton;
+  let helpButton, exitHelpButton;
   let showHelpScreen = false;
   let showLevelSelection = false;
   let ExitIcon;
@@ -28,7 +28,7 @@ function TitleSketch(p) {
     createLevelButtons();
     createHelpButton();
     githubLink = p.createA('https://github.com/Team-Charlie-2025/Driving-Game', 'Github', '_blank');
-    githubLink.style('font-size', 30*window.scale);
+    githubLink.style('font-size', (20 * window.widthScale) + "px");
     githubLink.style('font-family', 'PixelFont')
     githubLink.style('color', 'black');
     githubLink.hide();
@@ -44,6 +44,8 @@ function TitleSketch(p) {
       console.log("Debug mode set to:", window.debug);
     });
     */
+    if(firstLoad())
+      showHelpScreen = true;
 
     bgMusic(Mode.TITLE, p, "loop");
     p.windowResized();
@@ -64,14 +66,14 @@ function TitleSketch(p) {
       }
     } 
     else if (showHelpScreen) { //HELP INFORMATION
-      helpButton.display(p);
+      exitHelpButton.display(p);
       p.fill(255, 255, 255, 200);
       p.noStroke();
-      p.rect(p.width / 2 - (1200 *window.widthScale/2), p.height / 2 - (475*window.heightScale/2), (1200 *window.widthScale), (475*window.heightScale), 15);
+      p.rect(p.width / 2 - (1200 *window.widthScale/2), p.height / 2 - (475*window.heightScale/2), (1200 *window.widthScale), (500*window.heightScale), 15);
 
       p.fill(0);
       p.textSize(30*window.scale);
-      p.text("Drive and survive the police chasing you! \n \nAvoid getting hit by utilizing items to assist in your escape. \n\nItems like bombs and oil spills to hurt enemies,\n and sheilds to stop damage to your car and wrenches to restore health.\n Check out the settings to adjust the keybinds \nthen hit play to select your difficulity and begin your drive. \n\n Any issues? Let us know on our GitHub.", 
+      p.text("Drive and survive the police chasing you!\nAvoid getting hit by utilizing items to assist in your escape.\nItems like bombs and oil spills to hurt enemies,\n and sheilds to stop damage to your car and wrenches to restore health.\n\n!TO MAKE PLAYING EASIER ZOOM OUT OF YOUR SCREEN TO 50% AND REFRESH THE PAGE!\n Check out the settings to adjust the keybinds \nthen hit play to select your difficulity and begin your drive. \n\n Any issues? Let us know on our GitHub.", 
       p.width / 2, p.height / 2);
       githubLink.position(p.width / 2 -(5*window.scale), p.height / 2 + (400 * window.heightScale / 2));
       githubLink.show();
@@ -109,6 +111,9 @@ function TitleSketch(p) {
       }
   
     } 
+    else if (showHelpScreen && exitHelpButton.isMouseOver(p)){
+      exitHelpButton.callback();
+    }
     else if (helpButton.isMouseOver(p)){
       helpButton.callback();
     }
@@ -126,9 +131,11 @@ function TitleSketch(p) {
   };
 
   p.keyPressed = function () {
-    if (showLevelSelection && p.keyCode === p.ESCAPE) {
+    if ((showLevelSelection || showHelpScreen) && p.keyCode === p.ESCAPE) {
       bgMusic(Mode.TITLE, p, "loop");
       showLevelSelection = false;
+      showHelpScreen = false;
+      githubLink.hide();
     }
   };
 
@@ -143,6 +150,7 @@ function TitleSketch(p) {
     createHelpButton();
     createTitleButtons();
     createLevelButtons();
+    githubLink.style('font-size', (20 * window.widthScale) + "px");
   };
 
 
@@ -229,8 +237,24 @@ function TitleSketch(p) {
     helpButton = 
       new Button("HELP", p.width / 18, p.height - p.height * 0.97, function () {
         showHelpScreen = !showHelpScreen;
-        console.log("help");
         githubLink.hide();
       }, "green");
+
+      exitHelpButton = 
+      new Button("EXIT", p.width / 18, p.height - p.height * 0.97, function () {
+        showHelpScreen = !showHelpScreen;
+        githubLink.hide();
+      }, "green");
+  }
+  function firstLoad(){
+    const data = loadPersistentData();
+    if (typeof data.firstTimeloading !== 'boolean') {
+      data.firstTimeloading = false;
+      savePersistentData(data);
+      console.log("first time");
+      return true;
+    }
+    console.log("not first time");
+    return false;
   }
 }
