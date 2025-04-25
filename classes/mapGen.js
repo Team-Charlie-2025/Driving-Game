@@ -180,6 +180,25 @@ function generateImprovedCityMap(p, rows, cols) {
   fillBuildingsDynamically(p,0,0,rows,cols);
 }
 
+
+function markRoadVisited(x0, y0, x1, y1, visited) {
+  let dx = Math.abs(x1 - x0);
+  let dy = Math.abs(y1 - y0);
+  let stepX = x0 < x1 ? 1 : -1;
+  let stepY = y0 < y1 ? 1 : -1;
+  let err = dx - dy;
+  let x = x0;
+  let y = y0;
+
+  while (x !== x1 || y !== y1) {
+    if (inBounds(x, y)) visited[y][x] = true;
+
+    let e2 = 2 * err;
+    if (e2 > -dy) { err -= dy; x += stepX; }
+    if (e2 < dx) { err += dx; y += stepY; }
+  }
+}
+
 function generateAngledGrid(p, zoneMap, zoneName, hSpacing, vSpacing, alleyOffset, width, visited, alleyChance = 0.5, endpoints = [], chunkSize = 25) {
   const chunksY = zoneMap.length;
   const chunksX = zoneMap[0].length;
@@ -300,5 +319,35 @@ function launchGridFromMainRoad(p, visited, spacing, range, cols, rows) {
     if (inBounds(rightX, y, rows, cols) && !visited[y][rightX]) {
       launchInitialBranch(p, rightX, y, visited);
     }
+  }
+}
+
+
+function launchInitialBranch(p, x, y, visited) {
+  const dirs = [
+    { dx: 1, dy: 0 }, { dx: -1, dy: 0 },
+    { dx: 0, dy: 1 }, { dx: 0, dy: -1 },
+    { dx: 2, dy: 1 }, { dx: -2, dy: -1 },
+    { dx: 1, dy: 2 }, { dx: -1, dy: -2 }
+  ].sort(() => Math.random() - 0.5);
+
+  for (let dir of dirs) {
+    const len = 40 + Math.floor(Math.random() * 60);
+    const nx = x + dir.dx * len;
+    const ny = y + dir.dy * len;
+    if (!inBounds(nx, ny, map.length, map[0].length)) continue;
+    if (!canDrawRoadPath(x, y, nx, ny, visited)) continue;
+
+    const curve = Math.random() < 0.3;
+    if (curve) {
+      const cx = Math.floor((x + nx) / 2) + (Math.random() > 0.5 ? 10 : -10);
+      const cy = Math.floor((y + ny) / 2) + (Math.random() > 0.5 ? 10 : -10);
+      drawBezierRoad(p, x, y, cx, cy, nx, ny, roadSizes.normal);
+    } else {
+      drawAngledRoad(p, x, y, nx, ny, roadSizes.normal);
+    }
+
+    markRoadVisited(x, y, nx, ny, visited);
+    break;
   }
 }
