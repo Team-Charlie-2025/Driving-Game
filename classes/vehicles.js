@@ -179,10 +179,11 @@ class Car extends GameObject {
     
     // Need to incorporate traction along with maxspeed to determine lerp
     if (currentSpeed > this.maxSpeed) lerpAmount = 0.0001;  // This is a real drift
-    else if (currentSpeed >= this.maxSpeed * 0.95) lerpAmount = 0.0005;
-    else if (currentSpeed >= this.maxSpeed * 0.9) lerpAmount = 0.0015;
-    else if (currentSpeed >= this.maxSpeed * 0.85) lerpAmount = 0.0025;
-    else if (currentSpeed < this.maxSpeed * 0.8) lerpAmount = 0.05;
+    //else if (currentSpeed >= this.maxSpeed * 0.98) lerpAmount = 0.0005;
+    //else if (currentSpeed >= this.maxSpeed * 0.95) lerpAmount = 0.0015;
+    else if (currentSpeed >= this.maxSpeed * 0.9) lerpAmount = 0.0025;
+    else if (currentSpeed < this.maxSpeed * 0.85) lerpAmount = 0.05;
+    else if (currentSpeed < this.maxSpeed * 0.75) lerpAmount = .1
     else lerpAmount = 0.85;
 
     if ((aboveMax || driftKeyPressed) && this.turnDelta > 0.05) {

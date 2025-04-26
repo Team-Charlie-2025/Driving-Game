@@ -177,6 +177,9 @@ function generateImprovedCityMap(p, rows, cols) {
     }
   }
   //fillShopsDynamically(p,200,200,300,300);
+  let dockLength = 16;
+  let dockWidth = 4;
+  placeDock(p,rows-dockWidth,centerY-dockLength/2,rows,centerY+dockLength/2);
   fillBuildingsDynamically(p,0,0,rows,cols);
 }
 

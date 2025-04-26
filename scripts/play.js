@@ -37,6 +37,11 @@ function PlaySketch(p) {
     p.enemyImg = p.loadImage("assets/police+car.png");   // Regular cop car image
     p.truckImg = p.loadImage("assets/police+truck.png"); // Truck image
     p.bikeImg = p.loadImage("assets/police+bike.png");   // Motorcycle image
+    p.dockWithBoat = p.loadImage("assets/Buildings/dockWithBoat.png")
+    p.dockWithoutBoat = p.loadImage("assets/Buildings/dockWithoutBoat.png")
+    p.boat = p.loadImage("assets/Buildings/boat.png")
+    p.boatWin = p.loadImage("assets/Buildings/boatWin.png");
+
     p.buildImages = [];
     p.houseImages = [
       p.loadImage("assets/Buildings/house_01.png"),
@@ -84,8 +89,8 @@ function PlaySketch(p) {
     // Load player car
     const savedData = loadPersistentData();
     const stats = savedData.stats;
-    //car = new Car(p, p.width / 2, p.height / 2, stats);
-    car = new Car(p, centerX*32, centerY*32, stats);  // Puts the car downtown
+    //car = new Car(p, centerX*32, centerY*32, stats);  // Puts the car downtown
+    car = new Car(p, 475*gridSize, 250*gridSize, stats);  // Puts the car near the dock
 
 
     // Set car image from selected car color if it exists

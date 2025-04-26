@@ -82,6 +82,12 @@ class Grass extends BaseTile {
   }
 }
 
+class Dock extends BaseTile {
+  constructor(p, x, y, width, height, img = null, createCollider = false, rotation = 0) {
+    super(p, x, y, width, height, img , "brown", createCollider, rotation);
+  }
+}
+
 class IceTile extends BaseTile {
   constructor(p, x, y, width, height, img = null, createCollider = true, rotation = 0) {
     super(p, x, y, width, height, img, "lightblue", createCollider, rotation);

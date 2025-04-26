@@ -15,7 +15,7 @@ function drawRectBuilding(p, xStart, yStart, xEnd, yEnd, buildImg = buildingImg)
   //console.log(`Building dimensions: ${buildingWidth}x${buildingHeight}`);
   //console.log(`Building center: (${centerX}, ${centerY})`);
 
-  p.image(buildImg, centerX - buildingWidth / 2, centerY - buildingHeight / 2, buildingWidth, buildingHeight);
+  //p.image(buildImg, centerX - buildingWidth / 2, centerY - buildingHeight / 2, buildingWidth, buildingHeight);
 
   // Update the map to mark all tiles as part of the building
   for (let y = yStart; y < yEnd; y++) {
@@ -219,4 +219,42 @@ function drawLake(p, xStart, yStart, xEnd, yEnd) {
       }
     }
   }
-  
+
+  // Places the dock halfway over the map edge, dock is 4 tiles wide, 16 long
+  function placeDock(p,xStart,yStart,xEnd,yEnd,dockWithBoat=p.buildingImg){
+    // // This function sucks cause the pic is a different size then the map tiles.
+    // let dockWidth = 128;       // Soz
+    // let dockHeight = 16*gridSize; 
+    // console.log("Placing dock with image:", dockWithBoat);
+
+    // // If boat is purchased
+    // //p.image(dockWithBoat,(xStart-20)*gridSize,yStart*gridSize,dockWidth,dockHeight);
+    // p.image(dockWithBoat,450*gridSize,450*gridSize,dockWidth,dockHeight);
+    // // Else
+    const buildingWidth = Math.abs((xEnd - xStart)) * gridSize;
+    const buildingHeight = Math.abs((yEnd - yStart)) * gridSize;
+
+
+    let dockScale = 12;
+    const dockWidth = 3*dockScale *32;   // Width of the image
+    const dockHeight = 1*dockScale*32; // Width of the image and same height as tiles
+
+    const centerX = (xStart + xEnd+(dockScale*3)-4) * gridSize / 2;  
+    const centerY = (yStart + yEnd) * gridSize / 2;
+
+    for (let y = yStart; y < yEnd; y++) {
+      for (let x = xStart; x < xEnd; x++) {
+        if (map[y] && map[y][x] !== undefined) {
+          map[y][x] = new Dock(
+            p,
+            centerX,
+            centerY,
+            dockWidth,
+            dockHeight,
+            dockWithBoat
+            //p.buildingImg
+          );
+        }
+      }
+    }
+  }
