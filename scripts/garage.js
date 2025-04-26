@@ -39,7 +39,8 @@ const ITEM_PRICES = {
   wrench: 3000,
   bomb: 5000,
   oil: 10000,
-  shield: 15000
+  shield: 15000,
+  boat: 99999
 };
 
 function GarageSketch(p) {
@@ -124,12 +125,12 @@ function GarageSketch(p) {
   }
 
   function setupItemPurchaseButtons() {
-    const itemTypes = ['wrench','bomb', 'oil', 'shield'];
+    const itemTypes = ['wrench','bomb', 'oil', 'shield','boat'];
     const spacing = 140.4 * window.heightScale;
     const boxWidth = 96 * window.widthScale;
     const boxHeight = 86.4 * window.heightScale;
     const x = 76.8 * window.widthScale;
-    const startY = 324 * window.heightScale;
+    const startY = 250 * window.heightScale;
 
     itemTypes.forEach((item, index) => {
       const y = startY + index * spacing;
@@ -308,10 +309,11 @@ function GarageSketch(p) {
       p.strokeWeight(0);
       p.text(up.label, up.box.x + up.box.w / 2, up.box.y + up.box.h / 2 - 10 * window.heightScale);
       p.text("Lvl " + getUpgradeLevel(up.type), up.box.x + up.box.w / 2, up.box.y + up.box.h / 2 + 15 * window.heightScale);
+      
       up.button.display(p);
     });
 
-    const consumables = upgrades.filter(u => ["wrench", "bomb", "oil", "shield"].includes(u.type));
+    const consumables = upgrades.filter(u => ["wrench", "bomb", "oil", "shield","boat"].includes(u.type));
     consumables.forEach(up => {
       p.stroke(0);
       p.fill(200);
@@ -374,7 +376,7 @@ function GarageSketch(p) {
     }
   
     for (let up of upgrades) {
-      if (["wrench", "bomb", "oil", "shield"].includes(up.type)) {
+      if (["wrench", "bomb", "oil", "shield","boat"].includes(up.type)) {
         if (up.button.isMouseOver(p)) return purchaseItem(up.type);
       } else {
         if (up.button.isMouseOver(p)) return purchaseUpgrade(up.type);
@@ -434,7 +436,8 @@ function GarageSketch(p) {
       wrench: false,
       bomb: false,
       oil: false,
-      shield: false
+      shield: false,
+      boat: false
     };
   
     purchasedCars = [true, false, false, false, false, false, false, false];
@@ -444,11 +447,12 @@ function GarageSketch(p) {
       wrench: window.debug ? 0 : ITEM_PRICES.wrench,
       bomb: window.debug ? 0 : ITEM_PRICES.bomb,
       oil: window.debug ? 0 : ITEM_PRICES.oil,
-      shield: window.debug ? 0 : ITEM_PRICES.shield
+      shield: window.debug ? 0 : ITEM_PRICES.shield,
+      boat: window.debug ? 0 : ITEM_PRICES.boat
     };
 
     upgrades.forEach(up => {
-      if (["wrench", "bomb", "oil", "shield"].includes(up.type)) {
+      if (["wrench", "bomb", "oil", "shield","boat"].includes(up.type)) {
         up.button.label = itemPrices[up.type];
       } else {
         updateUpgradeButtonText(up);

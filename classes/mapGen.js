@@ -121,6 +121,8 @@ function getTileTypeAt(x, y) {
           return "road";
       } else if (tile instanceof Grass) {
           return "grass";
+      } else if (tile instanceof Dock) {
+        return "dock";
       }
   }
   return "unknown"; //default case
@@ -177,10 +179,10 @@ function generateImprovedCityMap(p, rows, cols) {
     }
   }
   //fillShopsDynamically(p,200,200,300,300);
-  let dockLength = 16;
+  let dockLength = 12;
   let dockWidth = 4;
   placeDock(p,rows-dockWidth,centerY-dockLength/2,rows,centerY+dockLength/2);
-  fillBuildingsDynamically(p,0,0,rows,cols);
+  //fillBuildingsDynamically(p,0,0,rows,cols);
 }
 
 

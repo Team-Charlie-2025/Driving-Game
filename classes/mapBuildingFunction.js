@@ -221,7 +221,7 @@ function drawLake(p, xStart, yStart, xEnd, yEnd) {
   }
 
   // Places the dock halfway over the map edge, dock is 4 tiles wide, 16 long
-  function placeDock(p,xStart,yStart,xEnd,yEnd,dockWithBoat=p.buildingImg){
+  function placeDock(p,xStart,yStart,xEnd,yEnd,dockImage=p.dockWithoutBoat){
     // // This function sucks cause the pic is a different size then the map tiles.
     // let dockWidth = 128;       // Soz
     // let dockHeight = 16*gridSize; 
@@ -234,13 +234,15 @@ function drawLake(p, xStart, yStart, xEnd, yEnd) {
     const buildingWidth = Math.abs((xEnd - xStart)) * gridSize;
     const buildingHeight = Math.abs((yEnd - yStart)) * gridSize;
 
-
-    let dockScale = 12;
+    if (ItemsManager.unlockedItems.boat){
+      dockImage = p.dockWithBoat;
+    }
+    let dockScale = 8;
     const dockWidth = 3*dockScale *32;   // Width of the image
-    const dockHeight = 1*dockScale*32; // Width of the image and same height as tiles
+    const dockHeight = 2*dockScale*32; // Width of the image and same height as tiles
 
     const centerX = (xStart + xEnd+(dockScale*3)-4) * gridSize / 2;  
-    const centerY = (yStart + yEnd) * gridSize / 2;
+    const centerY = (yStart + yEnd-1) * gridSize / 2;
 
     for (let y = yStart; y < yEnd; y++) {
       for (let x = xStart; x < xEnd; x++) {
@@ -251,7 +253,7 @@ function drawLake(p, xStart, yStart, xEnd, yEnd) {
             centerY,
             dockWidth,
             dockHeight,
-            dockWithBoat
+            dockImage
             //p.buildingImg
           );
         }

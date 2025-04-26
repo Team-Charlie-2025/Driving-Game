@@ -7,6 +7,7 @@ class Car extends GameObject {
   constructor(p, x, y, stats) {
     super(x, y);
     this.p = p;
+    this.won = false;   // We have not won
     this.speed = 0;
     this.angle = 0;
     this.prevAngle = 0;
@@ -115,7 +116,8 @@ class Car extends GameObject {
       this.acceleration = this.baseAcceleration * (terrainType === "grass" ? 0.65 : 1);
       this.maxSpeed = this.baseMaxSpeed * (terrainType === "grass" ? 0.65 : 1);
     }
-
+    if(terrainType === "dock" && ItemsManager.unlockedItems.boat) 
+      this.won = true;    // We won
     if (p.keyIsDown(getKeyForAction("forward")) && !this.controlDisabled) {
       if (p.keyIsDown(getKeyForAction("boost")) && this.boostMeter > 0) {
         this.isBoosting = true;

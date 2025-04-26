@@ -37,6 +37,7 @@ function PlaySketch(p) {
     p.enemyImg = p.loadImage("assets/police+car.png");   // Regular cop car image
     p.truckImg = p.loadImage("assets/police+truck.png"); // Truck image
     p.bikeImg = p.loadImage("assets/police+bike.png");   // Motorcycle image
+
     p.dockWithBoat = p.loadImage("assets/Buildings/dockWithBoat.png")
     p.dockWithoutBoat = p.loadImage("assets/Buildings/dockWithoutBoat.png")
     p.boat = p.loadImage("assets/Buildings/boat.png")
@@ -68,7 +69,7 @@ function PlaySketch(p) {
     // will be moved to globals eventually
     grassImg = p.loadImage("assets/mapBuilder/Terrain/grass.png");
     waterImg = p.loadImage("assets/mapBuilder/Terrain/water.png")
-
+    p.waterImage = p.loadImage("assets/mapBuilder/Terrain/water.png");
   };
 
   p.setup = function () {
@@ -164,6 +165,30 @@ function PlaySketch(p) {
         p.text("Press M for Main Menu", p.width / 2, p.height / 1.8);
         p.pop();
     };
+
+    p.showGameWinScreen = function () {
+      bgMusic(Mode.PLAY, p, "stop");
+      // We need some peaceful you won sound
+      // if(gameOverSound) {soundEffect("gameOver", p, "play"); gameOverSound = false;} 
+      p.textFont(window.PixelFont);
+      p.push();
+      p.image(p.boatWin,0,0,p.width,p.height); // With the boat image in the background
+      p.fill(255, 255, 0, 80); // Semi-transparent Yellow overlay 
+      p.rect(0, 0, p.width, p.height);
+      
+      p.fill(255);
+      p.textSize(120 * window.scale);
+      p.textAlign(p.CENTER, p.CENTER);
+      p.text("You Won", p.width / 2, p.height / 3);
+
+      p.textSize(40* window.scale);
+      p.text(`Your Final Score: ${window.finalScore || 0}`, p.width / 2, p.height / 2.5 );
+
+      p.fill(255);
+      p.text("Press R to Restart", p.width / 2, p.height / 2);
+      p.text("Press M for Main Menu", p.width / 2, p.height / 1.8);
+      p.pop();
+  };
   };
 
   // Create pause buttons function - separated to be reusable
@@ -342,6 +367,55 @@ function PlaySketch(p) {
       
       drawGameScene();
       p.showGameOverScreen();
+      return;
+    }
+    // GAME WON
+    if(car.won){
+      ////////////////////////////////////////////
+      if (!window.runCoinsCalculated) {
+        // calculate coins, scores
+        const runCoinReward = CurrencyManager.computeCoinsEarned(window.coinsCollected);
+        CurrencyManager.updateTotalCoins(runCoinReward);
+        const elapsedTime = (p.millis() - p.startTime - window.totalPausedTime) / 1000; // Account for paused time
+        const enemyDestroyed = window.enemyDestroyedCount || 0;
+        const finalscore = ScoreManager.computeScore(elapsedTime, enemyDestroyed, window.coinsCollected, window.difficulty);
+        ScoreManager.updateHighScore(finalscore);
+        window.finalScore= finalscore;
+
+        fetch("http://cassini.cs.kent.edu:9411/submit_score", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json"
+          },
+          body: JSON.stringify({
+            username: window.username,  // This must be set when user logs in!
+            score: finalscore
+          })
+        })
+        .then(response => response.json())
+        .then(data => {
+          if (!data.success) {
+            console.error("Score submit error:", data.message);
+          }
+        })
+        .catch(error => {
+          console.error("Error submitting score:", error);
+        });
+        console.log("Game Over: Score sent to server: " + finalscore);        
+        if(window.debug){
+        console.log("Game Over: Run coins reward calculated: " + runCoinReward);
+        console.log("Game Over: Score calculated: " + computedScore +
+                    " (Elapsed Time: " + elapsedTime +
+                    ", Enemies Destroyed: " + enemyDestroyed +
+                    ", Coins Collected: " + window.coinsCollected +
+                    ", Difficulty: " + window.difficulty + ")");
+        }
+        window.runCoinsCalculated = true;
+      }
+      ////////////////////////////////////////////
+      
+      drawGameScene();
+      p.showGameWinScreen();
       return;
     }
   
