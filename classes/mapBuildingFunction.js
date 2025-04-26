@@ -15,8 +15,6 @@ function drawRectBuilding(p, xStart, yStart, xEnd, yEnd, buildImg = buildingImg)
   //console.log(`Building dimensions: ${buildingWidth}x${buildingHeight}`);
   //console.log(`Building center: (${centerX}, ${centerY})`);
 
-  //p.image(buildImg, centerX - buildingWidth / 2, centerY - buildingHeight / 2, buildingWidth, buildingHeight);
-
   // Update the map to mark all tiles as part of the building
   for (let y = yStart; y < yEnd; y++) {
     for (let x = xStart; x < xEnd; x++) {
@@ -222,15 +220,7 @@ function drawLake(p, xStart, yStart, xEnd, yEnd) {
 
   // Places the dock halfway over the map edge, dock is 4 tiles wide, 16 long
   function placeDock(p,xStart,yStart,xEnd,yEnd,dockImage=p.dockWithoutBoat){
-    // // This function sucks cause the pic is a different size then the map tiles.
-    // let dockWidth = 128;       // Soz
-    // let dockHeight = 16*gridSize; 
-    // console.log("Placing dock with image:", dockWithBoat);
 
-    // // If boat is purchased
-    // //p.image(dockWithBoat,(xStart-20)*gridSize,yStart*gridSize,dockWidth,dockHeight);
-    // p.image(dockWithBoat,450*gridSize,450*gridSize,dockWidth,dockHeight);
-    // // Else
     const buildingWidth = Math.abs((xEnd - xStart)) * gridSize;
     const buildingHeight = Math.abs((yEnd - yStart)) * gridSize;
 

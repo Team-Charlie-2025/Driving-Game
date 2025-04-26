@@ -165,6 +165,13 @@ function PlaySketch(p) {
 
     p.showGameWinScreen = function () {
       bgMusic(Mode.PLAY, p, "stop");
+
+      // Takes away the boat
+      ItemsManager.unlockedItems.boat = false;
+      const savedData = loadPersistentData()
+      savedData.unlockedItems.boat = false;
+      savePersistentData(savedData);
+      
       // We need some peaceful you won sound
       // if(gameOverSound) {soundEffect("gameOver", p, "play"); gameOverSound = false;} 
       p.textFont(window.PixelFont);
@@ -178,12 +185,13 @@ function PlaySketch(p) {
       p.textAlign(p.CENTER, p.CENTER);
       p.text("You Won", p.width / 2, p.height / 3);
 
-      p.textSize(40* window.scale);
+      p.textSize(30* window.scale);
       p.text(`Your Final Score: ${window.finalScore || 0}`, p.width / 2, p.height / 2.5 );
 
       p.fill(255);
-      p.text("Press R to Restart", p.width / 2, p.height / 2);
-      p.text("Press M for Main Menu", p.width / 2, p.height / 1.8);
+      p.text()
+      p.text("You win... For now", p.width / 2, p.height / 1.5);
+      p.text("Press M for Main Menu", p.width / 2, p.height / 1.2);
       p.pop();
   };
   };
@@ -352,7 +360,7 @@ function PlaySketch(p) {
         console.log("Game Over: Score sent to server: " + finalscore);        
         if(window.debug){
         console.log("Game Over: Run coins reward calculated: " + runCoinReward);
-        console.log("Game Over: Score calculated: " + computedScore +
+        console.log("Game Over: Score calculated: " + finalScore +
                     " (Elapsed Time: " + elapsedTime +
                     ", Enemies Destroyed: " + enemyDestroyed +
                     ", Coins Collected: " + window.coinsCollected +
@@ -366,7 +374,8 @@ function PlaySketch(p) {
       p.showGameOverScreen();
       return;
     }
-    // GAME WON
+
+    // ########    GAME WON     ########
     if(car.won){
       ////////////////////////////////////////////
       if (!window.runCoinsCalculated) {
@@ -401,7 +410,7 @@ function PlaySketch(p) {
         console.log("Game Over: Score sent to server: " + finalscore);        
         if(window.debug){
         console.log("Game Over: Run coins reward calculated: " + runCoinReward);
-        console.log("Game Over: Score calculated: " + computedScore +
+        console.log("Game Over: Score calculated: " + finalScore +
                     " (Elapsed Time: " + elapsedTime +
                     ", Enemies Destroyed: " + enemyDestroyed +
                     ", Coins Collected: " + window.coinsCollected +
@@ -410,7 +419,6 @@ function PlaySketch(p) {
         window.runCoinsCalculated = true;
       }
       ////////////////////////////////////////////
-      
       drawGameScene();
       p.showGameWinScreen();
       return;
@@ -564,7 +572,7 @@ function PlaySketch(p) {
       }
     }
 
-    if (window.isGameOver) {
+    if (window.isGameOver || car.won) {
       if (p.keyIsDown(82)) { // 'R' key
         switchSketch(Mode.PLAY);
       }
