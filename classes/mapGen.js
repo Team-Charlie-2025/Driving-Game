@@ -13,7 +13,18 @@ const largeHouseSize = 4;
 let map = []; 
 
 function drawMap(p, center, zoomFactor) {
-  p.background(0,0,0);
+  const carX = center.x;
+  const carY = center.y;
+  let distanceFromEdge =25;   // How far you have to be from the edge for the color to flip
+  let bgColor;
+  if (carX > (mapSize-distanceFromEdge) * gridSize) {
+      bgColor = p.color(0,0,255); // Blue for the right side
+  } else if (carX < distanceFromEdge * gridSize || carY < distanceFromEdge *gridSize || carY >> (mapSize-distanceFromEdge) * gridSize) { 
+    bgColor = p.color(0); // Black for Top, left and bottom
+  } else {
+    bgColor = p.color(80); // Middle-grey
+  }
+  p.background(bgColor);
   let halfWidth = p.width / (2 * zoomFactor);
   let halfHeight = p.height / (2 * zoomFactor);
   let startX = Math.floor((center.x - halfWidth) / gridSize);
@@ -182,7 +193,7 @@ function generateImprovedCityMap(p, rows, cols) {
   let dockLength = 12;
   let dockWidth = 4;
   placeDock(p,rows-dockWidth,centerY-dockLength/2,rows,centerY+dockLength/2);
-  //fillBuildingsDynamically(p,0,0,rows,cols);
+  fillBuildingsDynamically(p,0,0,rows,cols);
 }
 
 

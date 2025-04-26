@@ -40,6 +40,7 @@ function PlaySketch(p) {
 
     p.dockWithBoat = p.loadImage("assets/Buildings/dockWithBoat.png")
     p.dockWithoutBoat = p.loadImage("assets/Buildings/dockWithoutBoat.png")
+
     p.boat = p.loadImage("assets/Buildings/boat.png")
     p.boatWin = p.loadImage("assets/Buildings/boatWin.png");
 
@@ -78,10 +79,6 @@ function PlaySketch(p) {
     p.fps = p.frameRate();
     physicsEngine = new PhysicsEngine();
     //generateGenMap(p, mapSize, mapSize);
-    //generateDFSMap(p, mapSize, mapSize); // Why is this just so much better 
-    //generateDFSChunkedMap(p,mapSize, mapSize); // Too cluttered downtown
-    //generateSmartChunkedMap(p, mapSize, mapSize);
-    //generateRefactoredDFSMap(p, mapSize, mapSize); // Weird gaps
     generateImprovedCityMap(p,500,500); // Has weird gen but usable
     window.driveGrid = buildDrivableGrid(map);  //cache drivable grid
     window.runCoinsCalculated = false;
