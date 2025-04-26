@@ -303,7 +303,7 @@ class Car extends GameObject {
   }
 
   buildingCollision(){
-    let damage = 5 * window.difficulty * (10*this.speed/this.baseMaxSpeed);
+    let damage = 5 * window.difficulty * Math.abs((10*this.speed/this.baseMaxSpeed));
     damage = ItemsManager.shieldDamage(damage);
     this.healthBar = Math.max(0, this.healthBar - damage);
     this.speed *=-.25;
