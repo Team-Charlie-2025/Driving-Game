@@ -67,6 +67,7 @@ function PlaySketch(p) {
   };
 
   p.setup = function () {
+    p.windowResized();
     p.createCanvas(p.windowWidth, p.windowHeight);
     p.startTime = p.millis();
     p.fps = p.frameRate();

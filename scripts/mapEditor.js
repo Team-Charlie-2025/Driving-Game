@@ -13,6 +13,7 @@ function MapEditorSketch(p) {
   };
 
   p.setup = function() {
+    p.windowResized();
     p.createCanvas(p.windowWidth, p.windowHeight);
     createAssetTabs();
     updateThumbnails();

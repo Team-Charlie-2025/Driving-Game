@@ -10,6 +10,7 @@ function LevelsSketch(p) {
     };
 
     p.setup = function () {
+        p.windowResized();
         p.createCanvas(p.windowWidth, p.windowHeight);
         p.textAlign(p.CENTER, p.CENTER);
         createLevelButtons(); //level option buttons

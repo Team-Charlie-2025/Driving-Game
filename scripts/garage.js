@@ -63,6 +63,7 @@ function GarageSketch(p) {
   };
 
   p.setup = function () {
+    p.windowResized();
     p.createCanvas(p.windowWidth, p.windowHeight);
     p.textFont(window.PixelFont);
     

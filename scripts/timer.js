@@ -5,6 +5,7 @@ let timerActive = false;
 function TimerSketch(p) {
   
   p.setup = function () {
+    p.windowResized();
     p.createCanvas(p.windowWidth, p.windowHeight);
     p.textAlign(p.CENTER, p.CENTER);
     p.textSize(48);
