@@ -1,81 +1,60 @@
 // scripts/jsonDATA.js
 
-window.defaultData = {
-  carUpgrades: {
-    normal: { engine: 1, body: 1, transmission: 1, tires: 1 },
-    truck: { engine: 1, body: 1, transmission: 1, tires: 1 },
-    sports: { engine: 1, body: 1, transmission: 1, tires: 1 },
-  },
-  carColors: {
-    normal: [true, false, false, false, false, false, false, false], // First color unlocked by default
-    truck: [true, false, false, false, false, false, false, false],
-    sports: [true, false, false, false, false, false, false, false],
-  },
+const CarType = { // The 3 different cars you can get so far
+  NORMAL: "normal",
+  TRUCK: "truck",
+  SPORTSCAR: "sportscar",
+};
 
-  selectedCarType: "normal", // Currently selected car type
-  selectedCarColor: 0, // Currently selected color index
-  stats: { 
+//carType = CarType;
+window.CarType = CarType; 
+
+window.carBaseStats = {
+  [CarType.NORMAL]: {
     health: 100,
     boost: 50,
     maxSpeed: 8,
     acceleration: 0.5,
     traction: 0.5,
-    dmgRes: 10,
+    dmgRes: 10
   },
+  [CarType.TRUCK]: {
+    health: 150,
+    boost: 40,
+    maxSpeed: 6,
+    acceleration: 0.4,
+    traction: 0.6,
+    dmgRes: 15
+  },
+  [CarType.SPORTSCAR]: {
+    health: 80,
+    boost: 60,
+    maxSpeed: 10,
+    acceleration: 0.7,
+    traction: 0.6,
+    dmgRes: 8
+  }
+};
+
+window.defaultData = {
+  selectedCar: 0,        // SELECTED CAR COLOR 
+  selectedCarType: CarType.NORMAL, 
+  selectedEngine: 0,
+  selectedWheel: 0,
+  stats: { ...window.carBaseStats[CarType.NORMAL] }
 };
 
 function loadPersistentData() {
   let data = localStorage.getItem("persistentData");
   if (data) {
     try {
-      data = JSON.parse(data);
-
-      // Ensure carColors is initialized for all car types
-      if (!data.carColors) {
-        data.carColors = {
-          normal: [true, false, false, false, false, false, false, false],
-          truck: [true, false, false, false, false, false, false, false],
-          sports: [true, false, false, false, false, false, false, false],
-        };
-      } else {
-        // Add missing car types to carColors
-        if (!data.carColors.normal) data.carColors.normal = [true, false, false, false, false, false, false, false];
-        if (!data.carColors.truck) data.carColors.truck = [true, false, false, false, false, false, false, false];
-        if (!data.carColors.sports) data.carColors.sports = [true, false, false, false, false, false, false, false];
-      }
-
-      return data;
+      return JSON.parse(data);
     } catch (e) {
       console.error("Error parsing persistentData:", e);
     }
   }
 
-  // Initialize default data if none exists
-  const defaultData = {
-    carUpgrades: {
-      normal: { engine: 1, body: 1, transmission: 1, tires: 1 },
-      truck: { engine: 1, body: 1, transmission: 1, tires: 1 },
-      sports: { engine: 1, body: 1, transmission: 1, tires: 1 },
-    },
-    carColors: {
-      normal: [true, false, false, false, false, false, false, false],
-      truck: [true, false, false, false, false, false, false, false],
-      sports: [true, false, false, false, false, false, false, false],
-    },
-    selectedCarType: "normal",
-    selectedCarColor: 0,
-    stats: { 
-      health: 100,
-      boost: 50,
-      maxSpeed: 8,
-      acceleration: 0.5,
-      traction: 0.5,
-      dmgRes: 10,
-    },
-    unlockedItems: {},
-  };
-
-  localStorage.setItem("persistentData", JSON.stringify(defaultData));
+  localStorage.setItem("persistentData", JSON.stringify(window.defaultData));
   return defaultData;
 }
 
