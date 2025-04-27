@@ -48,7 +48,7 @@ function GarageSketch(p) {
   let upgradeEngineLevel = 1, upgradeBodyLevel = 1, upgradeTransmissionLevel = 1, upgradeTiresLevel = 1;
   let selectedCarIndex = 0;
   let BASE_UPGRADE_PRICE = 25;
-  const DEFAULT_CAR_STATS = { ...window.defaultData.stats };
+  let DEFAULT_CAR_STATS = { ...window.defaultData.stats };
   let savedStats = { ...DEFAULT_CAR_STATS };
   let upgrades = [], carBoxes = [], resetUpgradeButton;
   let purchasedCars = [true, false, false, false, false, false, false, false];
@@ -66,37 +66,45 @@ function GarageSketch(p) {
   p.setup = function () {
     p.createCanvas(p.windowWidth, p.windowHeight);
     p.textFont(window.PixelFont);
-    
+  
     window.heightScale = p.windowHeight / 1080;
     window.widthScale = p.windowWidth / 1920;
     window.scale = (window.heightScale + window.widthScale) / 2;
-    
+  
     ExitIcon = new Button("ExitIcon", p.width - 45 * window.widthScale, 45 * window.heightScale, () => switchSketch(Mode.TITLE));
     if (window.debug) debugAddCoinsButton = new UpgradeButton("Coins", 80 * window.widthScale, p.height - 80 * window.heightScale, debugAddCoins, "gray");
-
+  
     let savedConfig = loadPersistentData();
     if (savedConfig) {
-      if (typeof savedConfig.upgradeEngineLevel === "number") upgradeEngineLevel = savedConfig.upgradeEngineLevel;
-      if (typeof savedConfig.upgradeBodyLevel === "number") upgradeBodyLevel = savedConfig.upgradeBodyLevel;
-      if (typeof savedConfig.upgradeTransmissionLevel === "number") upgradeTransmissionLevel = savedConfig.upgradeTransmissionLevel;
-      if (typeof savedConfig.upgradeTiresLevel === "number") upgradeTiresLevel = savedConfig.upgradeTiresLevel;
-      if (typeof savedConfig.selectedCar === "number") selectedCarIndex = savedConfig.selectedCar;
-      if (Array.isArray(savedConfig.purchasedCars)) purchasedCars = savedConfig.purchasedCars;
-    }
-    if (savedConfig?.unlockedItems) {
-      for (let key in savedConfig.unlockedItems) {
-        if (savedConfig.unlockedItems[key]) {
-          ItemsManager.unlockItem(key);
-        }
+      selectedCarType = savedConfig.selectedCarType || 0;
+      selectedCarColor = savedConfig.selectedCarColor || 0;
+  
+      let upgrades = savedConfig.upgradesByCarType?.[selectedCarType];
+      if (upgrades) {
+        upgradeEngineLevel = upgrades.engine || 1;
+        upgradeBodyLevel = upgrades.body || 1;
+        upgradeTransmissionLevel = upgrades.transmission || 1;
+        upgradeTiresLevel = upgrades.tires || 1;
+      } else {
+        upgradeEngineLevel = upgradeBodyLevel = upgradeTransmissionLevel = upgradeTiresLevel = 1;
       }
+    } else {
+      selectedCarType = 0;
+      selectedCarColor = 0;
+      upgradeEngineLevel = upgradeBodyLevel = upgradeTransmissionLevel = upgradeTiresLevel = 1;
     }
+  
+    DEFAULT_CAR_STATS = { ...window.defaultData.stats };
+    savedStats = { ...DEFAULT_CAR_STATS };
   
     setupUpgradeLayout();
     setupItemPurchaseButtons();
     setupCarBodySelector();
+  
     bgMusic(Mode.GARAGE, p, "loop");
     window.LoadingScreen && window.LoadingScreen.hide();
   };
+  
 
   function setupUpgradeLayout() {
     upgrades = [];
@@ -172,16 +180,22 @@ function GarageSketch(p) {
   function setupCarBodySelector() {
     carBoxes = [];
     let carBoxSize = 96 * window.widthScale;
-    let cols = 8;
     let spacing = 10 * window.widthScale;
-    let totalWidth = cols * carBoxSize + (cols - 1) * spacing;
-    let startX = (p.width - totalWidth) / 2;
+    let startX = (p.width - (carBoxSize * getColorCountForCarType(selectedCarType) + spacing * (getColorCountForCarType(selectedCarType) - 1))) / 2;
     let startY = 20 * window.heightScale;
-
-    for (let i = 0; i < cols; i++) {
+  
+    for (let i = 0; i < getColorCountForCarType(selectedCarType); i++) {
       carBoxes.push({ x: startX + i * (carBoxSize + spacing), y: startY, w: carBoxSize, h: carBoxSize, index: i });
     }
   }
+  
+  function getColorCountForCarType(type) {
+    if (type === 0) return 8;    // Normal car
+    if (type === 1) return 6;    // Truck
+    if (type === 2) return 4;    // Sports car
+    return 8;
+  }
+  
 
   function getUpgradeLevel(type) {
     return { engine: upgradeEngineLevel, body: upgradeBodyLevel, transmission: upgradeTransmissionLevel, tires: upgradeTiresLevel }[type] || 0;
@@ -211,20 +225,54 @@ function GarageSketch(p) {
       saveConfiguration();
     }
   }
-
-  function purchaseCar(index) {
-    if (CurrencyManager.getTotalCoins() >= CAR_COLOR_COST) {
-      if (typeof CurrencyManager.spendCoins === "function") {
-        CurrencyManager.spendCoins(CAR_COLOR_COST);
+  function purchaseCarType(index) {
+    let data = loadPersistentData();
+    if (!data.purchasedCarTypes) data.purchasedCarTypes = [true, false, false];
+    
+    if (!data.purchasedCarTypes[index]) {
+      const CAR_COST = 10;
+      if (CurrencyManager.getTotalCoins() >= CAR_COST) {
+        CurrencyManager.spendCoins(CAR_COST);
+        data.purchasedCarTypes[index] = true;
+        console.log(`Car type ${index} purchased!`);
+      } else {
+        console.log("Not enough coins to purchase this car type.");
+        return;
       }
-      purchasedCars[index] = true;
-      selectedCarIndex = index;
-      saveConfiguration();
-    } else {
-      console.log("Not enough coins for car color.");
     }
+  
+    selectedCarType = index;
+    selectedCarColor = 0; // Reset color when switching car type
+    savePersistentData(data);
+    setupCarBodySelector();
   }
 
+  function purchaseCarColor(index) {
+    let data = loadPersistentData();
+    if (!data.purchasedColorsByCarType) data.purchasedColorsByCarType = {};
+    if (!data.purchasedColorsByCarType[selectedCarType]) {
+      data.purchasedColorsByCarType[selectedCarType] = Array(getColorCountForCarType(selectedCarType)).fill(false);
+      data.purchasedColorsByCarType[selectedCarType][0] = true; // First color free
+    }
+  
+    let purchasedColors = data.purchasedColorsByCarType[selectedCarType];
+  
+    if (!purchasedColors[index]) {
+      if (CurrencyManager.getTotalCoins() >= 10) {
+        CurrencyManager.spendCoins(10); // 🔥 TAKE 10 COINS
+        purchasedColors[index] = true;
+      } else {
+        console.log("Not enough coins to unlock this color.");
+        return; // Don't select if you can't afford
+      }
+    }
+  
+    selectedCarColor = index;
+    savePersistentData(data);
+  }
+   
+  
+  
   function computeCalcStats() {
     return {
       health: DEFAULT_CAR_STATS.health + (upgradeBodyLevel - 1) * 5,
@@ -257,30 +305,37 @@ function GarageSketch(p) {
       p.stroke(0);
       p.fill(211);
       p.rect(box.x, box.y, box.w, box.h);
-
+    
       let img = window.cars?.[box.index];
       if (img) {
-        if (!purchasedCars[box.index]) {
-          p.tint(100);
+        let data = loadPersistentData();
+        let purchasedColors = data.purchasedColorsByCarType?.[selectedCarType] || [];
+    
+        if (!purchasedColors[box.index]) {
+          p.tint(100); // Gray out locked color
         }
         p.image(img, box.x, box.y, box.w, box.h);
         p.noTint();
       }
-
-      if (!purchasedCars[box.index]) {
+    
+      // 🔥 SHOW THE PRICE if it's locked!
+      let data = loadPersistentData();
+      let purchasedColors = data.purchasedColorsByCarType?.[selectedCarType] || [];
+      if (!purchasedColors[box.index]) {
         const coinSize = 14 * window.widthScale;
-        let coinX = box.x + box.w / 2 - coinSize - 4 * window.widthScale;
-        let textX = coinX + coinSize + 4 * window.widthScale;
-        let y = box.y + box.h;
-      
+        const coinX = box.x + box.w/2 - coinSize - 4 * window.widthScale;
+        const textX = coinX + coinSize + 4 * window.widthScale;
+        const y = box.y + box.h;
+    
         p.image(coinUp, coinX, y - coinSize, coinSize, coinSize);
         p.fill(255, 215, 0);
         p.textSize(20 * window.scale);
         p.textAlign(p.LEFT, p.BOTTOM);
-        p.text(CAR_COLOR_COST, textX, y);
+        p.text(10, textX, y); // Draw 10 as price
       }
-
-      if (box.index === selectedCarIndex) {
+    
+      // 🔥 HIGHLIGHT SELECTED
+      if (box.index === selectedCarColor) {
         p.stroke(255, 0, 0);
         p.strokeWeight(3);
         p.noFill();
@@ -288,6 +343,7 @@ function GarageSketch(p) {
         p.strokeWeight(1);
       }
     });
+            
 
     let centerX = p.width / 2 - 160 * window.widthScale;
     let centerY = p.height / 2 - 100 * window.heightScale;
@@ -363,35 +419,37 @@ function GarageSketch(p) {
     p.pop();
   };
 
-  p.mousePressed = function () {
+  p.mousePressed = function() {
     for (let box of carBoxes) {
-      if (p.mouseX >= box.x && p.mouseX <= box.x + box.w && p.mouseY >= box.y && p.mouseY <= box.y + box.h) {
-        if (purchasedCars[box.index]) {
-          selectedCarIndex = box.index;
-        } else {
-          purchaseCar(box.index);
-        }
+      if (p.mouseX >= box.x && p.mouseX <= box.x + box.w &&
+          p.mouseY >= box.y && p.mouseY <= box.y + box.h) {
+        purchaseCarColor(box.index);
         return;
       }
     }
   
+    // Then check other buttons like upgrades, exit, etc
     for (let up of upgrades) {
-      if (["wrench", "bomb", "oil", "shield","boat"].includes(up.type)) {
-        if (up.button.isMouseOver(p)) return purchaseItem(up.type);
-      } else {
-        if (up.button.isMouseOver(p)) return purchaseUpgrade(up.type);
+      if (up.button.isMouseOver(p)) {
+        if (["wrench", "bomb", "oil", "shield", "boat"].includes(up.type)) {
+          return purchaseItem(up.type);
+        } else {
+          return purchaseUpgrade(up.type);
+        }
       }
     }
   
-    if (resetUpgradeButton && window.debug && resetUpgradeButton.isMouseOver(p)) {
-      return resetUpgrades();
-    }
-    if (window.debug) if (debugAddCoinsButton.isMouseOver(p)) return debugAddCoins();
+    if (resetUpgradeButton && window.debug && resetUpgradeButton.isMouseOver(p)) return resetUpgrades();
+    if (debugAddCoinsButton && window.debug && debugAddCoinsButton.isMouseOver(p)) return debugAddCoins();
     if (ExitIcon.isMouseOver(p)) {
       bgMusic(Mode.GARAGE, p, "stop");
       ExitIcon.callback();
     }
   };
+  
+  
+  
+  
 
   p.keyPressed = function () {
     if (p.keyCode === p.ESCAPE) {
@@ -415,16 +473,39 @@ function GarageSketch(p) {
   };
 
   function saveConfiguration() {
-    let config = {
-      upgradeEngineLevel, upgradeBodyLevel, upgradeTransmissionLevel, upgradeTiresLevel,
-      selectedCar: selectedCarIndex,
-      purchasedCars,
-      stats: computeCalcStats(),
-      unlockedItems: ItemsManager.unlockedItems
+    let data = loadPersistentData();
+    if (!data) data = {};
+  
+    if (!data.upgradesByCarType) data.upgradesByCarType = {};
+    if (!data.purchasedColorsByCarType) data.purchasedColorsByCarType = {};
+    if (!data.purchasedCarTypes) data.purchasedCarTypes = [true, false, false];
+  
+    data.selectedCarType = selectedCarType;
+    data.selectedCarColor = selectedCarColor;
+  
+    data.upgradesByCarType[selectedCarType] = {
+      engine: upgradeEngineLevel,
+      body: upgradeBodyLevel,
+      transmission: upgradeTransmissionLevel,
+      tires: upgradeTiresLevel
     };
-    savedStats = { ...config.stats };
-    savePersistentData(config);
+  
+    if (!data.purchasedColorsByCarType[selectedCarType]) {
+      data.purchasedColorsByCarType[selectedCarType] = Array(getColorCountForCarType(selectedCarType)).fill(false);
+      data.purchasedColorsByCarType[selectedCarType][0] = true;
+    }
+  
+    if (!data.purchasedCarTypes[selectedCarType]) {
+      data.purchasedCarTypes[selectedCarType] = true;
+    }
+  
+    data.stats = computeCalcStats();
+    data.unlockedItems = ItemsManager.unlockedItems;
+  
+    savedStats = { ...data.stats };
+    savePersistentData(data);
   }
+  
 
   function resetUpgrades() {
     upgradeEngineLevel = 1;
