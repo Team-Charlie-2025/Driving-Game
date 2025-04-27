@@ -124,13 +124,13 @@ class Collider {
   }
 
   intersects(other) {
-    // first check to look through outer bounds of bigger area, for consistency in performance
-      const dx = Math.abs(this.gameObject.position.x - other.gameObject.position.x);
-      const dy = Math.abs(this.gameObject.position.y - other.gameObject.position.y);
-      if (dx > gridSize*2 || dy > gridSize*2) {
-          Collider.intersectCount++;
-          return false;
-      }
+    // // first check to look through outer bounds of bigger area, for consistency in performance
+    //   const dx = Math.abs(this.gameObject.position.x - other.gameObject.position.x);
+    //   const dy = Math.abs(this.gameObject.position.y - other.gameObject.position.y);
+    //   if (dx > gridSize*2 || dy > gridSize*2) {
+    //       Collider.intersectCount++;
+    //       return false;
+    //   }
       Collider.intersectCount++;
       // rectangle vs rectangle
       if (this.shape==='rectangle' && other.shape==='rectangle') {
