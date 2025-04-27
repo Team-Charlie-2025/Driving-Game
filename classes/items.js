@@ -197,28 +197,24 @@ class ItemsManager {
     static updateFuel(p, car, isPaused = false){
       if (isPaused) return;
 
+      const currentTime = p.millis();
+
+      if (fuelLastUpdateTime === null) {
+        fuelLastUpdateTime = currentTime;
+        return;
+      }
+
+      const deltaTime = currentTime - fuelLastUpdateTime;
+
       // Only drain fuel when moving (W or S key pressed)
       const p5Instance = car.p;
-      if (p5Instance.keyIsDown(getKeyForAction("forward")) || 
-          p5Instance.keyIsDown(getKeyForAction("backward"))) {
-        
-        const currentTime = p.millis();
-        
-        // Initialize last update time if necessary
-        if (fuelLastUpdateTime === null) {
-          fuelLastUpdateTime = currentTime;
-          return;
-        }
-        
-        // Calculate time elapsed since last update
-        const deltaTime = currentTime - fuelLastUpdateTime;
-        
-        // Reduce fuel
+      const isMoving =  p5Instance.keyIsDown(getKeyForAction("forward")) || p5Instance.keyIsDown(getKeyForAction("backward"));
+
+      if (isMoving) {
         fuelLevel = Math.max(0, fuelLevel - deltaTime);
-        
-        // Update last update time
-        fuelLastUpdateTime = currentTime;
       }
+      
+      fuelLastUpdateTime = currentTime;
     }
 
     static getFuelLevel(){
