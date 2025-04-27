@@ -1,97 +1,101 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <!--pixelated font-->
-    
-    <link rel="shortcut icon" href="#">
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Swiggle</title>
-    <!-- p5.js Libraries -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.9.0/p5.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.9.0/addons/p5.dom.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.9.0/addons/p5.sound.min.js"></script>
 
-    <!-- Style -->
-    <link rel="stylesheet" type="text/css" href="style.css">
+<head>
+  <!--pixelated font-->
 
-    
-    <!-- Core Classes (in dependency order!) -->
-    <script src="classes/gameEngine.js"></script> <!-- defines GameObject -->
-    <script src="scripts/jsonData.js"></script>
-    <script src="classes/globals.js"></script>
-    <script src="classes/helper.js"></script>
-    <script src="classes/map.js"></script>
-    <script src="classes/pathfinding.js"></script>
-    <script src="classes/vehicles.js"></script>
-    <script src="classes/mapGen.js"></script>
-    <script src="classes/mapBuildingFunction.js"></script>
-    <script src="classes/mapRoadFunction.js"></script>
+  <link rel="shortcut icon" href="#">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Swiggle</title>
+  <!-- p5.js Libraries -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.9.0/p5.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.9.0/addons/p5.dom.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.9.0/addons/p5.sound.min.js"></script>
 
-    <script src="classes/items.js"></script> <!-- uses GameObject -->
-    <script src="classes/sounds.js"></script>
-    <script src="classes/keybinds.js"></script>
-    <script src="classes/currency.js"></script>
-    <script src="classes/score.js"></script>
-    <script src="classes/button.js"></script>
-    <script src="classes/itemsCreation.js"></script>
-    <script src="classes/hud.js"></script>
+  <!-- Style -->
+  <link rel="stylesheet" type="text/css" href="style.css">
 
-    <!-- Game Sketch Scripts (must come last) -->
-    <script src="scripts/title.js"></script>
-    <script src="scripts/play.js"></script>
-    <script src="scripts/garage.js"></script>
-    <script src="scripts/leaderboard.js"></script>
-    <script src="scripts/settings.js"></script>
-    <script src="scripts/login.js"></script>
-    <script src="scripts/signup.js"></script>
-    <script src="scripts/mapEditor.js"></script>
-    <script src="scripts/loading.js"></script>
-    
-    <script src="main.js"></script>
 
-  </head>
-  <body>
-    <div id="loading-screen">
-      <h2>Loading...</h2>
-    </div>
-    <main id="main"></main>
+  <!-- Core Classes (in dependency order!) -->
+  <script src="classes/quadtree.js"></script>
+  <script src="classes/gameEngine.js"></script> <!-- defines GameObject -->
+  <script src="scripts/jsonData.js"></script>
+  <script src="classes/globals.js"></script>
+  <script src="classes/helper.js"></script>
+  <script src="classes/map.js"></script>
+  <script src="classes/pathfinding.js"></script>
+  <script src="classes/vehicles.js"></script>
+  <script src="classes/mapGen.js"></script>
+  <script src="classes/mapBuildingFunction.js"></script>
+  <script src="classes/mapRoadFunction.js"></script>
 
-    <script>
-      async function signup() {
-          const username = document.getElementById('username').value;
-          const password = document.getElementById('password').value;
+  <script src="classes/items.js"></script> <!-- uses GameObject -->
+  <script src="classes/sounds.js"></script>
+  <script src="classes/keybinds.js"></script>
+  <script src="classes/currency.js"></script>
+  <script src="classes/score.js"></script>
+  <script src="classes/button.js"></script>
+  <script src="classes/itemsCreation.js"></script>
+  <script src="classes/hud.js"></script>
 
-          const response = await fetch('/signup', {
-              method: 'POST',
-              headers: { 'Content-Type': 'application/json' },
-              body: JSON.stringify({ username, password })
-          });
+  <!-- Game Sketch Scripts (must come last) -->
+  <script src="scripts/title.js"></script>
+  <script src="scripts/play.js"></script>
+  <script src="scripts/garage.js"></script>
+  <script src="scripts/leaderboard.js"></script>
+  <script src="scripts/settings.js"></script>
+  <script src="scripts/login.js"></script>
+  <script src="scripts/signup.js"></script>
+  <script src="scripts/mapEditor.js"></script>
+  <script src="scripts/loading.js"></script>
 
-          const result = await response.json();
-          document.getElementById('message').innerText = result.message || result.error;
-      }
+  <script src="main.js"></script>
 
-      async function login() {
-          const username = document.getElementById('username').value;
-          const password = document.getElementById('password').value;
+</head>
 
-          const response = await fetch('/login', {
-              method: 'POST',
-              headers: { 'Content-Type': 'application/json' },
-              body: JSON.stringify({ username, password })
-          });
+<body>
+  <div id="loading-screen">
+    <h2>Loading...</h2>
+  </div>
+  <main id="main"></main>
 
-          const result = await response.json();
-          document.getElementById('message').innerText = result.message || result.error;
-      }
+  <script>
+    async function signup() {
+      const username = document.getElementById('username').value;
+      const password = document.getElementById('password').value;
 
-      async function logout() {
-          const response = await fetch('/logout', { method: 'POST' });
-          const result = await response.json();
-          document.getElementById('message').innerText = result.message;
-      }
+      const response = await fetch('/signup', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ username, password })
+      });
+
+      const result = await response.json();
+      document.getElementById('message').innerText = result.message || result.error;
+    }
+
+    async function login() {
+      const username = document.getElementById('username').value;
+      const password = document.getElementById('password').value;
+
+      const response = await fetch('/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ username, password })
+      });
+
+      const result = await response.json();
+      document.getElementById('message').innerText = result.message || result.error;
+    }
+
+    async function logout() {
+      const response = await fetch('/logout', { method: 'POST' });
+      const result = await response.json();
+      document.getElementById('message').innerText = result.message;
+    }
   </script>
 
-  </body>
+</body>
+
 </html>
