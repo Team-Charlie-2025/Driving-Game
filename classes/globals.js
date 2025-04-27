@@ -44,18 +44,41 @@ function loadSoundEffects(p) {
 }
 
 function loadCars(p) {
-  window.cars = [];
+  window.cars = {
+    normal: [],
+    truck: [],
+    sports: [],
+  };
 
-  window.cars.push(p.loadImage("graphics/cars/blueStripe.png"));
-  window.cars.push(p.loadImage("graphics/cars/greenStripe.png"));
-  window.cars.push(p.loadImage("graphics/cars/lightblueStripe.png"));
-  window.cars.push(p.loadImage("graphics/cars/lightgreenStripe.png"));
-  window.cars.push(p.loadImage("graphics/cars/lightpurpleStripe.png"));
-  window.cars.push(p.loadImage("graphics/cars/orangeStripe.png"));
-  window.cars.push(p.loadImage("graphics/cars/purpleStripe.png"));
-  window.cars.push(p.loadImage("graphics/cars/redStripe.png"));
+  // Load images for the "normal" car
+  window.cars["normal"].push(p.loadImage("graphics/cars/blueStripe.png"));
+  window.cars["normal"].push(p.loadImage("graphics/cars/greenStripe.png"));
+  window.cars["normal"].push(p.loadImage("graphics/cars/lightblueStripe.png"));
+  window.cars["normal"].push(p.loadImage("graphics/cars/lightgreenStripe.png"));
+  window.cars["normal"].push(p.loadImage("graphics/cars/lightpurpleStripe.png"));
+  window.cars["normal"].push(p.loadImage("graphics/cars/orangeStripe.png"));
+  window.cars["normal"].push(p.loadImage("graphics/cars/purpleStripe.png"));
+  window.cars["normal"].push(p.loadImage("graphics/cars/redStripe.png"));
 
-  console.log("cars loaded");
+  // // Load images for the truck
+  window.cars["truck"].push(p.loadImage("assets/police+truck.png"));
+  window.cars["truck"].push(p.loadImage("assets/police+truck.png"));
+  window.cars["truck"].push(p.loadImage("assets/police+truck.png"));
+  window.cars["truck"].push(p.loadImage("assets/police+truck.png"));
+  window.cars["truck"].push(p.loadImage("assets/police+truck.png"));
+  window.cars["truck"].push(p.loadImage("assets/police+truck.png"));
+  // window.cars["truck"].push(p.loadImage("graphics/cars/truckBlue.png"));
+  // window.cars["truck"].push(p.loadImage("graphics/cars/truckGreen.png"));
+  // window.cars["truck"].push(p.loadImage("graphics/cars/truckRed.png"));
+  // window.cars["truck"].push(p.loadImage("graphics/cars/truckYellow.png"));
+
+  // // Load images for the sports car
+  // window.cars["sports"].push(p.loadImage("graphics/cars/sportsBlue.png"));
+  // window.cars["sports"].push(p.loadImage("graphics/cars/sportsGreen.png"));
+  // window.cars["sports"].push(p.loadImage("graphics/cars/sportsRed.png"));
+  // window.cars["sports"].push(p.loadImage("graphics/cars/sportsYellow.png"));
+
+  console.log("Cars loaded:", window.cars);
 }
 
 function loadEngines(p) {

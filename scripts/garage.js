@@ -428,7 +428,6 @@ function GarageSketch(p) {
     if (!selectingCarType && moreCarsButton) moreCarsButton.display(p);
     if (resetUpgradeButton) resetUpgradeButton.display(p);
     if (debugAddCoinsButton) debugAddCoinsButton.display(p);
-    console.log("state: " + selectingCarType);
     if (selectingCarType) {
       drawCarTypeSelector();
     } else {
@@ -437,7 +436,7 @@ function GarageSketch(p) {
         p.fill(211);
         p.rect(box.x, box.y, box.w, box.h);
     
-        let img = window.cars?.[box.index];
+        let img = window.cars?.[selectedCarType][box.index];
         if (img) {
           if (!carColorsUnlocked[selectedCarType][box.index]) {
             p.tint(100);
@@ -486,8 +485,8 @@ function GarageSketch(p) {
 
     let centerX = p.width / 2 - 160 * window.widthScale;
     let centerY = p.height / 2 - 100 * window.heightScale;
-    if (window.cars?.[selectedCarIndex]) {
-      p.image(window.cars[selectedCarIndex], 
+    if (window.cars?.[selectedCarType][selectedCarIndex]) {
+      p.image(window.cars[selectedCarType][selectedCarIndex], 
              centerX - (42.24 * window.widthScale),
              centerY - (100 * window.heightScale),
              318.72 * window.widthScale,

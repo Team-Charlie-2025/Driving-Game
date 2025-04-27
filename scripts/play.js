@@ -93,8 +93,9 @@ function PlaySketch(p) {
 
     // Set car image from selected car color if it exists
     const selectedCarIndex = savedData.selectedCar || 0;
-    if (window.cars && window.cars[selectedCarIndex]) {
-      car.currentImage = window.cars[selectedCarIndex];
+    const selectedCarType = savedData.selectedCarType || "normal";
+    if (window.cars && window.cars[selectedCarType][selectedCarIndex]) {
+      car.currentImage = window.cars[selectedCarType][selectedCarIndex];
     }
     
     // Update collider with the correct image
