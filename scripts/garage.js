@@ -36,10 +36,10 @@ class UpgradeButton extends Button {
 }
 
 const ITEM_PRICES = {
-  wrench: 3000,
-  bomb: 5000,
-  oil: 10000,
-  shield: 15000
+  wrench: 250,
+  bomb: 500,
+  oil: 750,
+  shield: 1000
 };
 
 function GarageSketch(p) {
@@ -82,12 +82,9 @@ function GarageSketch(p) {
       if (typeof savedConfig.selectedCar === "number") selectedCarIndex = savedConfig.selectedCar;
       if (Array.isArray(savedConfig.purchasedCars)) purchasedCars = savedConfig.purchasedCars;
     }
+
     if (savedConfig?.unlockedItems) {
-      for (let key in savedConfig.unlockedItems) {
-        if (savedConfig.unlockedItems[key]) {
-          ItemsManager.unlockItem(key);
-        }
-      }
+      ItemsManager.unlockedItems = { ...savedConfig.unlockedItems };
     }
   
     setupUpgradeLayout();
@@ -112,7 +109,7 @@ function GarageSketch(p) {
       resetUpgradeButton = null;
     }
   
-    const types = ['engine', 'body', 'transmission', 'tires'];
+    const types = ['body', 'engine', 'transmission', 'tires'];
     types.forEach((type, i) => {
       const x = startX + i * (size + spacing);
       const level = getUpgradeLevel(type);
@@ -125,43 +122,54 @@ function GarageSketch(p) {
 
   function setupItemPurchaseButtons() {
     const itemTypes = ['wrench','bomb', 'oil', 'shield'];
-    const spacing = 140.4 * window.heightScale;
-    const boxWidth = 96 * window.widthScale;
-    const boxHeight = 86.4 * window.heightScale;
-    const x = 76.8 * window.widthScale;
-    const startY = 324 * window.heightScale;
-
+    const spacing = p.height * 0.13;
+    const boxWidth = p.width * 0.05;
+    const boxHeight = p.height * 0.08;
+    const x = p.width * 0.04;
+    const startY = p.height * 0.3;
+    
     itemTypes.forEach((item, index) => {
       const y = startY + index * spacing;
       const label = item.charAt(0).toUpperCase() + item.slice(1);
-      const price = window.debug ? 0 : ITEM_PRICES[item];
-      const owned = ItemsManager.unlockedItems[item];
-      const btnLabel = owned ? "OWNED" : price;
-
+      const level = ItemsManager.unlockedItems[item] || 0;
+      const isUnlocked = level > 0;
+      const isMaxed = level >= 5;
+      
       const box = { x, y, w: boxWidth, h: boxHeight };
-      const buttonY = y - 18.36 * window.heightScale;
-      const btn = new UpgradeButton(btnLabel, x + boxWidth / 2, buttonY, () => purchaseItem(item), "item", boxWidth * 0.95, boxHeight * 0.4);
+      const buttonY = y - p.height * 0.017;
+      
+      let btnLabel;
+      let btnCallback;
+    
+      if (!isUnlocked) {
+        btnLabel = window.debug ? 0 : ITEM_PRICES[item];
+        btnCallback = () => purchaseItem(item);
+      } else if (isMaxed) {
+        btnLabel = "MAX";
+        btnCallback = () => {};
+      } else {
+        btnLabel = getItemUpgradePrice(item, level + 1);
+        btnCallback = () => purchaseItemUpgrade(item);
+      }
+    
+      const btn = new UpgradeButton(btnLabel, x + boxWidth / 2, buttonY, btnCallback, "item", boxWidth * 0.95, boxHeight * 0.4);
       upgrades.push({ type: item, label, box, button: btn });
-    });
+    });  
   }
 
   function purchaseItem(itemType) {
-    if (ItemsManager.unlockedItems[itemType]) {
-      console.log(itemType + " already unlocked.");
-      return;
-    }
-
     const price = window.debug ? 0 : ITEM_PRICES[itemType];
     if (CurrencyManager.getTotalCoins() >= price) {
-      if (price > 0) CurrencyManager.spendCoins(price);
+      CurrencyManager.spendCoins(price);
       ItemsManager.unlockItem(itemType);
-
+  
       upgrades.forEach(up => {
         if (up.type === itemType) {
-          up.button.label = "OWNED";
+          up.button.label = getItemUpgradePrice(itemType, 2);
+          up.button.callback = () => purchaseItemUpgrade(itemType);
         }
       });
-
+  
       saveConfiguration();
     } else {
       console.log("Not enough coins for " + itemType);
@@ -317,39 +325,92 @@ function GarageSketch(p) {
       p.fill(200);
       p.rect(up.box.x, up.box.y, up.box.w, up.box.h);
       p.fill(0);
-      p.textSize(24 * window.scale);
+      p.textSize(Math.round(30 * window.scale));
       p.textAlign(p.CENTER, p.CENTER);
-      p.text(up.label, up.box.x + up.box.w / 2, up.box.y + up.box.h / 2 - 10 * window.heightScale);
+      p.text(up.label, up.box.x + up.box.w / 2, up.box.y + up.box.h / 2 - 10);
+      const lvl = ItemsManager.unlockedItems[up.type];
+      if (lvl && typeof lvl === "number") {
+        p.text("Lvl " + lvl, up.box.x + up.box.w / 2, up.box.y + up.box.h / 2 + 15);
+      }
       up.button.display(p);
     });
 
     let stats = computeCalcStats();
-    let panelX = p.width - 270 * window.widthScale;
+    let panelX = p.width - 400 * window.widthScale;
     let panelY = (p.height - 200 * window.heightScale) / 2;
     p.fill(255, 255, 255, 204);
     p.noStroke();
-    p.rect(panelX, panelY, 250 * window.widthScale, 200 * window.heightScale);
+    p.rect(panelX, panelY, 360 * window.widthScale, 170 * window.heightScale);
     p.fill(0);
-    p.textSize(24 * window.scale);
+    p.textSize(32 * window.scale);
     p.textAlign(p.LEFT, p.TOP);
     p.text("Stats", panelX + 10 * window.widthScale, panelY + 10 * window.heightScale);
     p.stroke(0);
     p.strokeWeight(1);
-    p.line(panelX + 10 * window.widthScale, panelY + 28 * window.heightScale, 
-           panelX + 240 * window.widthScale, panelY + 28 * window.heightScale);
+    p.line(panelX + 10 * window.widthScale, panelY + 36 * window.heightScale, 
+           panelX + 340 * window.widthScale, panelY + 36 * window.heightScale);
     p.noStroke();
     p.strokeWeight(0);
 
-    let names = ["Health", "Boost", "Max Speed", "Acceleration", "Traction", "Dmg Res"];
-    let bases = [savedStats.health, savedStats.boost, savedStats.maxSpeed, savedStats.acceleration, savedStats.traction, savedStats.dmgRes];
-    let vals = [stats.health, stats.boost, stats.maxSpeed, stats.acceleration, stats.traction, stats.dmgRes];
+    let names = ["Health", "Max Speed", "Acceleration", "Traction", ];
     for (let i = 0; i < names.length; i++) {
-      let y = panelY + 35 * window.heightScale + i * 20 * window.heightScale;
-      p.textAlign(p.LEFT); 
-      p.text(names[i], panelX + 10 * window.widthScale, y);
-      p.textAlign(p.RIGHT);
-      let v = formatNumber(vals[i]);
-      p.text(v, panelX + 240 * window.widthScale, y);
+      let y = panelY + 40 * window.heightScale + i * 30 * window.heightScale;
+      let statName = names[i];
+      let statX = panelX + 10 * window.widthScale;
+      let circleXStart = statX + 200 * window.widthScale;
+      let level = 1;
+
+      // Match level to stat name
+      if (statName === "Health" || statName === "Dmg Res") level = upgradeBodyLevel;
+      else if (statName === "Max Speed") level = upgradeEngineLevel;
+      else if (statName === "Acceleration") level = upgradeTransmissionLevel;
+      else if (statName === "Traction") level = upgradeTiresLevel;
+      else level = 1;
+
+      // Draw label
+      p.textAlign(p.LEFT);
+      p.fill(0);
+      p.textSize(32 * window.scale);
+      p.text(statName, statX, y);
+
+      // Draw 5 circle slots (background grey, then filled red as needed)
+      let radius = 10 * window.scale;
+      let gap = 12 * window.widthScale;
+      for (let j = 0; j < 5; j++) {
+        let cx = circleXStart + j * (radius * 2 + gap);
+        let cy = y + radius * 1.2;
+
+        // grey background
+        p.fill(180);
+        p.circle(cx, cy, radius * 2);
+
+        let fillFraction = Math.min(Math.max(level * 0.5 - j, 0), 1); // 0 to 1
+
+        if (fillFraction > 0) {
+          p.noStroke();
+          p.fill(200, 0, 0); // red
+
+          let clipX = cx - radius;
+          let clipY = cy - radius;
+          let clipWidth = 2 * radius * fillFraction;
+          let clipHeight = 2 * radius;
+
+          // Save current state
+          p.push();
+          // Set clipping area
+          p.drawingContext.save();
+          p.drawingContext.beginPath();
+          p.drawingContext.rect(clipX, clipY, clipWidth, clipHeight);
+          p.drawingContext.clip();
+
+          // Draw red circle inside clipped region
+          p.circle(cx, cy, radius * 2);
+
+          // Restore clipping
+          p.drawingContext.restore();
+          p.pop();
+        }
+      }
     }
 
     p.push();
@@ -374,12 +435,11 @@ function GarageSketch(p) {
     }
   
     for (let up of upgrades) {
-      if (["wrench", "bomb", "oil", "shield"].includes(up.type)) {
-        if (up.button.isMouseOver(p)) return purchaseItem(up.type);
-      } else {
-        if (up.button.isMouseOver(p)) return purchaseUpgrade(up.type);
+      if (up.button.isMouseOver(p)) {
+        up.button.callback();
+        return;
       }
-    }
+    }    
   
     if (resetUpgradeButton && window.debug && resetUpgradeButton.isMouseOver(p)) {
       return resetUpgrades();
@@ -431,10 +491,10 @@ function GarageSketch(p) {
     upgradeTiresLevel = 1;
   
     ItemsManager.unlockedItems = {
-      wrench: false,
-      bomb: false,
-      oil: false,
-      shield: false
+      wrench: 0,
+      bomb: 0,
+      oil: 0,
+      shield: 0
     };
   
     purchasedCars = [true, false, false, false, false, false, false, false];
@@ -458,11 +518,35 @@ function GarageSketch(p) {
     saveConfiguration();
     console.log("Upgrades and item purchases reset.");
   }  
-}
+  function purchaseItemUpgrade(itemType) {
+    let level = ItemsManager.unlockedItems[itemType];
+    if (level >= 5) return;
 
-function debugAddCoins() {
-  if(window.debug){
+    const price = getItemUpgradePrice(itemType, level + 1);
+    if (window.debug || CurrencyManager.getTotalCoins() >= price) {
+      CurrencyManager.spendCoins(price);
+      ItemsManager.upgradeItem(itemType);
+
+      upgrades.forEach(up => {
+        if (up.type === itemType) {
+          const newLevel = ItemsManager.unlockedItems[itemType];
+          up.button.label = newLevel >= 5 ? "MAX" : getItemUpgradePrice(itemType, newLevel + 1);
+        }
+      });
+
+      saveConfiguration();
+    } else {
+      console.log("Not enough coins to upgrade " + itemType);
+    }
+  }
+  function getItemUpgradePrice(itemType, level) {
+    if (window.debug) return 0;
+    const basePrice = ITEM_PRICES[itemType] || 1000;
+    return Math.floor(basePrice * level * 0.6);
+  }
+  function debugAddCoins() {
+    if(window.debug){
     CurrencyManager.updateTotalCoins(1000);
-    console.log("Debug: Added 1000 coins. Total coins:", CurrencyManager.getTotalCoins());
+    console.log("Debug: Added 1000 coins. Total coins:", CurrencyManager.getTotalCoins());}
   }
 }
