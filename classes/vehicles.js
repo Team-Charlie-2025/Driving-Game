@@ -283,10 +283,9 @@ class Car extends GameObject {
     }
     else if(other instanceof Wrench){
       if (this.healthBar < this.maxHealth) {
-        let healing = Math.floor(this.maxHealth * wrenchHealthModPercent);
-        //let before = this.healthBar;  //temp for console check
+        const healPercent = arguments[1] ?? 0.1; // fallback if missing
+        let healing = Math.floor(this.maxHealth * healPercent);
         this.healthBar = Math.min(this.maxHealth, this.healthBar + healing);
-        //console.log(`Wrench healed for ${this.healthBar - before} (from ${before} to ${this.healthBar})`);
       }
     }
     else if(other instanceof Bomb){
