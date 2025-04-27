@@ -146,6 +146,7 @@ function GarageSketch(p) {
 
   // Saves the active car upgrades to the dictionary upgrades
   function saveCarUpgrades(type) {
+    console.log("index 1: " + selectedCarIndex);
     carUpgrades[type] = {
       engine: upgradeEngineLevel,
       body: upgradeBodyLevel,
@@ -155,6 +156,8 @@ function GarageSketch(p) {
   }
   
   function loadCarUpgrades(type) {
+
+    console.log("index 2: " + selectedCarIndex);
     let upgrades = carUpgrades[type];
     if (!upgrades) {
       upgrades = { engine: 1, body: 1, transmission: 1, tires: 1 };
@@ -215,6 +218,8 @@ function GarageSketch(p) {
   }
 
   function purchaseItem(itemType) {
+
+    console.log("index 3: " + selectedCarIndex);
     if (ItemsManager.unlockedItems[itemType]) {
       console.log(itemType + " already unlocked.");
       return;
@@ -282,6 +287,8 @@ function GarageSketch(p) {
   }
 
   function purchaseCarColor(index) {
+
+    console.log("index bought: " + selectedCarIndex);
     if (carColorsUnlocked[selectedCarType][index]) {
       // Already own color, just select it
       selectedCarIndex = index;
@@ -476,6 +483,7 @@ function GarageSketch(p) {
       if (p.mouseX >= box.x && p.mouseX <= box.x + box.w && p.mouseY >= box.y && p.mouseY <= box.y + box.h) {
         if (carColorsUnlocked[selectedCarType][box.index]) {
           selectedCarIndex = box.index;
+          saveConfiguration();
         } else {
           purchaseCarColor(box.index);
         }
@@ -523,7 +531,7 @@ function GarageSketch(p) {
   };
 
   function saveConfiguration() {
-    console.log("car index config: " + selectedCarIndex);
+    console.log("car index saved: " + selectedCarIndex);
     saveCarUpgrades(selectedCarType);
   
     let config = {
@@ -547,7 +555,28 @@ function GarageSketch(p) {
     upgradeBodyLevel = 1;
     upgradeTransmissionLevel = 1;
     upgradeTiresLevel = 1;
+    
+    carUpgrades = {
+      normal: { engine: 1, body: 1, transmission: 1, tires: 1 },
+      truck: { engine: 1, body: 1, transmission: 1, tires: 1 },
+      sportscar: { engine: 1, body: 1, transmission: 1, tires: 1 }
+    };
   
+    carColorsUnlocked = {
+      normal: [true, false, false, false, false, false, false, false],
+      truck:  [true, false, false, false, false, false],
+      sportscar: [true, false, false, false]
+    };
+  
+    purchasedCarTypes = {
+      normal: true,
+      truck: false,
+      sportscar: false
+    };
+  
+    selectedCarIndex = 0;     // Color index
+    selectedCarType = CarType.NORMAL;  // (normal, truck, sportscar)
+
     ItemsManager.unlockedItems = {
       wrench: false,
       bomb: false,
