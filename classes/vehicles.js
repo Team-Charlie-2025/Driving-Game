@@ -335,7 +335,7 @@ class Enemy extends Car{
     this.path = [];
     this.pathIndex = 0;
     this.lastPathUpdate = 0;
-    this.pathUpdateInterval = 250;  //milliseconds between recalculating path
+    this.pathUpdateInterval = 300;  //milliseconds between recalculating path
     this.maxSightDistance = 300;  //how far enemies can see
     this.inLOS = false;
     this.lastLOSCheck = 0;
