@@ -78,8 +78,8 @@ function GarageSketch(p) {
   const CAR_COLOR_COST = 10;
   const CAR_TYPE_PRICES = {
     normal: 0,
-    truck: 500,
-    supercar: 750
+    truck: 5000,
+    supercar: 15000
   };
 
   let BASE_UPGRADE_PRICE = 25;
@@ -350,6 +350,7 @@ function GarageSketch(p) {
     loadCarUpgrades(selectedCarType); // Load new
     DEFAULT_CAR_STATS = { ...window.carBaseStats[selectedCarType] };
     savedStats = { ...DEFAULT_CAR_STATS };
+    setupUpgradeLayout();
     saveConfiguration();
   }
 
@@ -417,7 +418,12 @@ function GarageSketch(p) {
   function getPrice(partType){
     if (window.debug) return 0;
     const level = getUpgradeLevel(partType);
-    return Math.floor((BASE_UPGRADE_PRICE * 3 * Math.log(BASE_UPGRADE_PRICE) * (level * level) / 20));
+    let adjustedPrice = BASE_UPGRADE_PRICE;
+    if(selectedCarType == "truck")
+      adjustedPrice = BASE_UPGRADE_PRICE *1.5;
+    else if (selectedCarType == "supercar")
+      adjustedPrice = BASE_UPGRADE_PRICE *2;
+    return Math.floor((adjustedPrice * 3 * Math.log(adjustedPrice) * (level * level) / 20));
   }
 
   p.draw = function () {
