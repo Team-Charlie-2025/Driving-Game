@@ -6,7 +6,7 @@ const truckWidth = 96;
 const truckHeight =64;
 
 const superCarWidth = 90;
-const superCarHeight = 58;
+const superCarHeight = 53;
 class Car extends GameObject {
   constructor(p, x, y, stats) {
     super(x, y);
@@ -28,6 +28,7 @@ class Car extends GameObject {
     this.acceleration = SAVED_STATS.acceleration;
     this.maxSpeed = SAVED_STATS.maxSpeed;
     this.tireTraction = SAVED_STATS.traction;
+    this.damageRes = SAVED_STATS.damageRes/10;  
     this.friction = 0.02;
     this.reverseSpeed = -4;
     this.turnSpeed = 0.07;
@@ -58,9 +59,9 @@ class Car extends GameObject {
     this.removeFromWorld = false;
 
     if (this.currentImage) {
-      this.width = 64;
-      this.height = 64;
-      this.collider = new Collider(this, "polygon", { offsetX: -32, offsetY: -32 }, this.currentImage);
+      this.width = carWidth;
+      this.height = carHeight;
+      this.collider = new Collider(this, "polygon", { offsetX: -(carWidth/2), offsetY: -(carHeight/2) }, this.currentImage);
     } else {
       this.width = carWidth;
       this.height = carHeight;
@@ -287,7 +288,7 @@ class Car extends GameObject {
     if (other instanceof Enemy) { //upon ememy collision
       damage = other.attackDamage;
       damage = ItemsManager.shieldDamage(damage);
-      this.healthBar = Math.max(0, this.healthBar - damage);
+      this.healthBar = Math.max(0, this.healthBar - (damage/this.damageRes));
     }
     else if(other instanceof Wrench){
       if (this.healthBar < this.maxHealth) {
@@ -300,12 +301,12 @@ class Car extends GameObject {
     else if(other instanceof Bomb){
       damage = other.attackDamage;
       damage = ItemsManager.shieldDamage(damage);
-      this.healthBar = Math.max(0, this.healthBar - damage);
+      this.healthBar = Math.max(0, this.healthBar - (damage/this.damageRes));
     }
     else if(other instanceof Oil){
       damage = other.attackDamage;
       damage = ItemsManager.shieldDamage(damage);
-      this.healthBar = Math.max(0, this.healthBar - damage);
+      this.healthBar = Math.max(0, this.healthBar - (damage/this.damageRes));
       this.speed = this.speed *0.9;
     }
   }
@@ -313,7 +314,8 @@ class Car extends GameObject {
   buildingCollision(){
     let damage = 5 * window.difficulty * Math.abs((10*this.speed/this.baseMaxSpeed));
     damage = ItemsManager.shieldDamage(damage);
-    this.healthBar = Math.max(0, this.healthBar - damage);
+    console.log("building damage: " + damage + "damag res " + this.damageRes);
+    this.healthBar = Math.max(0, this.healthBar - (damage/this.damageRes));
     this.speed *=-.25;
   }
 
@@ -331,7 +333,7 @@ class PlayerTruck extends Car {
     super(p,x,y,stats);
 
     this.attackDamage = 40;
-
+    this.damageRes = data.damageRes;
     this.friction = 0.03;
     this.reverseSpeed = -3;
     this.turnSpeed = 0.04;
@@ -357,7 +359,7 @@ class PlayerTruck extends Car {
       this.width = truckWidth;
       this.height = truckHeight;
       this.collider = new Collider(this, "rectangle", {
-        width: this.width,
+        width: this.width ,
         height: this.height,
         offsetX: -this.width / 2,
         offsetY: -this.height / 2,
@@ -518,7 +520,6 @@ class PlayerTruck extends Car {
     } else {
       this.velocity.set(desired);
     }
-    console.log("velocity x: " + this.velocity.x)
     this.position.x += this.velocity.x;
     this.position.y += this.velocity.y;
 
@@ -540,7 +541,7 @@ class PlayerTruck extends Car {
     if (other instanceof Enemy) { //upon ememy collision
       damage = other.attackDamage;
       damage = ItemsManager.shieldDamage(damage);
-      this.healthBar = Math.max(0, this.healthBar - damage);
+      this.healthBar = Math.max(0, this.healthBar - (damage/this.damageRes));
     }
     else if(other instanceof Wrench){
       if (this.healthBar < this.maxHealth) {
@@ -553,12 +554,12 @@ class PlayerTruck extends Car {
     else if(other instanceof Bomb){
       damage = other.attackDamage;
       damage = ItemsManager.shieldDamage(damage);
-      this.healthBar = Math.max(0, this.healthBar - damage);
+      this.healthBar = Math.max(0, this.healthBar - (damage/this.damageRes));
     }
     else if(other instanceof Oil){
       damage = other.attackDamage;
       damage = ItemsManager.shieldDamage(damage);
-      this.healthBar = Math.max(0, this.healthBar - damage);
+      this.healthBar = Math.max(0, this.healthBar - (damage/this.damageRes));
       this.speed = this.speed *0.9;
     }
   }
@@ -566,7 +567,7 @@ class PlayerTruck extends Car {
   buildingCollision(){
     let damage = 5 * window.difficulty * Math.abs((10*this.speed/this.baseMaxSpeed));
     damage = ItemsManager.shieldDamage(damage);
-    this.healthBar = Math.max(0, this.healthBar - damage);
+    this.healthBar = Math.max(0, this.healthBar - (damage/this.damageRes));
     this.speed *=-.25;
   }
 
@@ -581,10 +582,9 @@ class SuperCar extends Car {
     const SAVED_STATS = data.stats;   // Is able to
     const selectedCarIndex = data.selectedCar || 0;
     super(p,x,y,stats);
-    this.health = 10;
 
-    this.attackDamage = 25;
-
+    this.attackDamage = 15;
+    this.damageRes = SAVED_STATS.damageRes;
     this.friction = 0.01;
     this.reverseSpeed = -5;
     this.turnSpeed = 0.07;
@@ -593,7 +593,7 @@ class SuperCar extends Car {
 
 
     // Gear simulation
-    this.gearMultipliers = [0.05, 0.07, 0.09, 0.035, 0.008, -0.06];
+    this.gearMultipliers = [0.05, 0.07, 0.09, 0.035, 0.008, -0.1];
     this.maxRPM = 8000;
     this.idleRPM = 800;
     this.currentRPM = this.idleRPM;
@@ -605,7 +605,7 @@ class SuperCar extends Car {
     if (this.currentImage) {
       this.width = superCarWidth;
       this.height = superCarHeight;
-      this.collider = new Collider(this, "polygon", { offsetX: -32, offsetY: -32 }, this.currentImage);
+      this.collider = new Collider(this, "polygon", { offsetX: -(superCarHeight/2), offsetY: -(superCarWidth/2) }, this.currentImage);
     } else {
       this.width = superCarWidth;
       this.height = superCarHeight;
@@ -674,7 +674,7 @@ class SuperCar extends Car {
 
     if (p.keyIsDown(getKeyForAction("backward")) && !this.controlDisabled) {
       this.speed = p.constrain(
-        this.speed + this.acceleration * this.gearMultipliers[4],
+        this.speed + this.acceleration * this.gearMultipliers[5],
         this.reverseSpeed,
         this.maxSpeed
       );
@@ -772,7 +772,6 @@ class SuperCar extends Car {
     } else {
       this.velocity.set(desired);
     }
-    console.log("velocity x: " + this.velocity.x)
     this.position.x += this.velocity.x;
     this.position.y += this.velocity.y;
 
@@ -794,7 +793,8 @@ class SuperCar extends Car {
     if (other instanceof Enemy) { //upon ememy collision
       damage = other.attackDamage;
       damage = ItemsManager.shieldDamage(damage);
-      this.healthBar = Math.max(0, this.healthBar - damage);
+      console.log("damage: " + damage + "damag res " + this.damageRes);
+      this.healthBar = Math.max(0, this.healthBar - (damage/this.damageRes));
     }
     else if(other instanceof Wrench){
       if (this.healthBar < this.maxHealth) {
@@ -807,12 +807,12 @@ class SuperCar extends Car {
     else if(other instanceof Bomb){
       damage = other.attackDamage;
       damage = ItemsManager.shieldDamage(damage);
-      this.healthBar = Math.max(0, this.healthBar - damage);
+      this.healthBar = Math.max(0, this.healthBar - (damage/this.damageRes));
     }
     else if(other instanceof Oil){
       damage = other.attackDamage;
       damage = ItemsManager.shieldDamage(damage);
-      this.healthBar = Math.max(0, this.healthBar - damage);
+      this.healthBar = Math.max(0, this.healthBar - (damage/this.damageRes));
       this.speed = this.speed *0.9;
     }
   }
@@ -820,7 +820,8 @@ class SuperCar extends Car {
   buildingCollision(){
     let damage = 5 * window.difficulty * Math.abs((10*this.speed/this.baseMaxSpeed));
     damage = ItemsManager.shieldDamage(damage);
-    this.healthBar = Math.max(0, this.healthBar - damage);
+    console.log("building damage: " + damage + "damag res " + this.damageRes);
+    this.healthBar = Math.max(0, this.healthBar - (damage/this.damageRes));
     this.speed *=-.25;
   }
 

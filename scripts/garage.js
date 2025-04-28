@@ -203,6 +203,8 @@ function GarageSketch(p) {
       upgrades.push({ type, label: type.charAt(0).toUpperCase() + type.slice(1), box: { x, y: boxY, w: size, h: size }, button: btn });
       updateUpgradeButtonText(upgrades[upgrades.length - 1]);
     });
+  
+    setupItemPurchaseButtons();
   }
 
   function setupCarTypeSelector() {
@@ -274,6 +276,7 @@ function GarageSketch(p) {
 
   // Creates boxes for the car colors
   function setupCarBodySelector() {
+    setupUpgradeLayout();
     carBoxes = [];
     let carBoxSize = 96 * window.widthScale;
     let cols = carColorsUnlocked[selectedCarType].length;
@@ -411,7 +414,7 @@ function GarageSketch(p) {
   function computeCalcStats() {
     return {
       health: DEFAULT_CAR_STATS.health + (upgradeBodyLevel - 1) * 5,
-      dmgRes: DEFAULT_CAR_STATS.dmgRes + (upgradeBodyLevel - 1),
+      damageRes: DEFAULT_CAR_STATS.damageRes + (upgradeBodyLevel - 1),
       boost: DEFAULT_CAR_STATS.boost,
       maxSpeed: DEFAULT_CAR_STATS.maxSpeed + ((upgradeTransmissionLevel+upgradeEngineLevel)/2 - 1) * 0.5,
       acceleration: DEFAULT_CAR_STATS.acceleration + ((upgradeTransmissionLevel+upgradeEngineLevel)/2 - 1) * 0.1,
@@ -551,9 +554,9 @@ function GarageSketch(p) {
     p.noStroke();
     p.strokeWeight(0);
 
-    let names = ["Health", "Boost", "Max Speed", "Acceleration", "Traction", "Dmg Res"];
-    let bases = [savedStats.health, savedStats.boost, savedStats.maxSpeed, savedStats.acceleration, savedStats.traction, savedStats.dmgRes];
-    let vals = [stats.health, stats.boost, stats.maxSpeed, stats.acceleration, stats.traction, stats.dmgRes];
+    let names = ["Health", "Boost", "Max Speed", "Acceleration", "Traction", "Damage Res"];
+    let bases = [savedStats.health, savedStats.boost, savedStats.maxSpeed, savedStats.acceleration, savedStats.traction, savedStats.damageRes];
+    let vals = [stats.health, stats.boost, stats.maxSpeed, stats.acceleration, stats.traction, stats.damageRes];
     for (let i = 0; i < names.length; i++) {
       let y = panelY + 35 * window.heightScale + i * 20 * window.heightScale;
       p.textAlign(p.LEFT); 

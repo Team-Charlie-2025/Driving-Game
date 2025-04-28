@@ -135,7 +135,6 @@ function PlaySketch(p) {
     );
     
     physicsEngine.add(car);
-    console.log("after physics added: " + car.healthBar)
     ItemsManager.ItemResetGame();
     
     window.LoadingScreen.hide();
