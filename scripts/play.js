@@ -421,7 +421,7 @@ function PlaySketch(p) {
     }
 
     // ########    GAME WON     ########
-    if(car.won){
+    if(window.won){
       ////////////////////////////////////////////
       if (!window.runCoinsCalculated) {
         // calculate coins, scores

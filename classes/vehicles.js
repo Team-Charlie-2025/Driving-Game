@@ -12,7 +12,7 @@ class Car extends GameObject {
     super(x, y);
     this.p = p;
     this.won = false;
-    window.gameWon = this.won;
+    window.won = this.won;
     this.speed = 0;
     this.angle = 0;
     this.prevAngle = 0;
@@ -127,7 +127,7 @@ class Car extends GameObject {
       this.maxSpeed = this.baseMaxSpeed * (terrainType === "grass" ? 0.7 : 1);
     }
     if(terrainType === "dock" && ItemsManager.unlockedItems.boat) 
-      window.gameWon = true;    // We won
+      window.won = true;    // We won
     if (p.keyIsDown(getKeyForAction("forward")) && !this.controlDisabled) {
       if (p.keyIsDown(getKeyForAction("boost")) && this.boostMeter > 0) {
         this.isBoosting = true;
@@ -405,7 +405,7 @@ class PlayerTruck extends Car {
       this.maxSpeed = this.baseMaxSpeed * (terrainType === "grass" ? 0.8 : 1);
     }
     if(terrainType === "dock" && ItemsManager.unlockedItems.boat) {
-      window.gameWon = true;    // We won
+      window.won = true;    // We won
       this.controlDisabled = true;
     }
     if (p.keyIsDown(getKeyForAction("forward")) && !this.controlDisabled) {
@@ -794,7 +794,7 @@ class SuperCar extends Car {
     }
     this.updateRPM();
     if(terrainType === "dock" && ItemsManager.unlockedItems.boat) {
-      window.gameWon = true;    // We won
+      window.won = true;    // We won
       this.controlDisabled = true;
     }
   }
