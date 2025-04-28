@@ -109,7 +109,6 @@ def leaderboard():
     return jsonify(leaderboard_data)
 
 
-
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=9411,debug=True)
 
