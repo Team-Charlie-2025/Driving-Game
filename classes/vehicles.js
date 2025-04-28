@@ -32,7 +32,7 @@ class Car extends GameObject {
     this.reverseSpeed = -4;
     this.turnSpeed = 0.07;
     this.turnFrames = 1;
-    this.turnFrameDelay =8;
+    this.turnFrameDelay = 12;
     
 
     // Drift physics
@@ -185,11 +185,11 @@ class Car extends GameObject {
     let lerpAmount = 1;
     
     // Need to incorporate traction along with maxspeed to determine lerp
-    if (currentSpeed > this.maxSpeed) lerpAmount = 0.0001;  // This is a real drift
-    //else if (currentSpeed >= this.maxSpeed * 0.98) lerpAmount = 0.0005;
-    //else if (currentSpeed >= this.maxSpeed * 0.95) lerpAmount = 0.0015;
-    else if (currentSpeed >= this.maxSpeed * 0.9) lerpAmount = 0.0025;
-    else if (currentSpeed < this.maxSpeed * 0.85) lerpAmount = 0.05;
+    if (currentSpeed > this.maxSpeed) lerpAmount = 0.001;  // This is a real drift
+    //else if (currentSpeed >= this.maxSpeed * 0.98) lerpAmount = 0.005;
+    else if (currentSpeed >= this.maxSpeed * 0.95) lerpAmount = 0.0025;
+    else if (currentSpeed >= this.maxSpeed * 0.9) lerpAmount = 0.004;
+    else if (currentSpeed < this.maxSpeed * 0.85) lerpAmount = 0.07;
     else if (currentSpeed < this.maxSpeed * 0.75) lerpAmount = .1
     else lerpAmount = 0.85;
 
@@ -334,9 +334,9 @@ class PlayerTruck extends Car {
 
     this.friction = 0.03;
     this.reverseSpeed = -3;
-    this.turnSpeed = 0.05;
+    this.turnSpeed = 0.04;
     this.turnFrames = 1;
-    let turnFrameDelay =12;
+    let turnFrameDelay =15;
 
 
     // Gear simulation
@@ -454,11 +454,11 @@ class PlayerTruck extends Car {
     let lerpAmount = 1;
     
     // Need to incorporate traction along with maxspeed to determine lerp
-    if (currentSpeed > this.maxSpeed) lerpAmount = 0.0001;  // This is a real drift
-    //else if (currentSpeed >= this.maxSpeed * 0.98) lerpAmount = 0.0005;
-    //else if (currentSpeed >= this.maxSpeed * 0.95) lerpAmount = 0.0015;
-    else if (currentSpeed >= this.maxSpeed * 0.9) lerpAmount = 0.0025;
-    else if (currentSpeed < this.maxSpeed * 0.85) lerpAmount = 0.05;
+    if (currentSpeed > this.maxSpeed) lerpAmount = 0.001;  // This is a real drift
+    //else if (currentSpeed >= this.maxSpeed * 0.98) lerpAmount = 0.005;
+    else if (currentSpeed >= this.maxSpeed * 0.95) lerpAmount = 0.0025;
+    else if (currentSpeed >= this.maxSpeed * 0.9) lerpAmount = 0.004;
+    else if (currentSpeed < this.maxSpeed * 0.85) lerpAmount = 0.07;
     else if (currentSpeed < this.maxSpeed * 0.75) lerpAmount = .1
     else lerpAmount = 0.85;
 
@@ -589,7 +589,7 @@ class SuperCar extends Car {
     this.reverseSpeed = -5;
     this.turnSpeed = 0.07;
     this.turnFrames = 1;
-    let turnFrameDelay = 5;
+    let turnFrameDelay = 8;
 
 
     // Gear simulation
@@ -708,11 +708,11 @@ class SuperCar extends Car {
     let lerpAmount = 1;
     
     // Need to incorporate traction along with maxspeed to determine lerp
-    if (currentSpeed > this.maxSpeed) lerpAmount = 0.0001;  // This is a real drift
-    //else if (currentSpeed >= this.maxSpeed * 0.98) lerpAmount = 0.0005;
-    //else if (currentSpeed >= this.maxSpeed * 0.95) lerpAmount = 0.0015;
-    else if (currentSpeed >= this.maxSpeed * 0.9) lerpAmount = 0.0025;
-    else if (currentSpeed < this.maxSpeed * 0.85) lerpAmount = 0.05;
+    if (currentSpeed > this.maxSpeed) lerpAmount = 0.001;  // This is a real drift
+    //else if (currentSpeed >= this.maxSpeed * 0.98) lerpAmount = 0.005;
+    else if (currentSpeed >= this.maxSpeed * 0.95) lerpAmount = 0.0025;
+    else if (currentSpeed >= this.maxSpeed * 0.9) lerpAmount = 0.004;
+    else if (currentSpeed < this.maxSpeed * 0.85) lerpAmount = 0.07;
     else if (currentSpeed < this.maxSpeed * 0.75) lerpAmount = .1
     else lerpAmount = 0.85;
 

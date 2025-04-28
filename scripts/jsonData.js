@@ -23,7 +23,7 @@ window.carBaseStats = {
     boost: 40,
     maxSpeed: 6,
     acceleration: 0.7,  // Truck has lower gear ratios so it works
-    traction: 0.6,
+    traction: 0.4,
     dmgRes: 15
   },
   [CarType.SUPERCAR]: {
@@ -31,7 +31,7 @@ window.carBaseStats = {
     boost: 60,
     maxSpeed: 10,
     acceleration: 0.7,
-    traction: 0.6,
+    traction: 0.7,
     dmgRes: 8
   }
 };
