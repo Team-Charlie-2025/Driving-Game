@@ -207,13 +207,12 @@ function GarageSketch(p) {
 
   function setupCarTypeSelector() {
     carTypeBoxes = [];
-    const carBoxSize = 150 * window.widthScale; 
-    const spacing = 20 * window.widthScale;
+    const carBoxSize = 200 * window.widthScale; 
+    const spacing = 25 * window.widthScale;
     const types = ['normal', 'truck', 'supercar'];
     const totalWidth = types.length * carBoxSize + (types.length - 1) * spacing;
     const startX = (p.width - totalWidth) / 2;
     const startY = 20 * window.heightScale;
-  
     types.forEach((type, i) => {
       carTypeBoxes.push({
         type,
@@ -360,35 +359,45 @@ function GarageSketch(p) {
       p.fill(211);
       p.rect(box.x, box.y, box.w, box.h);
   
-      let carImage = window.cars?.[box.type]?.[0]; // Get the first image of the car type
-      if (carImage) {
-        const imageSize = box.w * 0.8; // Scale the image to fit inside the box
-        if(box.type == "truck" || "supercar"){
-          p.image(
-            carImage,
-            box.x + (box.w - imageSize) / 2, // Center the image horizontally
-            box.y + (box.h - imageSize*.6) / 2, // Center the image vertically
-            imageSize,
-            imageSize*.6
-          );
-        }else if (box.type == "normal"){
-          p.image(
-            carImage,
-            box.x + (box.w - imageSize) / 2, // Center the image horizontally
-            box.y + (box.h - imageSize) / 2, // Center the image vertically
-            imageSize,
-            imageSize
-          );
+      if (purchasedCarTypes[box.type]) {
+        // Show the car image if the car type is purchased
+        let carImage = window.cars?.[box.type]?.[0]; // Get the first image of the car type
+        if (carImage) {
+          const imageSize = box.w * 0.8; // Scale the image to fit inside the box
+          if (box.type === "truck" || box.type === "supercar") {
+            p.image(
+              carImage,
+              box.x + (box.w - imageSize) / 2, // Center the image horizontally
+              box.y + (box.h - imageSize * 0.6) / 2, // Center the image vertically
+              imageSize,
+              imageSize * 0.6
+            );
+          } else if (box.type === "normal") {
+            p.image(
+              carImage,
+              box.x + (box.w - imageSize) / 2, // Center the image horizontally
+              box.y + (box.h - imageSize) / 2, // Center the image vertically
+              imageSize,
+              imageSize
+            );
+          }
         }
-      } 
+      } else {
+        // Show a question mark if the car type is not purchased
+        p.fill(0);
+        p.textSize(50 * window.scale);
+        p.textAlign(p.CENTER, p.CENTER);
+        p.text("?", box.x + box.w / 2, box.y + box.h / 2);
+      }
   
+      // Draw the car type name or cost
       p.fill(0);
       p.textAlign(p.CENTER, p.TOP);
-      p.textSize(20 * window.scale);
+      p.textSize(28 * window.scale);
       p.text(box.type.toUpperCase(), box.x + box.w / 2, box.y + 5 * window.heightScale);
-  
+      
       p.textAlign(p.CENTER, p.BOTTOM);
-      p.textSize(18 * window.scale);
+      p.textSize(25 * window.scale);
       let cost = CAR_TYPE_PRICES[box.type];
       if (purchasedCarTypes[box.type]) {
         p.text("OWNED", box.x + box.w / 2, box.y + box.h - 5 * window.heightScale);
@@ -496,11 +505,19 @@ function GarageSketch(p) {
     let centerX = p.width / 2 - 160 * window.widthScale;
     let centerY = p.height / 2 - 100 * window.heightScale;
     if (window.cars?.[selectedCarType][selectedCarIndex]) {
-      p.image(window.cars[selectedCarType][selectedCarIndex], 
-             centerX - (42.24 * window.widthScale),
-             centerY - (100 * window.heightScale),
-             318.72 * window.widthScale,
-             319.68 * window.heightScale);
+      if(selectedCarType == "truck" || selectedCarType == "supercar"){
+        p.image(window.cars[selectedCarType][selectedCarIndex], 
+              centerX - (42 * window.widthScale),
+              centerY - (100 * window.heightScale),
+              450 * window.widthScale,
+              300 * window.heightScale);
+        }else {
+          p.image(window.cars[selectedCarType][selectedCarIndex], 
+            centerX - (42 * window.widthScale),
+            centerY - (100 * window.heightScale),
+            350 * window.widthScale,
+            350 * window.heightScale);
+        }
     }
 
     
@@ -727,7 +744,7 @@ function GarageSketch(p) {
 
 function debugAddCoins() {
   if(window.debug){
-    CurrencyManager.updateTotalCoins(1000);
-    console.log("Debug: Added 1000 coins. Total coins:", CurrencyManager.getTotalCoins());
+    CurrencyManager.updateTotalCoins(10000);
+    console.log("Debug: Added 10000 coins. Total coins:", CurrencyManager.getTotalCoins());
   }
 }
