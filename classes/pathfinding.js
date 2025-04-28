@@ -43,8 +43,8 @@ function astar(grid, start, end) {
     const cols = grid[0].length;
     const rows = grid.length;
 
-    const openSet = [];
-    const closedSet = [];
+    const openSet = new PriorityQueue();
+    const closedSet = new Set();
     const path = [];
 
     function heuristic(a,b) {
@@ -60,23 +60,25 @@ function astar(grid, start, end) {
             this.h = 0;
             this.f = 0;
         }
+        get key() {
+            return `${this.x},${this.y}`;
+        }
     }
 
     const startNode = new Node(start.x, start.y);
     const endNode = new Node(end.x, end.y);
 
-    openSet.push(startNode);
+    const openSetMap = new Map();
 
-    while (openSet.length > 0) {
-        //find node with lowest f cost
-        let lowestIndex = 0;
-        for (let i = 1; i < openSet.length; i++) {
-            if (openSet[i].f < openSet[lowestIndex].f) {
-                lowestIndex = i;
-            }
-        }
+    startNode.h = heuristic(startNode, endNode);
+    startNode.f = startNode.h;
+    openSet.enqueue(startNode, startNode.f);
+    openSetMap.set(startNode.key, startNode);
 
-        let current = openSet[lowestIndex];
+    while (!openSet.isEmpty()) {
+        const current = openSet.dequeue();
+        openSetMap.delete(current.key);
+        closedSet.add(current.key);
 
         if (current.x === endNode.x && current.y === endNode.y) {
             let temp = current;
@@ -86,9 +88,6 @@ function astar(grid, start, end) {
             }
             return path.reverse();
         }
-
-        openSet.splice(lowestIndex, 1);
-        closedSet.push(current);
 
         const neighbors = [
             {x: 0, y: -1},
@@ -101,29 +100,104 @@ function astar(grid, start, end) {
             const nx = current.x + offset.x;
             const ny = current.y + offset.y;
 
+            const neighborKey = `${nx},${ny}`;
+
             if (
                 nx < 0 || ny < 0 || nx >= cols || ny >= rows ||
                 grid[ny][nx] !== 0 ||
-                closedSet.some(n => n.x === nx && n.y === ny)
+                closedSet.has(neighborKey)
             ) {
                 continue;
             }
 
             const g = current.g + 1;
-            let neighbor = openSet.find(n => n.x === nx && n.y === ny);
+            let neighbor = openSetMap.get(neighborKey);
 
             if (!neighbor) {
                 neighbor = new Node(nx, ny, current);
                 neighbor.g = g;
                 neighbor.h = heuristic(neighbor, endNode);
                 neighbor.f = neighbor.g + neighbor.h;
-                openSet.push(neighbor);
+                openSet.enqueue(neighbor, neighbor.f);
+                openSetMap.set(neighborKey, neighbor);
             } else if (g < neighbor.g) {
                 neighbor.parent = current;
                 neighbor.g = g;
                 neighbor.f = neighbor.g + neighbor.h;
+                openSet.enqueue(neighbor, neighbor.f);
             }
         }
     }
     return []; //no path found
+}
+
+class PriorityQueue {
+    constructor() {
+        this.items = [];
+    }
+
+    enqueue(element, priority) {
+        this.items.push({element, priority});
+        this.bubbleUp();
+    }
+
+    dequeue() {
+        const min = this.items[0].element;
+        const end = this.items.pop();
+        if (this.items.length > 0) {
+            this.items[0] = end;
+            this.sinkDown(0);
+        }
+        return min;
+    }
+
+    bubbleUp() {
+        let index = this.items.length - 1;
+        const element = this.items[index];
+
+        while (index > 0) {
+            const parentIndex = Math.floor((index - 1) / 2);
+            const parent = this.items[parentIndex];
+            if (element.priority >= parent.priority) break;
+            this.items[index] = parent;
+            index = parentIndex;
+        }
+        this.items[index] = element;
+    }
+
+    sinkDown(index) {
+        const length = this.items.length;
+        const element = this.items[index];
+
+        while (true) {
+            let leftIndex = 2 * index + 1;
+            let rightIndex = 2 * index + 2;
+            let swap = null;
+
+            if (leftIndex < length) {
+                if (this.items[leftIndex].priority < element.priority) {
+                    swap = leftIndex;
+                }
+            }
+
+            if (rightIndex < length) {
+                if (
+                    this.items[rightIndex].priority < 
+                    (swap === null ? element.priority : this.items[leftIndex].priority)
+                ) {
+                    swap = rightIndex;
+                }
+            }
+
+            if (swap === null) break;
+
+            this.items[index] = this.items[swap];
+            this.items[swap] = element;
+            index = swap;
+        }
+    }
+
+    isEmpty() {
+        return this.items.length === 0;
+    }
 }

@@ -2,6 +2,20 @@
 
 let globalsLoaded = false;
 
+const BACKEND_URL = (function () {
+  const isLocalhost = window.location.hostname === "127.0.0.1" || window.location.hostname === "localhost";
+  if (isLocalhost) {
+    return "http://127.0.0.1:9411";
+  } else {
+    return "http://cassini.cs.kent.edu:9411";
+  }
+})();
+const storedToken = localStorage.getItem("accessToken");
+const storedUser = localStorage.getItem("username");
+
+window.accessToken = (storedToken && storedToken !== "undefined") ? storedToken : null;
+window.username = (storedUser && storedUser !== "undefined") ? storedUser : "NOLOGIN";
+
 function loadGlobals(p) {
   loadCars(p);
   loadEngines(p);
@@ -10,9 +24,9 @@ function loadGlobals(p) {
   loadSoundEffects(p);
   loadButtons(p);
   loadAnimations(p);
-  window.widthScale = p.windowWidth/1920;
-  window.heightScale = p.windowHeight/1080;
-  window.scale = (window.heightScale + window.widthScale) /2 ;
+  window.widthScale = p.windowWidth / 1920;
+  window.heightScale = p.windowHeight / 1080;
+  window.scale = (window.heightScale + window.widthScale) / 2;
   window.buildingImg = p.loadImage("assets/building.png");
   window.difficulty = 1.0;
   window.debug = true;
@@ -30,8 +44,8 @@ function loadMusic(p) {
   window.music["gameWon"] = p.loadSound("sound/SeaShantay2.mp3");
   for (let key in window.music) {
     window.music[key].setVolume(musicVolume);
-}
-    
+  }
+
 }
 
 function loadSoundEffects(p) {
@@ -42,7 +56,7 @@ function loadSoundEffects(p) {
   window.soundEffects["gameWon"] = p.loadSound("sound/SeaShantay2.mp3");
   for (let key in window.soundEffects) {
     window.soundEffects[key].setVolume(effectsVolume);
-}
+  }
 }
 
 function loadCars(p) {
@@ -97,26 +111,26 @@ function loadTires(p) {
   //console.log("tires loaded");
 }
 
-function loadButtons(p){
-    //////////title screen//////////
-    window.displayBacking= p.loadImage("graphics/displayBacking.png");
-    window.leaderButton = p.loadImage("graphics/titleScreen/leaderboardButton.png");
-    window.setButton = p.loadImage("graphics/titleScreen/settingButton.png");
+function loadButtons(p) {
+  //////////title screen//////////
+  window.displayBacking = p.loadImage("graphics/displayBacking.png");
+  window.leaderButton = p.loadImage("graphics/titleScreen/leaderboardButton.png");
+  window.setButton = p.loadImage("graphics/titleScreen/settingButton.png");
 
-    //////////generic buttons//////////
-    window.exitButton = p.loadImage("graphics/buttonsSliced/button130.png");
-    window.basicButton = [];
-    window.basicButton["blue"] = p.loadImage("graphics/basicButton/blueButton.png");
-    window.basicButton["green"] = p.loadImage("graphics/basicButton/greenButton.png");
-    window.basicButton["navy"] = p.loadImage("graphics/basicButton/navyButton.png");
-    window.basicButton["orange"] = p.loadImage("graphics/basicButton/oranButton.png");
-    window.basicButton["red"] = p.loadImage("graphics/basicButton/redButton.png");
-    window.basicButton["yellow"] = p.loadImage("graphics/basicButton/yellButton.png");
-    window.basicButton["purple"] = p.loadImage("graphics/basicButton/purpButton.png");
-    window.basicButton["teal"] = p.loadImage("graphics/basicButton/tealButton.png");
+  //////////generic buttons//////////
+  window.exitButton = p.loadImage("graphics/buttonsSliced/button130.png");
+  window.basicButton = [];
+  window.basicButton["blue"] = p.loadImage("graphics/basicButton/blueButton.png");
+  window.basicButton["green"] = p.loadImage("graphics/basicButton/greenButton.png");
+  window.basicButton["navy"] = p.loadImage("graphics/basicButton/navyButton.png");
+  window.basicButton["orange"] = p.loadImage("graphics/basicButton/oranButton.png");
+  window.basicButton["red"] = p.loadImage("graphics/basicButton/redButton.png");
+  window.basicButton["yellow"] = p.loadImage("graphics/basicButton/yellButton.png");
+  window.basicButton["purple"] = p.loadImage("graphics/basicButton/purpButton.png");
+  window.basicButton["teal"] = p.loadImage("graphics/basicButton/tealButton.png");
 
-    //window.PixelFont = p.loadFont('assets/fonts/pixelFont.ttf'); //old font
-    window.PixelFont = p.loadFont('assets/fonts/ThaleahFat.ttf');
+  //window.PixelFont = p.loadFont('assets/fonts/pixelFont.ttf'); //old font
+  window.PixelFont = p.loadFont('assets/fonts/ThaleahFat.ttf');
 
   //console.log("buttons loaded");
 }
@@ -126,15 +140,15 @@ function loadAnimations(p) {
 
   // map[key = name of object to be animated], which holds array of frames
   window.animations["coin"] = [];
-  for(i =1; i <= 4; i++)
+  for (i = 1; i <= 4; i++)
     window.animations["coin"].push(p.loadImage(`graphics/coinAnimation/tile00${i}.png`));
 
   window.animations["shield"] = [];
-  for(i =1; i <= 4; i++)
+  for (i = 1; i <= 4; i++)
     window.animations["shield"].push(p.loadImage(`graphics/shieldAnimation/shield${i}.png`));
-  
+
   window.animations["wrench"] = [];
-  for(i =1; i <= 4; i++)
+  for (i = 1; i <= 4; i++)
     window.animations["wrench"].push(p.loadImage(`graphics/wenchAnimation/wrench${i}.png`));
 
   window.animations["bomb"] = [];
@@ -147,23 +161,24 @@ function loadAnimations(p) {
   window.animations["bombExplosion"].push(p.loadImage("graphics/bombAnimation/bomb6.png"));
 
   window.animations["oil"] = [];
-  for(i =1; i <= 4; i++)
+  for (i = 1; i <= 4; i++)
     window.animations["oil"].push(p.loadImage(`graphics/oilAnimation/oil${i}.png`));
   window.animations["oilSpill"] = [];
   window.animations["oilSpill"].push(p.loadImage("graphics/oilAnimation/oilSpill.png"));
 
   window.animations["gas"] = [];
-  for(i =1; i <= 5; i++)
+  for (i = 1; i <= 5; i++)
     window.animations["gas"].push(p.loadImage(`graphics/gasAnimation/GasCan${i}.png`));
 
-  window.animations["hourglass"]=[];
-  for(i =1; i <= 5; i++)
+  window.animations["hourglass"] = [];
+  for (i = 1; i <= 5; i++)
     window.animations["hourglass"].push(p.loadImage(`graphics/hourglassAnimation/${i}.png`));
+  //window.animations["hourglass"].push(p.loadImage(`graphics/hourglassAnimation/hourglass${i}.png`));
 
   //console.log("animations loaded");
 }
 
-window.loadMapAssets = function(p) {
+window.loadMapAssets = function (p) {
   window.categories = ['Buildings', 'Roads', 'Terrain', 'Decorations', 'Nodes'];
   window.currentTab = 'Buildings';
   window.assetManifest = {}; // loads from manifest.txt in each folder
@@ -193,12 +208,12 @@ window.loadMapAssets = function(p) {
     'Nodes': 5
   };
 
-  window.getLayerForCategory = function(category) {
+  window.getLayerForCategory = function (category) {
     return window.categoryLayers[category] ?? 0;
   };
 
   window.categories.forEach(cat => {
-    p.loadStrings(`/assets/mapBuilder/${cat}/manifest.txt`, function(fileList) {
+    p.loadStrings(`/assets/mapBuilder/${cat}/manifest.txt`, function (fileList) {
       window.assetManifest[cat] = fileList;
       window.assets[cat] = new Array(fileList.length);
       fileList.forEach((filename, i) => {

@@ -1,115 +1,188 @@
-#pip install -r requirements.txt
-
-from flask_cors import CORS
-from flask import Flask, request, jsonify  # Fixed import
+import os
+import re
 import sqlite3
-import bcrypt # type: ignore
+from init_db import init_db
+from datetime import datetime, timedelta
+
+from flask import Flask, request, jsonify, g
+from flask_cors import CORS
+import bcrypt
+import jwt
+from dotenv import load_dotenv
+
+load_dotenv()
+
+SECRET_KEY = os.getenv("SECRET_KEY")
+DB_PATH = os.getenv("DB_PATH")
+CORS_ORIGIN = os.getenv("CORS_ORIGIN")
+
+USERNAME_REGEX = os.getenv("USERNAME_REGEX")
+PASSWORD_MIN = int(os.getenv("PASSWORD_MIN"))
+PASSWORD_MAX = int(os.getenv("PASSWORD_MAX"))
+SCORE_MIN = int(os.getenv("SCORE_MIN"))
+SCORE_MAX = int(os.getenv("SCORE_MAX"))
+
+USERNAME_RE = re.compile(USERNAME_REGEX)
 
 app = Flask(__name__)
-CORS(app)  # Enables CORS globally
+app.config["JWT_ALGO"] = "HS256"
+CORS(app)
+# , origins=[CORS_ORIGIN])
 
-def get_db_connection():
-    conn = sqlite3.connect('game.db')  # Replace with your actual DB file name
-    conn.row_factory = sqlite3.Row  # So we can access columns by name
-    return conn
 
-def init_db():
-    with sqlite3.connect('game.db') as conn:
-        cursor = conn.cursor()
-        cursor.execute('''CREATE TABLE IF NOT EXISTS users (
-                            id INTEGER PRIMARY KEY AUTOINCREMENT,
-                            username TEXT UNIQUE NOT NULL,
-                            password TEXT NOT NULL,
-                            score INTEGER DEFAULT 0)''')
-        conn.commit()
+def get_db():
+    if "db" not in g:
+        conn = sqlite3.connect(DB_PATH, detect_types=sqlite3.PARSE_DECLTYPES)
+        conn.row_factory = sqlite3.Row
+        conn.execute("PRAGMA foreign_keys = ON;")
+        g.db = conn
+    return g.db
+
+
+@app.teardown_appcontext
+def close_db(exc):
+    db = g.pop("db", None)
+    if db is not None:
+        db.close()
+
+
+def validate_username(u: str) -> bool:
+    return bool(USERNAME_RE.fullmatch(u))
+
+
+def validate_password(p: str) -> bool:
+    return isinstance(p, str) and len(p) >= PASSWORD_MIN and len(p) <= PASSWORD_MAX
+
+
+def make_token(username: str) -> str:
+    payload = {
+        "sub": username,
+        "iat": datetime.utcnow(),
+        "exp": datetime.utcnow() + timedelta(hours=24),
+    }
+    return jwt.encode(payload, SECRET_KEY, algorithm=app.config["JWT_ALGO"])
+
+
+def decode_token(token: str):
+    try:
+        return jwt.decode(token, SECRET_KEY, algorithms=[app.config["JWT_ALGO"]])
+    except jwt.ExpiredSignatureError:
+        return None
+    except jwt.InvalidTokenError:
+        return None
+
+
+def auth_required(fn):
+    from functools import wraps
+
+    @wraps(fn)
+    def wrapper(*args, **kwargs):
+        auth = request.headers.get("Authorization", None)
+        if not auth or not auth.startswith("Bearer "):
+            return jsonify({"error": "Missing or invalid Authorization header"}), 401
+        token = auth.split(None, 1)[1]
+        data = decode_token(token)
+        if not data:
+            return jsonify({"error": "Invalid or expired token"}), 401
+        g.current_user = data["sub"]
+        return fn(*args, **kwargs)
+
+    return wrapper
+
 
 init_db()
 
 
-@app.route('/signup', methods=['POST'])
+@app.route("/signup", methods=["POST"])
 def signup():
-    data = request.json
-    username = data.get('username')
-    password = data.get('password')
+    data = request.get_json() or {}
+    u = data.get("username", "")
+    p = data.get("password", "")
 
-    if not username or not password:
-        return jsonify({'success': False, 'error': 'Username and password are required'})
+    if not (validate_username(u) and validate_password(p)):
+        return jsonify({"error": "Invalid username or password format"}), 400
 
-    hashed_password = bcrypt.hashpw(password.encode('utf-8'), bcrypt.gensalt()).decode('utf-8')  # Decode before storing
+    hashed = bcrypt.hashpw(p.encode(), bcrypt.gensalt()).decode()
+    db = get_db()
+    try:
+        db.execute(
+            "INSERT INTO users (username, password) VALUES (?, ?)",
+            (u, hashed),
+        )
+        db.commit()
+    except sqlite3.IntegrityError:
+        return jsonify({"error": "Username already exists"}), 409
+
+    token = make_token(u)
+    return jsonify({"message": "Account created", "access_token": token}), 201
+
+
+@app.route("/login", methods=["POST"])
+def login():
+    data = request.get_json() or {}
+    u = data.get("username", "")
+    p = data.get("password", "")
+
+    if not (validate_username(u) and validate_password(p)):
+        return jsonify({"error": "Invalid credentials"}), 400
+
+    db = get_db()
+    row = db.execute("SELECT password FROM users WHERE username = ?", (u,)).fetchone()
+
+    if row and bcrypt.checkpw(p.encode(), row["password"].encode()):
+        token = make_token(u)
+        return jsonify({"message": "Login successful", "access_token": token})
+    else:
+        return jsonify({"error": "Invalid username or password"}), 401
+
+
+@app.route("/submit_score", methods=["POST"])
+@auth_required
+def submit_score():
+    data = request.get_json() or {}
+    u = g.current_user
 
     try:
-        with sqlite3.connect('game.db') as conn:
-            cursor = conn.cursor()
-            cursor.execute("INSERT INTO users (username, password) VALUES (?, ?)", (username, hashed_password))
-            conn.commit()
-        return jsonify({'success': True})
-    except sqlite3.IntegrityError:
-        return jsonify({'success': False, 'error': 'Username already exists'})
-    
+        score = int(data.get("score", None))
+    except (TypeError, ValueError):
+        return jsonify({"error": "Score must be an integer"}), 400
+
+    if score < SCORE_MIN:
+        return jsonify({"error": "Score must be ≥ 0"}), 400
+    elif score > SCORE_MAX:
+        return jsonify({"error": "Score too high, likely invalid."}), 400
+
+    db = get_db()
+    row = db.execute("SELECT score FROM users WHERE username = ?", (u,)).fetchone()
+
+    if row is None:
+        return jsonify({"error": "User not found"}), 404
+
+    current_score = row["score"] or 0
+
+    if score > current_score:
+        db.execute(
+            "UPDATE users SET score = ? WHERE username = ?",
+            (score, u),
+        )
+        db.commit()
+
+    return jsonify({"message": "Score recorded"}), 200
 
 
-@app.route('/login', methods=['POST'])
-def login():
-    data = request.json
-    username = data.get('username')
-    password = data.get('password')
-
-    if not username or not password:
-        return jsonify({'success': False, 'error': 'Username and password are required'})
-
-    with sqlite3.connect('game.db') as conn:
-        cursor = conn.cursor()
-        cursor.execute("SELECT password FROM users WHERE username = ?", (username,))
-        user = cursor.fetchone()
-
-        if user and bcrypt.checkpw(password.encode('utf-8'), user[0].encode('utf-8')):
-            return jsonify({'success': True, 'message': 'Login successful'})
-        else:
-            return jsonify({'success': False, 'error': 'Invalid username or password'})
-        
-
-@app.route('/submit_score', methods=['POST'])
-def submit_or_update_score():
-    data = request.get_json()
-    username = data.get('username')
-    score = data.get('score')
-
-    if not username or score is None:
-        return jsonify({'success': False, 'message': 'Missing data'})
-
-    with sqlite3.connect("game.db") as conn:
-        cursor = conn.cursor()
-        cursor.execute("SELECT score FROM users WHERE username = ?", (username,))
-        existing = cursor.fetchone()
-
-        if existing:
-            current_score = existing[0]
-            if score > current_score:
-                cursor.execute("UPDATE users SET score = ? WHERE username = ?", (score, username))
-        else:
-            # Only occurs if username somehow doesn't exist — but you can handle this more strictly if needed
-            cursor.execute("INSERT INTO users (username, score, password) VALUES (?, ?, '')", (username, score))
-
-        conn.commit()
-
-    return jsonify({'success': True, 'message': 'Score submitted or updated'})
-
-@app.route("/leaderboard")
+@app.route("/leaderboard", methods=["GET"])
 def leaderboard():
-    conn = sqlite3.connect("game.db")
-    cur = conn.cursor()
+    db = get_db()
+    rows = db.execute(
+        "SELECT username, score FROM users ORDER BY score DESC LIMIT 100"
+    ).fetchall()
 
-    cur.execute("SELECT username, score FROM users ORDER BY score DESC")
-    users = cur.fetchall()
-
-    conn.close()
-
-    # Return leaderboard data as JSON
-    leaderboard_data = [{"username": user[0], "score": user[1]} for user in users]
-    return jsonify(leaderboard_data)
+    return (
+        jsonify([{"username": r["username"], "score": r["score"]} for r in rows]),
+        200,
+    )
 
 
-
-if __name__ == '__main__':
-    app.run(host='0.0.0.0', port=9411,debug=True)
-
+if __name__ == "__main__":
+    init_db()
+    app.run(host="0.0.0.0", port=9411, debug=False)
