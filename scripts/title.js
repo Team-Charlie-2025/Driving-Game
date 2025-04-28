@@ -184,15 +184,18 @@ function TitleSketch(p) {
       })
     );
     if (!window.accessToken) {
-      buttons.push(new Button("Signup", p.width / 1.05, p.height - p.height * 0.10, () => {
-        switchSketch(Mode.SIGNUP);
-      }));
-      buttons.push(new Button("Login", p.width / 1.05, p.height - p.height * 0.15, () => {
-        switchSketch(Mode.LOGIN);
-      }));
+      buttons.push(
+        new Button("Signup", p.width / 18, p.height - p.height * 0.92, function () {
+          switchSketch(Mode.SIGNUP);
+        }));
+    
+      buttons.push(
+        new Button("Login", p.width / 18, p.height - p.height * 0.87, function () {
+          switchSketch(Mode.LOGIN);
+        }));
     } else {
       // if already logged in, show Logout
-      buttons.push(new Button("Logout", p.width / 1.05, p.height - p.height * 0.10, () => {
+      buttons.push(new Button("Logout", p.width / 18, p.height - p.height * 0.92, () => {
         // clear stored credentials
         localStorage.removeItem("accessToken");
         localStorage.removeItem("username");
