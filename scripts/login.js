@@ -7,7 +7,6 @@ function LoginSketch(p) {
     p.setup = function () {
         p.createCanvas(p.windowWidth, p.windowHeight);
         p.textAlign(p.CENTER, p.CENTER);
-        p.textSize(48);
         p.fill(50);
         p.textFont(window.PixelFont);
       
@@ -15,29 +14,7 @@ function LoginSketch(p) {
             switchSketch(Mode.TITLE);
         });
   
-        // Username input
-        usernameInput = p.createInput();
-        usernameInput.size(200, 20);
-        usernameInput.position(p.width / 2 - 100, p.height / 2 - 30);
-        usernameInput.attribute('placeholder', 'Username');
-  
-        // Password input
-        passwordInput = p.createInput('', 'password');
-        passwordInput.size(200, 20);
-        passwordInput.position(p.width / 2 - 100, p.height / 2);
-        passwordInput.attribute('placeholder', 'Password');
-  
-        // Login button
-        loginButton = p.createButton('Login');
-        loginButton.size(50, 20);
-        loginButton.position(p.width / 2 - 25, p.height / 2 + 40);
-        loginButton.mousePressed(sendLoginData);
-  
-        // Message element
-        message = p.createP('');
-        message.position(p.width / 2 - 100, p.height / 2 + 80);
-        message.style('color', 'green');
-        message.hide(); // Hide message initially
+       createLogin(p);
   
         // Stop loading
         window.LoadingScreen.hide();
@@ -90,10 +67,28 @@ function LoginSketch(p) {
         p.rect(p.width / 2 - (500 *window.widthScale/2), p.height / 2 - (500*window.heightScale/2), (500 *window.widthScale), (500*window.heightScale), 15);
 
         ExitIcon.display(p);
-        p.textSize(100);
+        p.textSize(100 * window.scale);
         p.fill(50);
-        p.text("Login", p.width / 2, p.height / 2 - 100);
-      };
+        p.text("Login", p.width / 2, p.height / 2 - 100* window.heightScale);
+    };
+    p.windowResized = function (){
+      p.resizeCanvas(p.windowWidth, p.windowHeight);
+      window.heightScale = p.windowHeight / 1080;
+      window.widthScale = p.windowWidth / 1920;
+      window.scale = (window.widthScale + window.heightScale)/2;
+      ExitIcon = new Button("ExitIcon",
+          p.width - p.width * 0.05,
+          p.height - p.height * 0.95,
+          function() {
+            bgMusic(Mode.SETTINGS, p, "stop");
+            switchSketch(Mode.TITLE);
+          });
+        usernameInput.hide();
+        passwordInput.hide();
+        loginButton.hide();
+        message.hide();
+        createLogin(p);
+    };
     
       p.mousePressed = function () {
         if (ExitIcon.isMouseOver(p)) {
@@ -107,5 +102,34 @@ function LoginSketch(p) {
           switchSketch(Mode.TITLE);
         }
       };
+      function createLogin(p){
+         // Username input
+         usernameInput = p.createInput();
+         usernameInput.size(200 * window.widthScale, 20 * window.heightScale);
+         usernameInput.style("font-size", (20 * window.widthScale) + "px");
+         usernameInput.position(p.width / 2 - 100* window.widthScale, p.height / 2 - 30* window.heightScale);
+         usernameInput.attribute('placeholder', 'Username');
+   
+         // Password input
+         passwordInput = p.createInput('', 'password');
+         passwordInput.size(200 * window.widthScale, 20 * window.heightScale);
+         passwordInput.style("font-size", (20 * window.widthScale) + "px");
+         passwordInput.position(p.width / 2 - 100* window.widthScale, p.height / 2);
+         passwordInput.attribute('placeholder', 'Password');
+   
+         // Login button
+         loginButton = p.createButton('Login');
+         loginButton.size(76* window.widthScale, 30* window.heightScale);
+         loginButton.style("font-family", "PixelFont");
+         loginButton.style("font-size", (25 * window.widthScale) + "px");
+         loginButton.position(p.width / 2 - 38* window.widthScale, p.height / 2 + 40* window.heightScale);
+         loginButton.mousePressed(sendLoginData);
+   
+         // Message element
+         message = p.createP('');
+         message.position(p.width / 2 - 200* window.widthScale, p.height / 2 + 80* window.heightScale);
+         message.style('color', 'green');
+         message.hide(); // Hide message initially
+      }
     }
     
