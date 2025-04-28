@@ -55,7 +55,7 @@ function setMusicVolume(p, newVolume =0.25){
     for (let key in window.music) {
         window.music[key].setVolume(musicVolume);
     }
-    console.log("music vol change");
+    //console.log("music vol change");
     
 };
 function setEffectsVolume(p, newVolume =0.25){
@@ -63,7 +63,7 @@ function setEffectsVolume(p, newVolume =0.25){
     for (let key in window.soundEffects) {
         window.soundEffects[key].setVolume(effectsVolume);
     }
-    console.log("effects vol change");
+    //console.log("effects vol change");
 };
 function getMusicVolume(p) {
     return musicVolume;

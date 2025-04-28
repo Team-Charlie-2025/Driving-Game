@@ -39,6 +39,7 @@ function LeaderboardSketch(p) {
             switchSketch(Mode.TITLE);
           });
         window.LoadingScreen.hide();
+        p.windowResized();
         loadLeaderboard();
       };
 
@@ -70,7 +71,19 @@ function LeaderboardSketch(p) {
 
       ExitIcon.display(p);
     };
-
+    p.windowResized = function (){
+      p.resizeCanvas(p.windowWidth, p.windowHeight);
+      window.heightScale = p.windowHeight / 1080;
+      window.widthScale = p.windowWidth / 1920;
+      window.scale = (window.widthScale + window.heightScale)/2;
+      ExitIcon = new Button("ExitIcon",
+          p.width - p.width * 0.05,
+          p.height - p.height * 0.95,
+          function() {
+            bgMusic(Mode.SETTINGS, p, "stop");
+            switchSketch(Mode.TITLE);
+          });
+    }
     p.mousePressed = function () {
       if (ExitIcon.isMouseOver(p)) {
         ExitIcon.callback();

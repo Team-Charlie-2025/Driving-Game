@@ -74,7 +74,7 @@ function loadCars(p) {
   window.cars["supercar"].push(p.loadImage("graphics/cars/superCar.png"));
   window.cars["supercar"].push(p.loadImage("graphics/cars/superCar.png"));
 
-  console.log("cars loaded");
+  //console.log("cars loaded");
 }
 
 function loadEngines(p) {
@@ -84,7 +84,7 @@ function loadEngines(p) {
   window.engines.push(p.loadImage("graphics/engines/engineTwo.png"));
   window.engines.push(p.loadImage("graphics/engines/engineThree.png"));
 
-  console.log("engines loaded");
+  //console.log("engines loaded");
 }
 
 function loadTires(p) {
@@ -94,7 +94,7 @@ function loadTires(p) {
   window.tires.push(p.loadImage("graphics/tires/tireRacing.png"));
   window.tires.push(p.loadImage("graphics/tires/tireSnow.png"));
 
-  console.log("tires loaded");
+  //console.log("tires loaded");
 }
 
 function loadButtons(p){
@@ -118,7 +118,7 @@ function loadButtons(p){
     //window.PixelFont = p.loadFont('assets/fonts/pixelFont.ttf'); //old font
     window.PixelFont = p.loadFont('assets/fonts/ThaleahFat.ttf');
 
-  console.log("buttons loaded");
+  //console.log("buttons loaded");
 }
 
 function loadAnimations(p) {
@@ -159,10 +159,8 @@ function loadAnimations(p) {
   window.animations["hourglass"]=[];
   for(i =1; i <= 5; i++)
     window.animations["hourglass"].push(p.loadImage(`graphics/hourglassAnimation/${i}.png`));
-    //window.animations["hourglass"].push(p.loadImage(`graphics/hourglassAnimation/hourglass${i}.png`));
 
-
-  console.log("animations loaded");
+  //console.log("animations loaded");
 }
 
 window.loadMapAssets = function(p) {

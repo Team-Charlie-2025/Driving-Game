@@ -77,6 +77,7 @@ function PlaySketch(p) {
 
   p.setup = function () {
     p.createCanvas(p.windowWidth, p.windowHeight);
+    p.windowResized();
     p.startTime = p.millis();
     p.fps = p.frameRate();
     physicsEngine = new PhysicsEngine();
@@ -147,25 +148,22 @@ function PlaySketch(p) {
     //////////MAP ITEM CREATION///////////////
     // Load item unlocks before spawning anything
     const savedConfig = loadPersistentData();
-    if (savedConfig?.unlockedItems) {
-      for (let key in savedConfig.unlockedItems) {
-        if (savedConfig.unlockedItems[key]) {
-          ItemsManager.unlockItem(key);
-        }
+      if (savedConfig?.unlockedItems) {
+        ItemsManager.unlockedItems = { ...savedConfig.unlockedItems };
       }
-    }
+
     createShields(p, shields, map);
-    console.log("Shields made: " + shields.length);
+    //console.log("Shields made: " + shields.length);
     createWrenches(p, wrenches, map);
-    console.log("Wrenches made: " + wrenches.length);
+    //console.log("Wrenches made: " + wrenches.length);
     createCoins(p, coins, map);
-    console.log("Coins made: " + coins.length);
+    //console.log("Coins made: " + coins.length);
     createBomb(p, bombs, map);
-    console.log("Bombs made: " + bombs.length);
+    //console.log("Bombs made: " + bombs.length);
     createOil(p, oils, map);
-    console.log("Oils made: " + oils.length);
+    //console.log("Oils made: " + oils.length);
     createGas(p, gas, map); // Create gas cans
-    console.log("Gas cans made: " + gas.length);
+    //console.log("Gas cans made: " + gas.length);
     ///////////////////////////////////////////
     
     // Create pause menu buttons with fixed positioning based on screen percentages
