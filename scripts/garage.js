@@ -442,7 +442,7 @@ function GarageSketch(p) {
         damageRes: DEFAULT_CAR_STATS.damageRes + Math.round((upgradeBodyLevel - 1)*.5),
         boost: DEFAULT_CAR_STATS.boost,
         maxSpeed: DEFAULT_CAR_STATS.maxSpeed + (upgradeEngineLevel - 1) * 0.85,
-        acceleration: DEFAULT_CAR_STATS.acceleration + (upgradeTransmissionLevel) * 0.1,
+        acceleration: DEFAULT_CAR_STATS.acceleration + (upgradeTransmissionLevel) * 0.05,
         traction: DEFAULT_CAR_STATS.traction + (upgradeTiresLevel - 1) * 0.041,
       };
     } else if(selectedCarType == "truck") {
@@ -451,7 +451,7 @@ function GarageSketch(p) {
         damageRes: DEFAULT_CAR_STATS.damageRes + Math.round((upgradeBodyLevel - 1)*0.8),
         boost: DEFAULT_CAR_STATS.boost,
         maxSpeed: DEFAULT_CAR_STATS.maxSpeed + (upgradeEngineLevel - 1) * 0.6,
-        acceleration: DEFAULT_CAR_STATS.acceleration + (upgradeTransmissionLevel) * 0.075,
+        acceleration: DEFAULT_CAR_STATS.acceleration + (upgradeTransmissionLevel) * 0.042,
         traction: DEFAULT_CAR_STATS.traction + (upgradeTiresLevel - 1) * 0.033,
       };
     } else if (selectedCarType == "supercar") {
@@ -460,7 +460,7 @@ function GarageSketch(p) {
         damageRes: DEFAULT_CAR_STATS.damageRes + Math.round((upgradeBodyLevel - 1)*.4),
         boost: DEFAULT_CAR_STATS.boost,
         maxSpeed: DEFAULT_CAR_STATS.maxSpeed + (upgradeEngineLevel - 1) * 1.1138,
-        acceleration: DEFAULT_CAR_STATS.acceleration + (upgradeTransmissionLevel) * 0.15,
+        acceleration: DEFAULT_CAR_STATS.acceleration + (upgradeTransmissionLevel) * 0.1,
         traction: DEFAULT_CAR_STATS.traction + (upgradeTiresLevel - 1) * 0.056,
       };
     }
