@@ -21,17 +21,22 @@ let fuelLevel = fuelMaxTime; // Start with full fuel
 let fuelLastUpdateTime = null;
 
 class ItemsManager {
-
-    static unlockedItems = {
-      wrench: false,
-      bomb: false,
-      oil: false,
-      shield: false
-    };
-
-    static unlockItem(itemType) {
-      this.unlockedItems[itemType] = true;
+  static unlockedItems = {
+    wrench: 0,
+    bomb: 0,
+    oil: 0,
+    shield: 0
+  };
+  
+  static unlockItem(itemType) {
+    this.unlockedItems[itemType] = 1;
+  }
+  
+  static upgradeItem(itemType) {
+    if (this.unlockedItems[itemType] > 0 && this.unlockedItems[itemType] < 5) {
+      this.unlockedItems[itemType]++;
     }
+  }
 
     static ItemResetGame(){ //reset times and inventory
       shieldStartTime = null;
@@ -49,6 +54,10 @@ class ItemsManager {
       fuelLevel = fuelMaxTime;
       fuelLastUpdateTime = null;
     }
+    static getShieldMaxTime() {
+      const level = this.unlockedItems.shield || 1;
+      return 5000 + (level - 1) * 2500;
+    }  
     static ifShield(){
       if(shieldStartTime == null) return false;
       return shieldElapsedTime <= shieldMaxTime;
@@ -82,6 +91,8 @@ class ItemsManager {
       if(!this.ifShield())
         return; // don't display if zero
         
+      const shieldMaxTime = ItemsManager.getShieldMaxTime();
+
       p.fill(50);
       p.rect(260*window.widthScale, 20*window.heightScale, (shieldMaxTime * 10 /1000)*window.widthScale, 25*window.heightScale);
       p.fill(143, 233, 250);
@@ -106,7 +117,10 @@ class ItemsManager {
     }
     static wrenchCollected(car, wrench){
       //let newHealth = car.getHealth() + wrenchHealthModPercent;
-      car.onCollisionEnter(wrench);
+      const level = this.unlockedItems.wrench || 1;
+      const healPercent = 0.1 + (level - 1) * 0.05;
+      car.onCollisionEnter(wrench, healPercent);
+      console.log(`Wrench used — Level ${level} — Healing: ${healPercent * 100}%`);
     }
     static canUseWrench(car){
       return car.healthBar < car.maxHealth;
@@ -126,6 +140,10 @@ class ItemsManager {
         let bombY = car.position.y - (gridSize * p.sin(car.angle)*1.5) - (bombSize/1.5 * p.sin(car.angle));
 
         let bombPlaced = new Bomb(p, bombX , bombY);
+        const level = this.unlockedItems.bomb || 1;
+        bombPlaced.attackDamage = (30 + (level - 1) * 10) * window.difficulty; // Level 1 = 30, +10/level
+
+        console.log(`Bomb placed — Level ${level} — Damage: ${bombPlaced.attackDamage}`);
 
         const tileX = Math.floor(bombPlaced.position.x / gridSize);
         const tileY = Math.floor(bombPlaced.position.y / gridSize);
@@ -159,6 +177,10 @@ class ItemsManager {
         let oilY = car.position.y - (gridSize * p.sin(car.angle)*1.5) - (oilSize/1.5 * p.sin(car.angle));
 
         let oilPlaced = new Oil(p, oilX , oilY);
+        const level = this.unlockedItems.oil || 1;
+        oilPlaced.attackDamage = (0.3 + (level - 1) * 0.1) * window.difficulty; // Level 1 = 0.3, +0.1/level
+
+        console.log(`Oil spilled — Level ${level} — Damage: ${oilPlaced.attackDamage.toFixed(2)}`);
 
         const tileX = Math.floor(oilPlaced.position.x / gridSize);
         const tileY = Math.floor(oilPlaced.position.y / gridSize);
@@ -197,28 +219,24 @@ class ItemsManager {
     static updateFuel(p, car, isPaused = false){
       if (isPaused) return;
 
+      const currentTime = p.millis();
+
+      if (fuelLastUpdateTime === null) {
+        fuelLastUpdateTime = currentTime;
+        return;
+      }
+
+      const deltaTime = currentTime - fuelLastUpdateTime;
+
       // Only drain fuel when moving (W or S key pressed)
       const p5Instance = car.p;
-      if (p5Instance.keyIsDown(getKeyForAction("forward")) || 
-          p5Instance.keyIsDown(getKeyForAction("backward"))) {
-        
-        const currentTime = p.millis();
-        
-        // Initialize last update time if necessary
-        if (fuelLastUpdateTime === null) {
-          fuelLastUpdateTime = currentTime;
-          return;
-        }
-        
-        // Calculate time elapsed since last update
-        const deltaTime = currentTime - fuelLastUpdateTime;
-        
-        // Reduce fuel
+      const isMoving =  p5Instance.keyIsDown(getKeyForAction("forward")) || p5Instance.keyIsDown(getKeyForAction("backward"));
+
+      if (isMoving) {
         fuelLevel = Math.max(0, fuelLevel - deltaTime);
-        
-        // Update last update time
-        fuelLastUpdateTime = currentTime;
       }
+      
+      fuelLastUpdateTime = currentTime;
     }
 
     static getFuelLevel(){

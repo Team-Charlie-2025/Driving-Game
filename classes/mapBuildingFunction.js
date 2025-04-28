@@ -15,8 +15,6 @@ function drawRectBuilding(p, xStart, yStart, xEnd, yEnd, buildImg = buildingImg)
   //console.log(`Building dimensions: ${buildingWidth}x${buildingHeight}`);
   //console.log(`Building center: (${centerX}, ${centerY})`);
 
-  p.image(buildImg, centerX - buildingWidth / 2, centerY - buildingHeight / 2, buildingWidth, buildingHeight);
-
   // Update the map to mark all tiles as part of the building
   for (let y = yStart; y < yEnd; y++) {
     for (let x = xStart; x < xEnd; x++) {
@@ -125,96 +123,6 @@ function fillShopsDynamically(p, xPosStart, yPosStart, xPosEnd, yPosEnd, buildIm
 
 
 
-const bigBuildingChance = 0.3;
-const bigBuildingSize = 30;
-const requiredOpenSpace = bigBuildingSize + 6;// Space needed to fit big buildings
-const grassBuffer = 5; // Distance between parking lot and road
-
-
-
-function fillBigBuildings(p, xPosStart, yPosStart, xPosEnd, yPosEnd) {
-  for (let y = yPosStart; y < yPosEnd - requiredOpenSpace; y++) {
-    for (let x = xPosStart; x < xPosEnd - requiredOpenSpace; x++) {
-      if (map[y][x] instanceof Grass && Math.random() < bigBuildingChance) {
-        let xEnd = x + Math.floor(bigBuildingSize / 2);
-        let yEnd = y + bigBuildingSize;
-
-        if (canPlaceLargeBuilding(p, x, y, xEnd, yEnd)) {
-          // Draw the large building
-          drawRectBuilding(p, x, y, xEnd, yEnd);
-
-          // Determine parking lot placement (top or bottom only)
-          let lotXStart = x;
-          let lotXEnd = xEnd;
-          let lotYStart, lotYEnd;
-
-          if (Math.random() < 0.5) {
-            // Place parking lot on the top side
-            lotYStart = y - 4; // 4 tiles above the building
-            lotYEnd = y;
-          } else {
-            // Place parking lot on the bottom side
-            lotYStart = yEnd;
-            lotYEnd = yEnd + 4; // 4 tiles below the building
-          }
-
-          // Draw the parking lot
-          drawParkingLot(p, lotXStart, lotYStart, lotXEnd, lotYEnd);
-
-          // Create parking lot entrances
-          createParkingLotEntrances(p, lotXStart, lotYStart, lotXEnd, lotYEnd);
-        }
-      }
-    }
-  }
-}
-
-  // Ensure space is large enough for the building + buffer
-function canPlaceLargeBuilding(p, xStart, yStart, xEnd, yEnd, extraGap = 3) {
-  for (let y = yStart - grassBuffer - extraGap; y < yEnd + grassBuffer + extraGap; y++) {
-    for (let x = xStart - grassBuffer - extraGap; x < xEnd + grassBuffer + extraGap; x++) {
-      if (
-        y < 0 || x < 0 || y >= map.length || x >= map[y].length ||
-        !(map[y][x] instanceof Grass)
-      ) {
-        return false;
-      }
-    }
-  }
-  return true;
-}
-
-  // Create entrance/exit paths for the parking lot
-function createParkingLotEntrances(p, lotXStart, lotYStart, lotXEnd, lotYEnd) {
-  let possibleEntrances = [];
-  // Check each side of the parking lot for the nearest road
-  if (isAdjacentToRoad(p, lotXStart - grassBuffer, Math.floor((lotYStart + lotYEnd) / 2)))
-    possibleEntrances.push({ x: lotXStart - 1, y: Math.floor((lotYStart + lotYEnd) / 2) });
-  if (isAdjacentToRoad(p, lotXEnd + grassBuffer, Math.floor((lotYStart + lotYEnd) / 2)))
-    possibleEntrances.push({ x: lotXEnd, y: Math.floor((lotYStart + lotYEnd) / 2) });
-  if (isAdjacentToRoad(p, Math.floor((lotXStart + lotXEnd) / 2), lotYStart - grassBuffer))
-    possibleEntrances.push({ x: Math.floor((lotXStart + lotXEnd) / 2), y: lotYStart - 1 });
-  if (isAdjacentToRoad(p, Math.floor((lotXStart + lotXEnd) / 2), lotYEnd + grassBuffer))
-    possibleEntrances.push({ x: Math.floor((lotXStart + lotXEnd) / 2), y: lotYEnd });
-
-    // Pick two random entrance/exits
-  if (possibleEntrances.length > 1) {
-    let entrance = possibleEntrances.splice(Math.floor(Math.random() * possibleEntrances.length), 1)[0];
-    let exit = possibleEntrances.splice(Math.floor(Math.random() * possibleEntrances.length), 1)[0];
-    map[entrance.y][entrance.x] = new Road(p, entrance.x * gridSize + gridSize/2, entrance.y * gridSize + gridSize/2, gridSize, gridSize);
-    map[exit.y][exit.x] = new Road(p, exit.x * gridSize + gridSize/2, exit.y * gridSize + gridSize/2, gridSize, gridSize);
-  }
-}
-
-function drawParkingLot(p, xStart, yStart, xEnd, yEnd) {
-  for (let y = yStart; y < yEnd; y++) {
-    for (let x = xStart; x < xEnd; x++) {
-      if (map[y] && map[y][x] instanceof Grass) {
-        map[y][x] = new Road(p, x * gridSize + gridSize/2, y * gridSize + gridSize/2, gridSize, gridSize);
-      }
-    }
-  }
-}
 
 /*
 These are logic functions to determine if we can place what we want to
@@ -309,4 +217,36 @@ function drawLake(p, xStart, yStart, xEnd, yEnd) {
       }
     }
   }
-  
+
+  // Places the dock halfway over the map edge, dock is 4 tiles wide, 16 long
+  function placeDock(p,xStart,yStart,xEnd,yEnd,dockImage=p.dockWithoutBoat){
+
+    const buildingWidth = Math.abs((xEnd - xStart)) * gridSize;
+    const buildingHeight = Math.abs((yEnd - yStart)) * gridSize;
+
+    if (ItemsManager.unlockedItems.boat){
+      dockImage = p.dockWithBoat;
+    }
+    let dockScale = 8;
+    const dockWidth = 3*dockScale *32;   // Width of the image
+    const dockHeight = 2*dockScale*32; // Width of the image and same height as tiles
+
+    const centerX = (xStart + xEnd+(dockScale*3)-4) * gridSize / 2;  
+    const centerY = (yStart + yEnd-1) * gridSize / 2;
+
+    for (let y = yStart; y < yEnd; y++) {
+      for (let x = xStart; x < xEnd; x++) {
+        if (map[y] && map[y][x] !== undefined) {
+          map[y][x] = new Dock(
+            p,
+            centerX,
+            centerY,
+            dockWidth,
+            dockHeight,
+            dockImage
+            //p.buildingImg
+          );
+        }
+      }
+    }
+  }

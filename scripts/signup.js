@@ -19,32 +19,39 @@ function SignupSketch(p) {
       switchSketch(Mode.TITLE);
     });
 
+    createSignup(p);
+
+    window.LoadingScreen.hide();
+  };
+  function createSignup(p){
     // Username input
     usernameInput = p.createInput();
-    usernameInput.size(200, 20);
-    usernameInput.position(p.width / 2 - 100, p.height / 2 - 30);
+    usernameInput.size(200 * window.widthScale, 20 * window.heightScale);
+    usernameInput.style("font-size", (20 * window.widthScale) + "px");
+    usernameInput.position(p.width / 2 - 100* window.widthScale, p.height / 2 - 30* window.heightScale);
     usernameInput.attribute('placeholder', 'Username');
 
     // Password input
     passwordInput = p.createInput('', 'password');
-    passwordInput.size(200, 20);
-    passwordInput.position(p.width / 2 - 100, p.height / 2);
+    passwordInput.size(200 * window.widthScale, 20 * window.heightScale);
+    passwordInput.style("font-size", (20 * window.widthScale) + "px");
+    passwordInput.position(p.width / 2 - 100* window.widthScale, p.height / 2);
     passwordInput.attribute('placeholder', 'Password');
 
     // Signup button
-    signupButton = p.createButton('Sign Up');
-    signupButton.size(76, 20);
-    signupButton.position(p.width / 2 - 38, p.height / 2 + 40);
+    signupButton = p.createButton('Sign-Up');
+    signupButton.size(100* window.widthScale, 30* window.heightScale);
+    signupButton.style("font-family", "PixelFont");
+    signupButton.style("font-size", (25 * window.widthScale) + "px");
+    signupButton.position(p.width / 2 - 50* window.widthScale, p.height / 2 + 40* window.heightScale);
     signupButton.mousePressed(sendSignupData);
 
     // Message element
     message = p.createP('');
-    message.position(p.width / 2 - 100, p.height / 2 + 80);
+    message.position(p.width / 2 - 200* window.widthScale, p.height / 2 + 80* window.heightScale);
     message.style('color', 'green');
     message.hide();
-
-    window.LoadingScreen.hide();
-  };
+  }
 
   function sendSignupData() {
     let username = usernameInput.value();
@@ -89,9 +96,26 @@ function SignupSketch(p) {
     p.noStroke();
     p.rect(p.width / 2 - (500 * window.widthScale / 2), p.height / 2 - (500 * window.heightScale / 2), (500 * window.widthScale), (500 * window.heightScale), 15);
 
-    p.textSize(100);
+    p.textSize(100*window.scale);
     p.fill(50);
-    p.text("Signup", p.width / 2, p.height / 2 - 100);
+    p.text("Signup", p.width / 2, p.height / 2 - 100 *window.heightScale);
+  };
+  p.windowResized = function (){
+    p.resizeCanvas(p.windowWidth, p.windowHeight);
+    window.heightScale = p.windowHeight / 1080;
+    window.widthScale = p.windowWidth / 1920;
+    window.scale = (window.widthScale + window.heightScale)/2;
+    ExitIcon = new Button("ExitIcon",
+        p.width - p.width * 0.05,
+        p.height - p.height * 0.95,
+        function() {
+          bgMusic(Mode.SETTINGS, p, "stop");
+          switchSketch(Mode.TITLE);
+        });
+      usernameInput.hide();
+      passwordInput.hide();
+      signupButton.hide();
+      createSignup(p);
   };
 
   p.mousePressed = function () {

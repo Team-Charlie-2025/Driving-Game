@@ -75,7 +75,6 @@ function drawBezierRoad(p, x0, y0, x1, y1, x2, y2, width) {
     prevX = x;
     prevY = y;
   }
-  console.log("perpX" + perpX);
   // Extend the road slightly beyond the endpoint to ensure overlap
   for (let j = -Math.floor(width / 2); j <= Math.floor(width / 2); j++) {
     let buildX = Math.round(x2 + j * perpX);
