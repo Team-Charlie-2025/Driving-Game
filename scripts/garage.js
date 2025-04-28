@@ -125,10 +125,8 @@ function GarageSketch(p) {
       if (savedConfig?.purchasedCarTypes) {
         purchasedCarTypes = savedConfig.purchasedCarTypes;
       }
-      console.log("car type: " + selectedCarType)
       loadCarUpgrades(selectedCarType);
 
-      console.log("car index1: " + selectedCarIndex);
       //loadCarUpgrades(selectedCarIndex); 
       
     }
@@ -254,6 +252,7 @@ function GarageSketch(p) {
           btnCallback = () => purchaseItem(item);
         }
       } else {
+        console.log("testing button: ");
         // Logic for other items
         if (!isUnlocked) {
           btnLabel = window.debug ? 0 : ITEM_PRICES[item];
@@ -273,17 +272,17 @@ function GarageSketch(p) {
   }
 
   function purchaseItem(itemType) {
-
-    console.log("index 3: " + selectedCarIndex);
-    if (ItemsManager.unlockedItems[itemType]) {
+    console.log("tryna buy an item");
+    if (ItemsManager.unlockedItems[itemType] == "boat") { //If weve bought a boat we skip this function
       console.log(itemType + " already unlocked.");
       return;
-    }
+    } 
 
     const price = window.debug ? 0 : ITEM_PRICES[itemType];
     if (CurrencyManager.getTotalCoins() >= price) {
       CurrencyManager.spendCoins(price);
       ItemsManager.unlockItem(itemType);
+      ItemsManager.
   
       upgrades.forEach(up => {
         if (up.type === itemType) {

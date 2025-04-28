@@ -214,14 +214,15 @@ function PlaySketch(p) {
       p.fill(255);
       p.textSize(120 * window.scale);
       p.textAlign(p.CENTER, p.CENTER);
-      p.text("You Won", p.width / 2, p.height / 3);
+      p.text("You Won!", 960 * window.widthScale, 230*window.heightScale);
 
       p.textSize(30* window.scale);
-      p.text(`Your Final Score: ${window.finalScore || 0}`, 960 * window.widthScale, 380 * window.heightScale );
+      p.text(`Your Final Score: ${window.finalScore || 0}`, 960 * window.widthScale, 325 * window.heightScale );
 
       p.fill(255);
       p.text()
-      p.text("You win... For now", p.width / 2, p.height / 1.5);
+      p.text("You won this time...", p.width / 2, p.height / 1.5);
+      p.text("But Swiggle always wins in the end...", p.width / 2, p.height / 1.4);
       p.text("Press ESC for Main Menu", p.width / 2, p.height / 1.2);
       p.pop();
   };
