@@ -19,12 +19,12 @@ window.carBaseStats = {
     damageRes: 10
   },
   [CarType.TRUCK]: {
-    health: 150,
+    health: 120,
     boost: 40,
     maxSpeed: 6,
-    acceleration: 0.7,  // Truck has lower gear ratios so it works
+    acceleration: 0.4,  // Truck has lower gear ratios so it works
     traction: 0.4,
-    damageRes: 15
+    damageRes: 12
   },
   [CarType.SUPERCAR]: {
     health: 80,

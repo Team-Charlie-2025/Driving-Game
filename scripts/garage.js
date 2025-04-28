@@ -424,14 +424,34 @@ function GarageSketch(p) {
   
 
   function computeCalcStats() {
-    return {
-      health: DEFAULT_CAR_STATS.health + (upgradeBodyLevel - 1) * 5,
-      damageRes: DEFAULT_CAR_STATS.damageRes + (upgradeBodyLevel - 1),
-      boost: DEFAULT_CAR_STATS.boost,
-      maxSpeed: DEFAULT_CAR_STATS.maxSpeed + ((upgradeTransmissionLevel+upgradeEngineLevel)/2 - 1) * 0.5,
-      acceleration: DEFAULT_CAR_STATS.acceleration + ((upgradeTransmissionLevel+upgradeEngineLevel)/2 - 1) * 0.1,
-      traction: DEFAULT_CAR_STATS.traction + (upgradeTiresLevel - 1) * 0.05,
-    };
+    if(selectedCarType == "normal"){
+      return {
+        health: DEFAULT_CAR_STATS.health + (upgradeBodyLevel - 1) * 4,
+        damageRes: DEFAULT_CAR_STATS.damageRes + Math.round((upgradeBodyLevel - 1)*.5),
+        boost: DEFAULT_CAR_STATS.boost,
+        maxSpeed: DEFAULT_CAR_STATS.maxSpeed + (upgradeEngineLevel - 1) * 0.3,
+        acceleration: DEFAULT_CAR_STATS.acceleration + (upgradeTransmissionLevel) * 0.1,
+        traction: DEFAULT_CAR_STATS.traction + (upgradeTiresLevel - 1) * 0.05,
+      };
+    } else if(selectedCarType == "truck") {
+      return {
+        health: DEFAULT_CAR_STATS.health + (upgradeBodyLevel - 1) * 5,
+        damageRes: DEFAULT_CAR_STATS.damageRes + Math.round((upgradeBodyLevel - 1)*0.8),
+        boost: DEFAULT_CAR_STATS.boost,
+        maxSpeed: DEFAULT_CAR_STATS.maxSpeed + (upgradeEngineLevel - 1) * 0.3,
+        acceleration: DEFAULT_CAR_STATS.acceleration + (upgradeTransmissionLevel) * 0.075,
+        traction: DEFAULT_CAR_STATS.traction + (upgradeTiresLevel - 1) * 0.05,
+      };
+    } else if (selectedCarType == "supercar") {
+      return {
+        health: DEFAULT_CAR_STATS.health + (upgradeBodyLevel - 1) * 3,
+        damageRes: DEFAULT_CAR_STATS.damageRes + Math.round((upgradeBodyLevel - 1)*.4),
+        boost: DEFAULT_CAR_STATS.boost,
+        maxSpeed: DEFAULT_CAR_STATS.maxSpeed + (upgradeEngineLevel - 1) * 0.5,
+        acceleration: DEFAULT_CAR_STATS.acceleration + (upgradeTransmissionLevel) * 0.15,
+        traction: DEFAULT_CAR_STATS.traction + (upgradeTiresLevel - 1) * 0.06,
+      };
+    }
   }
 
   function formatNumber(num) {
@@ -566,11 +586,11 @@ function GarageSketch(p) {
     });
 
     let stats = computeCalcStats();
-    let panelX = p.width - 400 * window.widthScale;
+    let panelX = p.width - 440 * window.widthScale;
     let panelY = (p.height - 200 * window.heightScale) / 2;
     p.fill(255, 255, 255, 204);
     p.noStroke();
-    p.rect(panelX, panelY, 360 * window.widthScale, 170 * window.heightScale);
+    p.rect(panelX, panelY, 400 * window.widthScale, 170 * window.heightScale);
     p.fill(0);
     p.textSize(Math.round(32 * window.scale));
     p.textAlign(p.LEFT, p.TOP);
@@ -583,22 +603,21 @@ function GarageSketch(p) {
     p.strokeWeight(0);
     
     let names = ["Health", "Max Speed", "Acceleration", "Traction", ];
-    // let bases = [savedStats.health, savedStats.boost, savedStats.maxSpeed, savedStats.acceleration, savedStats.traction, savedStats.damageRes];
-    // let vals = [stats.health, stats.boost, stats.maxSpeed, stats.acceleration, stats.traction, stats.damageRes];
-    // for (let i = 0; i < names.length; i++) {
-    //   let y = panelY + 35 * window.heightScale + i * 20 * window.heightScale;
-    //   p.textAlign(p.LEFT); 
-    //   p.text(names[i], panelX + 10 * window.widthScale, y);
-    //   p.textAlign(p.RIGHT);
-    //   let v;
-    //   v = formatNumber(vals[i]);
-    //   p.text(v, panelX + 240 * window.widthScale, y);
-    // }
-    for (let i = 0; i < names.length; i++) {
+    let bases = [savedStats.health, savedStats.boost, savedStats.maxSpeed, savedStats.acceleration, savedStats.traction, savedStats.damageRes];
+    let vals = [stats.health, stats.boost, stats.maxSpeed, stats.acceleration, stats.traction, stats.damageRes];
+    for (let i = 0; i < names.length; i++) {    // Draws the numbers
+      let y = panelY + 40 * window.heightScale + i * 30 * window.heightScale;
+      
+      p.textAlign(p.RIGHT);
+      let v;
+      v = formatNumber(vals[i]);
+      p.text(v, panelX + 230 * window.widthScale, y);
+    }
+    for (let i = 0; i < names.length; i++) {  // Draws stat names
       let y = panelY + 40 * window.heightScale + i * 30 * window.heightScale;
       let statName = names[i];
-      let statX = panelX + 10 * window.widthScale;
-      let circleXStart = statX + 200 * window.widthScale;
+      let statX = panelX + 5 * window.widthScale;
+      let circleXStart = statX + 255 * window.widthScale;
       let level = 1;
 
       // Match level to stat name

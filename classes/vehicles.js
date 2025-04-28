@@ -332,7 +332,7 @@ class PlayerTruck extends Car {
     const selectedCarIndex = data.selectedCar || 0;
     super(p,x,y,stats);
 
-    this.attackDamage = 40;
+    this.attackDamage = Math.round(25*(1+(10/data.upgradeBodyLevel)));  // Only car that gets more damage based off body level
     this.damageResScale = SAVED_STATS.damageRes/8;
     this.friction = 0.03;
     this.reverseSpeed = -3;
@@ -347,7 +347,7 @@ class PlayerTruck extends Car {
     this.idleRPM = 600;
     this.currentRPM = this.idleRPM;
 
-
+    
     this.currentImage = window.cars[selectedCarIndex] || null;
     this.removeFromWorld = false;
     
@@ -366,13 +366,22 @@ class PlayerTruck extends Car {
       });
     }
   }
+
+  updateRPM() {
+    const gear = this.getGear();
+    const percentInGear = Math.min(1, (Math.abs(this.speed) / this.maxSpeed - gear * 0.2) / 0.2);
+    const gearPeak = [0.9, 1.0, 1.0, 0.9]; // peak rpm per gear
+  
+    const target = this.idleRPM + (this.maxRPM - this.idleRPM) * percentInGear * gearPeak[gear];
+    this.currentRPM = this.p.lerp(this.currentRPM, target, 0.1); // smooth rpm response
+  }
   // Sets the gear based on speed
   getGear() { 
     let percent = this.speed / this.maxSpeed;
     if (percent < 0.15) return 0;
     if (percent < 0.4) return 1;
     if (percent < 0.80) return 2;
-    return 3; // reverse
+    return 3; 
   }
 
   update() {
@@ -393,8 +402,10 @@ class PlayerTruck extends Car {
       this.acceleration = this.baseAcceleration * (terrainType === "grass" ? 0.8 : 1);    //Faster on grass
       this.maxSpeed = this.baseMaxSpeed * (terrainType === "grass" ? 0.8 : 1);
     }
-    if(terrainType === "dock" && ItemsManager.unlockedItems.boat) 
+    if(terrainType === "dock" && ItemsManager.unlockedItems.boat) {
       window.gameWon = true;    // We won
+      this.controlDisabled = true;
+    }
     if (p.keyIsDown(getKeyForAction("forward")) && !this.controlDisabled) {
       if (p.keyIsDown(getKeyForAction("boost")) && this.boostMeter > 0) {
         this.isBoosting = true;
@@ -541,7 +552,7 @@ class PlayerTruck extends Car {
     if (other instanceof Enemy) { //upon ememy collision
       damage = other.attackDamage;
       damage = ItemsManager.shieldDamage(damage);
-      this.healthBar = Math.max(0, this.healthBar - (damage/this.damageResScale));
+      this.healthBar = Math.max(0, this.healthBar - (damage/this.damageResScale*window.difficulty));
     }
     else if(other instanceof Wrench){
       if (this.healthBar < this.maxHealth) {
@@ -554,12 +565,12 @@ class PlayerTruck extends Car {
     else if(other instanceof Bomb){
       damage = other.attackDamage;
       damage = ItemsManager.shieldDamage(damage);
-      this.healthBar = Math.max(0, this.healthBar - (damage/this.damageResScale));
+      this.healthBar = Math.max(0, this.healthBar - (damage/this.damageResScale*window.difficulty));
     }
     else if(other instanceof Oil){
       damage = other.attackDamage;
       damage = ItemsManager.shieldDamage(damage);
-      this.healthBar = Math.max(0, this.healthBar - (damage/this.damageResScale));
+      this.healthBar = Math.max(0, this.healthBar - (damage/this.damageResScale*window.difficulty));
       this.speed = this.speed *0.9;
     }
   }
