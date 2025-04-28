@@ -115,6 +115,13 @@ class Collider {
   }
   
   intersects(other) {
+    // first check to look through outer bounds of bigger area, for consistency in performance
+      const dx = Math.abs(this.gameObject.position.x - other.gameObject.position.x);
+      const dy = Math.abs(this.gameObject.position.y - other.gameObject.position.y);
+      if (dx > gridSize*4 || dy > gridSize*4) {
+          Collider.intersectCount++;
+          return false;
+      }
     if (this.shape === "rectangle" && other.shape === "rectangle") {
       return (
         this.x < other.x + other.options.width &&
