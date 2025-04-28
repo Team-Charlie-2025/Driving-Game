@@ -15,7 +15,7 @@ class UpgradeButton extends Button {
     }
 
     p.textFont(window.PixelFont);
-    p.textSize(25 * window.scale);
+    p.textSize(Math.round(25 * window.scale));
     p.textAlign(p.CENTER, p.CENTER);
     p.fill(0);
 
@@ -283,7 +283,7 @@ function GarageSketch(p) {
       
         p.image(coinUp, coinX, y - coinSize, coinSize, coinSize);
         p.fill(255, 215, 0);
-        p.textSize(20 * window.scale);
+        p.textSize(Math.round(20 * window.scale));
         p.textAlign(p.LEFT, p.BOTTOM);
         p.text(CAR_COLOR_COST, textX, y);
       }
@@ -312,7 +312,7 @@ function GarageSketch(p) {
       p.fill(211);
       p.rect(up.box.x, up.box.y, up.box.w, up.box.h);
       p.fill(0);
-      p.textSize(24 * window.scale);
+      p.textSize(Math.round(30 * window.scale));
       p.textAlign(p.CENTER, p.CENTER);
       p.strokeWeight(0);
       p.text(up.label, up.box.x + up.box.w / 2, up.box.y + up.box.h / 2 - 10 * window.heightScale);
@@ -344,7 +344,7 @@ function GarageSketch(p) {
     p.noStroke();
     p.rect(panelX, panelY, 360 * window.widthScale, 170 * window.heightScale);
     p.fill(0);
-    p.textSize(32 * window.scale);
+    p.textSize(Math.round(32 * window.scale));
     p.textAlign(p.LEFT, p.TOP);
     p.text("Stats", panelX + 10 * window.widthScale, panelY + 10 * window.heightScale);
     p.stroke(0);
@@ -372,7 +372,7 @@ function GarageSketch(p) {
       // Draw label
       p.textAlign(p.LEFT);
       p.fill(0);
-      p.textSize(32 * window.scale);
+      p.textSize(Math.round(32 * window.scale));
       p.text(statName, statX, y);
 
       // Draw 5 circle slots (background grey, then filled red as needed)
@@ -418,7 +418,7 @@ function GarageSketch(p) {
     p.push();
     p.image(coinBg, 20 * window.widthScale, 20 * window.heightScale, 128 * window.widthScale, 64 * window.heightScale);
     p.fill(0);
-    p.textSize(24 * window.scale);
+    p.textSize(Math.round(24 * window.scale));
     p.textAlign(p.LEFT, p.TOP);
     p.text(Math.floor(CurrencyManager.getTotalCoins()), 65 * window.widthScale, 45 * window.heightScale);
     p.pop();

@@ -2,7 +2,7 @@
 let windowHeightScale, windowWidthScale, windowScale;
 let coinImg, bombImg, oilImg, timeImg
 function showHud(p, map, car, isPaused = false){
-  let animationTime = isPaused ? this.animationStartTime : p.millis();
+  let animationTime = p.millis();
 
   frameIndex = Math.floor(animationTime / frameDuration) % window.animations["coin"].length;
   coinImg = window.animations["coin"][frameIndex];
