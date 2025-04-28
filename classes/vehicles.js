@@ -337,11 +337,12 @@ class Enemy extends Car{
     this.path = [];
     this.pathIndex = 0;
     this.lastPathUpdate = 0;
-    this.pathUpdateInterval = 250;  //milliseconds between recalculating path
+    this.pathUpdateInterval = 300;  //milliseconds between recalculating path
     this.maxSightDistance = 300;  //how far enemies can see
     this.inLOS = false;
     this.lastLOSCheck = 0;
     this.LOSPersistenceTime = 1000;  //stay in LOS mode for at least 1 sec
+    this.repathOffset = Math.floor(Math.random() * 200);  //0 to 200ms
     
     this.baseAcceleration = stats.acceleration;
     this.baseMaxSpeed = stats.maxSpeed;
@@ -459,7 +460,7 @@ class Enemy extends Car{
       }
 
     } else {  //use A* path following
-      if (now - this.lastPathUpdate > this.pathUpdateInterval) {
+      if (now - this.lastPathUpdate > this.pathUpdateInterval + this.repathOffset) {
         this.lastPathUpdate = now;
       
         const enemyGrid = worldToGrid(this.position.x, this.position.y, gridSize, gridSize);
