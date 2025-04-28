@@ -15,7 +15,7 @@ function PlaySketch(p) {
   let gas = []; // Add gas cans array
   window.coinsCollected = 0;
   window.enemyDestroyedCount = 0;
-  
+
   // Pause related variables
   let isPaused = false;
   let pauseResumeButton;
@@ -23,16 +23,16 @@ function PlaySketch(p) {
   // Initialize global pause tracking variables
   window.totalPausedTime = 0;
   window.pauseStartTime = 0;
-  
+
   // Fixed button positions as percentages of screen height/width
   const RESUME_BUTTON_Y_PERCENT = 0.5; // 50% from top
   const MAIN_MENU_BUTTON_Y_PERCENT = 0.65; // 65% from top
-  
+
   p.houseImages = []; // Array to stores all the house photos
-  p.preload = function() {
+  p.preload = function () {
     loadMusic(p);
     loadSoundEffects(p);
-    
+
     p.buildingImg = p.loadImage("assets/building.png");
     p.enemyImg = p.loadImage("assets/police+car.png");   // Regular cop car image
     p.truckImg = p.loadImage("assets/police+truck.png"); // Truck image
@@ -76,7 +76,7 @@ function PlaySketch(p) {
     //generateDFSChunkedMap(p,mapSize, mapSize); // Too cluttered downtown
     //generateSmartChunkedMap(p, mapSize, mapSize);
     //generateRefactoredDFSMap(p, mapSize, mapSize); // Weird gaps
-    generateImprovedCityMap(p,500,500); // Has weird gen but usable
+    generateImprovedCityMap(p, 500, 500); // Has weird gen but usable
     window.driveGrid = buildDrivableGrid(map);  //cache drivable grid
     window.runCoinsCalculated = false;
     window.isGameOver = false;
@@ -85,7 +85,7 @@ function PlaySketch(p) {
     const savedData = loadPersistentData();
     const stats = savedData.stats;
     //car = new Car(p, p.width / 2, p.height / 2, stats);
-    car = new Car(p, centerX*32, centerY*32, stats);  // Puts the car downtown
+    car = new Car(p, centerX * 32, centerY * 32, stats);  // Puts the car downtown
 
 
     // Set car image from selected car color if it exists
@@ -93,7 +93,7 @@ function PlaySketch(p) {
     if (window.cars && window.cars[selectedCarIndex]) {
       car.currentImage = window.cars[selectedCarIndex];
     }
-    
+
     // Update collider with the correct image
     car.collider = new Collider(
       car,
@@ -101,10 +101,10 @@ function PlaySketch(p) {
       { offsetX: -32, offsetY: -32 },
       car.currentImage
     );
-    
+
     physicsEngine.add(car);
     ItemsManager.ItemResetGame();
-    
+
     window.LoadingScreen.hide();
     bgMusic(Mode.PLAY, p, "loop");
 
@@ -134,30 +134,30 @@ function PlaySketch(p) {
     createGas(p, gas, map); // Create gas cans
     console.log("Gas cans made: " + gas.length);
     ///////////////////////////////////////////
-    
+
     // Create pause menu buttons with fixed positioning based on screen percentages
     createPauseButtons();
 
     p.showGameOverScreen = function () {
-        bgMusic(Mode.PLAY, p, "stop");
-        if(gameOverSound) {soundEffect("gameOver", p, "play"); gameOverSound = false;} //only play once
-        p.textFont(window.PixelFont);
-        p.push();
-        p.fill(150, 0, 0, 180); // Semi-transparent red overlay
-        p.rect(0, 0, p.width, p.height);
-        
-        p.fill(255);
-        p.textSize(120 * window.scale);
-        p.textAlign(p.CENTER, p.CENTER);
-        p.text("GAME OVER", p.width / 2, p.height / 3);
+      bgMusic(Mode.PLAY, p, "stop");
+      if (gameOverSound) { soundEffect("gameOver", p, "play"); gameOverSound = false; } //only play once
+      p.textFont(window.PixelFont);
+      p.push();
+      p.fill(150, 0, 0, 180); // Semi-transparent red overlay
+      p.rect(0, 0, p.width, p.height);
 
-        p.textSize(40* window.scale);
-        p.text(`Your Final Score: ${window.finalScore || 0}`, p.width / 2, p.height / 2.5 );
+      p.fill(255);
+      p.textSize(120 * window.scale);
+      p.textAlign(p.CENTER, p.CENTER);
+      p.text("GAME OVER", p.width / 2, p.height / 3);
 
-        p.fill(255);
-        p.text("Press R to Restart", p.width / 2, p.height / 2);
-        p.text("Press M for Main Menu", p.width / 2, p.height / 1.8);
-        p.pop();
+      p.textSize(40 * window.scale);
+      p.text(`Your Final Score: ${window.finalScore || 0}`, p.width / 2, p.height / 2.5);
+
+      p.fill(255);
+      p.text("Press R to Restart", p.width / 2, p.height / 2);
+      p.text("Press M for Main Menu", p.width / 2, p.height / 1.8);
+      p.pop();
     };
   };
 
@@ -166,22 +166,22 @@ function PlaySketch(p) {
     // Calculate button positions based on percentage of screen dimensions
     const resumeButtonY = p.height * RESUME_BUTTON_Y_PERCENT;
     const mainMenuButtonY = p.height * MAIN_MENU_BUTTON_Y_PERCENT;
-    
+
     pauseResumeButton = new Button(
       "RESUME",
       p.width / 2,
       resumeButtonY,
-      function() {
+      function () {
         togglePause();
       },
       "green", "medium"
     );
-    
+
     pauseMainMenuButton = new Button(
       "MAIN MENU",
       p.width / 2,
       mainMenuButtonY,
-      function() {
+      function () {
         bgMusic(Mode.PLAY, p, "stop");
         clearInterval(window.enemySpawnInterval);
         switchSketch(Mode.TITLE);
@@ -215,7 +215,7 @@ function PlaySketch(p) {
     const x = car.position.x + spawnDistance * p.cos(angle);
     const y = car.position.y + spawnDistance * p.sin(angle);
 
-    const elapsedTime = (p.millis() - p.startTime)/1000;
+    const elapsedTime = (p.millis() - p.startTime) / 1000;
 
     const BIKE_UNLOCK_TIME = 40;  //40 sec
     const TRUCK_UNLOCK_TIME = 60;  //60 sec
@@ -264,32 +264,32 @@ function PlaySketch(p) {
 
   p.draw = function () {
     p.background("white");
-  
+
     // Handle pause overlay and drawing
     if (isPaused && !window.isGameOver) {
       // Still draw the game scene in the background
       drawGameScene();
-      
+
       // Draw pause overlay
       p.push();
       p.fill(0, 0, 0, 150); // Semi-transparent black overlay
       p.rect(0, 0, p.width, p.height);
-      
+
       p.textFont(window.PixelFont);
       p.textSize(90 * window.scale);
       p.fill(255);
       p.textAlign(p.CENTER, p.CENTER);
       p.text("PAUSED", p.width / 2, p.height / 3);
-      
+
       // Draw pause menu buttons
       pauseResumeButton.display(p);
       pauseMainMenuButton.display(p);
       p.pop();
-      
+
       showHud(p, map, car, isPaused);
       return;
     }
-  
+
     // GAME OVER
     if (window.isGameOver) {
       ////////////////////////////////////////////
@@ -301,7 +301,7 @@ function PlaySketch(p) {
         const enemyDestroyed = window.enemyDestroyedCount || 0;
         const finalscore = ScoreManager.computeScore(elapsedTime, enemyDestroyed, window.coinsCollected, window.difficulty);
         ScoreManager.updateHighScore(finalscore);
-        window.finalScore= finalscore;
+        window.finalScore = finalscore;
 
         fetch("http://cassini.cs.kent.edu:9411/submit_score", {
           method: "POST",
@@ -313,47 +313,47 @@ function PlaySketch(p) {
             score: finalscore
           })
         })
-        .then(response => response.json())
-        .then(data => {
-          if (!data.success) {
-            console.error("Score submit error:", data.message);
-          }
-        })
-        .catch(error => {
-          console.error("Error submitting score:", error);
-        });
-        console.log("Game Over: Score sent to server: " + finalscore);        
-        if(window.debug){
-        console.log("Game Over: Run coins reward calculated: " + runCoinReward);
-        console.log("Game Over: Score calculated: " + computedScore +
-                    " (Elapsed Time: " + elapsedTime +
-                    ", Enemies Destroyed: " + enemyDestroyed +
-                    ", Coins Collected: " + window.coinsCollected +
-                    ", Difficulty: " + window.difficulty + ")");
+          .then(response => response.json())
+          .then(data => {
+            if (!data.success) {
+              console.error("Score submit error:", data.message);
+            }
+          })
+          .catch(error => {
+            console.error("Error submitting score:", error);
+          });
+        console.log("Game Over: Score sent to server: " + finalscore);
+        if (window.debug) {
+          console.log("Game Over: Run coins reward calculated: " + runCoinReward);
+          console.log("Game Over: Score calculated: " + computedScore +
+            " (Elapsed Time: " + elapsedTime +
+            ", Enemies Destroyed: " + enemyDestroyed +
+            ", Coins Collected: " + window.coinsCollected +
+            ", Difficulty: " + window.difficulty + ")");
         }
         window.runCoinsCalculated = true;
       }
       ////////////////////////////////////////////
-      
+
       drawGameScene();
       p.showGameOverScreen();
       return;
     }
-  
+
     // Normal gameplay when not paused
     updateGame();
     drawGameScene();
     showHud(p, map, car);
   };
-  
+
   // Function to draw game scene without updating
   function drawGameScene() {
     p.push();
     p.translate(p.width / 2, p.height / 2);
     p.scale(zoomFactor);
     if (car) p.translate(-car.position.x, -car.position.y);
-    
-    drawMap(p, car ? car.position : {x: 0, y: 0}, zoomFactor);
+
+    drawMap(p, car ? car.position : { x: 0, y: 0 }, zoomFactor);
 
     // Pass isPaused to display methods to freeze animations, animate beofre cars so they "drive over"
     coins.forEach(coin => coin.display(isPaused));
@@ -367,8 +367,8 @@ function PlaySketch(p) {
     enemies.forEach(enemy => enemy.display());
 
     bombs.forEach(bomb => bomb.display(isPaused)); //animation "over" cars
-    
-    
+
+
     if (window.debug) {
       bombs.forEach(bomb => bomb.collider.drawOutline());
       oils.forEach(oil => oil.collider.drawOutline());
@@ -377,7 +377,7 @@ function PlaySketch(p) {
           obj.collider.drawOutline();
         }
       });
-      
+
       // Debug building outlines
       if (car) {
         let halfWidth = p.width / (2 * zoomFactor);
@@ -399,36 +399,36 @@ function PlaySketch(p) {
         }
       }
     }
-    if(ItemsManager.ifShield()) {//draw outline on car for shield
+    if (ItemsManager.ifShield()) {//draw outline on car for shield
       car.collider.drawOutline(true);
     }
     p.pop();
   }
-  
+
   // Function to update game state
   function updateGame() {
     if (isPaused) return; // Skip all updates when paused
-    
+
     coins = checkCoinCollisions(coins, car, p);
     shields = checkShieldCollisions(shields, car, p);
     wrenches = checkWrenchCollisions(wrenches, car, p);
     bombs = checkBombCollisions(bombs, car, p);
     oils = checkOilCollisions(oils, car, p);
     gas = checkGasCollisions(gas, car, p); // Check gas can collisions
-    
+
     // Update fuel level and check if empty
     ItemsManager.updateFuel(p, car, isPaused);
     if (ItemsManager.isFuelEmpty()) {
       window.isGameOver = true;
       console.log("Game Over: Out of fuel!");
     }
-    
+
     if (!car) {
       const stats = loadPersistentData().stats;
       car = new Car(p, p.width / 2, p.height / 2, stats);
       physicsEngine.add(car);
     }
-    
+
     enemies = enemies.filter(enemy => {
       if (enemy.removeFromWorld || enemy.healthBar <= 0) {
         physicsEngine.remove(enemy);
@@ -437,47 +437,47 @@ function PlaySketch(p) {
       }
       return true;
     });
-    
+
     enemies.forEach(enemy => {
       enemy.update();
       checkBuildingCollisions(enemy);
       checkBombCollisions(bombs, enemy, p);
       checkOilCollisions(oils, enemy, p);
     });
-    
+
     physicsEngine.update();
     car.update();
     checkBuildingCollisions(car);
     checkCarCollisions(car, enemies);
   }
-  
-  p.windowResized = function() {
+
+  p.windowResized = function () {
     p.resizeCanvas(p.windowWidth, p.windowHeight);
     window.heightScale = p.windowHeight / 1080;
     window.widthScale = p.windowWidth / 1920;
-    window.scale = (window.widthScale + window.heightScale)/2;
-    
+    window.scale = (window.widthScale + window.heightScale) / 2;
+
     // Update pause button positions on resize using our percentage-based approach
     createPauseButtons();
   };
 
-  p.keyPressed = function() {
+  p.keyPressed = function () {
     // Toggle pause with P key (or custom keybind)
     if (p.keyCode === getKeyForAction("pause")) {
       togglePause();
       return;
     }
-    
+
     // Only handle gameplay inputs when not paused
     if (!isPaused) {
-      if(p.keyCode === getKeyForAction("placebomb")){ 
+      if (p.keyCode === getKeyForAction("placebomb")) {
         ItemsManager.placeBomb(p, car, bombs, isPaused);
       }
-      if(p.keyCode === getKeyForAction("spilloil")){ 
+      if (p.keyCode === getKeyForAction("spilloil")) {
         ItemsManager.spillOil(p, car, oils, isPaused);
       }
     }
-    
+
     if (p.keyCode === p.ESCAPE) {
       if (isPaused) {
         togglePause(); // Unpause if paused
@@ -498,9 +498,9 @@ function PlaySketch(p) {
       }
     }
   };
-  
+
   // Add mousePressed function to handle pause menu clicks
-  p.mousePressed = function() {
+  p.mousePressed = function () {
     if (isPaused) {
       if (pauseResumeButton.isMouseOver(p)) {
         pauseResumeButton.callback();
@@ -520,20 +520,20 @@ function PlaySketch(p) {
           let building = map[j][i];
           if (obj.collider.intersects(building.collider)) {
 
-              if( ! (obj instanceof Enemy) ){
-                obj.buildingCollision(); //user car gets damage
-              }
+            if (!(obj instanceof Enemy)) {
+              obj.buildingCollision(); //user car gets damage
+            }
             if (obj.velocity) {  //reverse velocity (enemy & player)
               obj.velocity.mult(-1);
-          }
-          if (obj.speed !== undefined) {  //reverse speed if it exists (player)
+            }
+            if (obj.speed !== undefined) {  //reverse speed if it exists (player)
               obj.speed = (-1) * obj.speed;
-          }
-          //apply small knockback to prevent enemies getting stuck
-          let knockbackForce = 5;  
-          let knockbackVector = p5.Vector.sub(obj.position, building.position);
-          knockbackVector.setMag(knockbackForce);
-          obj.position.add(knockbackVector);
+            }
+            //apply small knockback to prevent enemies getting stuck
+            let knockbackForce = 5;
+            let knockbackVector = p5.Vector.sub(obj.position, building.position);
+            knockbackVector.setMag(knockbackForce);
+            obj.position.add(knockbackVector);
 
             if (!obj.controlDisabled) {
               obj.controlDisabled = true;
@@ -556,24 +556,24 @@ function PlaySketch(p) {
         //use relative velocity to scale knockback
         let relativeVelocity = p5.Vector.sub(car.velocity, enemy.velocity).mag();
         let knockbackForce = p.map(relativeVelocity, 0, 10, 5, 20); //adjust scaling
-  
+
         //apply knockback in opposite directions
         let knockbackVector = p5.Vector.sub(car.position, enemy.position);
         knockbackVector.setMag(knockbackForce);
-  
+
 
 
         car.position.add(knockbackVector);
         enemy.position.sub(knockbackVector); //push enemy slightly
         if (car.attackDamage) {
           enemy.healthBar = Math.max(0, enemy.healthBar - (enemy.attackDamage / 2));
-          car.healthBar = Math.max(0, car.healthBar - enemy.attackDamage)
+          car.healthBar = Math.max(0, car.healthBar - (enemy.attackDamage * window.difficulty))
         }
         //temp disable enemy movement to prevent rapid collisions
         if (!enemy.controlDisabled) {
           enemy.controlDisabled = true;
           setTimeout(() => {
-              enemy.controlDisabled = false;
+            enemy.controlDisabled = false;
           }, 750);
         }
       }
