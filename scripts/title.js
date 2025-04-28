@@ -73,7 +73,7 @@ function TitleSketch(p) {
 
       p.fill(0);
       p.textSize(30*window.scale);
-      p.text("TO MAKE PLAYING MORE ENJOYABLE ZOOM OUT OF YOUR SCREEN \nusing (ctrl-shift-+) TO 50% AND REFRESH THE PAGE!! \n\nDrive and survive the police chasing you!\nAvoid getting hit by utilizing items to assist in your escape.\nItems like bombs and oil spills to hurt enemies,\n and sheilds to stop damage to your car and wrenches to restore health.\n Check out the settings to adjust the keybinds \nthen hit play to select your difficulity and begin your drive. \n\n Any issues? Let us know on our GitHub.", 
+      p.text("For the best playing experience zoom out your browser to 50% using (ctrl-shift-+) \nand refresh your page if you have any issues!! \n\nDrive and survive the police chasing you!\nAvoid getting hit by utilizing items to assist in your escape.\nItems like bombs and oil spills to hurt enemies,\n and sheilds to stop damage to your car and wrenches to restore health.\n Check out the settings to adjust the keybinds \nthen hit play to select your difficulity and begin your drive. \n\n Any issues? Let us know on our GitHub.", 
       p.width / 2, p.height / 2);
       githubLink.position(p.width / 2 -(5*window.scale), p.height / 2 + (400 * window.heightScale / 2));
       githubLink.show();
