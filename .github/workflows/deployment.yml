@@ -18,7 +18,7 @@ jobs:
         ssh-keyscan -H ${{ secrets.SSH_HOST }} > ~/.ssh/known_hosts
     - name: connect and pull
       run:
-        ssh ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} "cd ${{ secrets.WORK_DIR }} && git checkout ${{ secrets.MAIN_BRANCH }} && git pull"
+        ssh ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} "cd ${{ secrets.WORK_DIR }} && git fetch origin &&git reset --hard origin/${{ secrets.MAIN_BRANCH }}"
     - name: run server
       run:
         ssh -T ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} screen -dmS SwiggleServer bash -c “python -m http.server -d ~/${{ secrets.WORK_DIR }} ${{ secrets.HTTP_PORT }}”
