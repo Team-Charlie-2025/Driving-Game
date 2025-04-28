@@ -5,8 +5,8 @@ const carHeight = 64;
 const truckWidth = 96;
 const truckHeight =64;
 
-const superCarWidth = 80;
-const superCarHeight = 64;
+const superCarWidth = 90;
+const superCarHeight = 58;
 class Car extends GameObject {
   constructor(p, x, y, stats) {
     super(x, y);

@@ -145,7 +145,7 @@ function GarageSketch(p) {
   
     setupUpgradeLayout();
     setupItemPurchaseButtons();
-    if(selectedCarType != "supercar") setupCarBodySelector();
+    if(selectedCarType != "supercar") setupCarBodySelector(); // We dont draw bodys for the supercar
     moreCarsButton = new Button("More Cars", p.width - 350 * window.widthScale, 75 * window.heightScale, () => {
       selectingCarType = true;
       setupCarTypeSelector();
@@ -365,12 +365,12 @@ function GarageSketch(p) {
         if(box.type == "truck" || "supercar"){
           p.image(
             carImage,
-            box.x + (box.w - imageSize) / 2.2, // Center the image horizontally
-            box.y + (box.h - imageSize) / 2, // Center the image vertically
+            box.x + (box.w - imageSize) / 2, // Center the image horizontally
+            box.y + (box.h - imageSize*.6) / 2, // Center the image vertically
             imageSize,
-            imageSize
+            imageSize*.6
           );
-        }else{
+        }else if (box.type == "normal"){
           p.image(
             carImage,
             box.x + (box.w - imageSize) / 2, // Center the image horizontally
@@ -429,7 +429,7 @@ function GarageSketch(p) {
     if (selectingCarType) {
       drawCarTypeSelector();
     } else {
-      if (selectedCarType != "supercar"){
+      if (selectedCarType != "supercar"){ // We dont draw colors for the supercar
         carBoxes.forEach(box => {
           p.stroke(0);
           p.fill(211);
@@ -440,8 +440,13 @@ function GarageSketch(p) {
             if (!carColorsUnlocked[selectedCarType][box.index]) {
               p.tint(100);
             }
-            p.image(img, box.x, box.y, box.w, box.h);
-            p.noTint();
+            if(selectedCarType == "truck"){
+              p.image(img, box.x, box.y+(box.h*.15), box.w, box.h*.7);
+              p.noTint();
+            }else {
+              p.image(img, box.x, box.y, box.w, box.h);
+              p.noTint();
+            }
           }
       
           if (!carColorsUnlocked[selectedCarType][box.index]) {
@@ -532,8 +537,7 @@ function GarageSketch(p) {
       p.text(names[i], panelX + 10 * window.widthScale, y);
       p.textAlign(p.RIGHT);
       let v;
-      if(selectedCarType != "supercar")
-        v = formatNumber(vals[i]);
+      v = formatNumber(vals[i]);
       p.text(v, panelX + 240 * window.widthScale, y);
     }
 

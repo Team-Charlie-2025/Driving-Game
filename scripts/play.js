@@ -94,7 +94,7 @@ function PlaySketch(p) {
 
     let tempWidth = 64;
     let tempHeight = 64;   // Used for colliders
-    if(selectedCarType == "normal" || "supercar"){
+    if(selectedCarType == "normal"){
       car = new Car(p, 475*gridSize, 250*gridSize, stats);  // Puts the car near the dock
       tempWidth = carWidth;
       tempHeight = carHeight;
@@ -120,7 +120,7 @@ function PlaySketch(p) {
     car.collider = new Collider(
       car,
       "polygon",
-      { offsetX: -tempHeight/2, offsetY: -tempWidth/2 },
+      { offsetX: -tempWidth/2, offsetY: -tempHeight/2 },
       car.currentImage
     );
     
