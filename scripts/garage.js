@@ -437,10 +437,9 @@ function GarageSketch(p) {
     }
   
     for (let up of upgrades) {
-      if (["wrench", "bomb", "oil", "shield","boat"].includes(up.type)) {
-        if (up.button.isMouseOver(p)) return purchaseItem(up.type);
-      } else {
-        if (up.button.isMouseOver(p)) return purchaseUpgrade(up.type);
+      if (up.button.isMouseOver(p)) {
+        up.button.callback();
+        return;
       }
     }    
   
