@@ -561,9 +561,14 @@ function PlaySketch(p) {
         let knockbackVector = p5.Vector.sub(car.position, enemy.position);
         knockbackVector.setMag(knockbackForce);
   
+
+
         car.position.add(knockbackVector);
         enemy.position.sub(knockbackVector); //push enemy slightly
-
+        if (car.attackDamage) {
+          enemy.healthBar = Math.max(0, enemy.healthBar - (enemy.attackDamage / 2));
+          car.healthBar = Math.max(0, car.healthBar - enemy.attackDamage)
+        }
         //temp disable enemy movement to prevent rapid collisions
         if (!enemy.controlDisabled) {
           enemy.controlDisabled = true;
