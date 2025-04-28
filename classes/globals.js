@@ -48,6 +48,7 @@ function loadCars(p) {
     normal: [],
     truck: [],
     sports: [],
+    super: []
   };
 
   // Load images for the "normal" car

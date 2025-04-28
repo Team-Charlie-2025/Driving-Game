@@ -53,19 +53,22 @@ function GarageSketch(p) {
   let carUpgrades = {
     normal: { engine: 1, body: 1, transmission: 1, tires: 1 },
     truck: { engine: 1, body: 1, transmission: 1, tires: 1 },
-    sportscar: { engine: 1, body: 1, transmission: 1, tires: 1 }
+    sportscar: { engine: 1, body: 1, transmission: 1, tires: 1 },
+    super: { engine: 1, body: 1, transmission: 1, tires: 1 }
   };
 
   let carColorsUnlocked = {
     normal: [true, false, false, false, false, false, false, false],
     truck:  [true, false, false, false, false, false],
-    sportscar: [true, false, false, false]
+    sportscar: [true, false, false, false],
+    super: [true]
   };
 
   let purchasedCarTypes = {
     normal: true,
     truck: false,
-    sportscar: false
+    sportscar: false,
+    super: true
   };
 
   let selectingCarType = false;   // Flag for if were picking a different cr
