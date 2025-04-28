@@ -1,6 +1,3 @@
 
 .DS_Store
 /maps
-.env
-init_db.py
-game.db
