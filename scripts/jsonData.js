@@ -3,7 +3,7 @@
 const CarType = { // The 3 different cars you can get so far
   NORMAL: "normal",
   TRUCK: "truck",
-  SPORTSCAR: "sportscar",
+  SUPERCAR: "supercar",
 };
 
 //carType = CarType;
@@ -26,7 +26,7 @@ window.carBaseStats = {
     traction: 0.6,
     dmgRes: 15
   },
-  [CarType.SPORTSCAR]: {
+  [CarType.SUPERCAR]: {
     health: 80,
     boost: 60,
     maxSpeed: 10,

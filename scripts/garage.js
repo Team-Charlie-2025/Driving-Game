@@ -59,7 +59,7 @@ function GarageSketch(p) {
   let carColorsUnlocked = {
     normal: [true, false, false, false, false, false, false, false],
     truck:  [true, false, false, false, false, false],
-    supercar: [true],
+    supercar: [true,false]
   };
 
   let purchasedCarTypes = {
@@ -125,7 +125,6 @@ function GarageSketch(p) {
       if (savedConfig?.purchasedCarTypes) {
         purchasedCarTypes = savedConfig.purchasedCarTypes;
       }
-      if (selectedCarType == "sportscar") selectedCarType = "normal"
       console.log("car type: " + selectedCarType)
       loadCarUpgrades(selectedCarType);
 
@@ -146,7 +145,7 @@ function GarageSketch(p) {
   
     setupUpgradeLayout();
     setupItemPurchaseButtons();
-    setupCarBodySelector();
+    if(selectedCarType != "supercar") setupCarBodySelector();
     moreCarsButton = new Button("More Cars", p.width - 350 * window.widthScale, 75 * window.heightScale, () => {
       selectingCarType = true;
       setupCarTypeSelector();
@@ -430,42 +429,43 @@ function GarageSketch(p) {
     if (selectingCarType) {
       drawCarTypeSelector();
     } else {
-      carBoxes.forEach(box => {
-        p.stroke(0);
-        p.fill(211);
-        p.rect(box.x, box.y, box.w, box.h);
-    
-        let img = window.cars?.[selectedCarType][box.index];
-        if (img) {
-          if (!carColorsUnlocked[selectedCarType][box.index]) {
-            p.tint(100);
-          }
-          p.image(img, box.x, box.y, box.w, box.h);
-          p.noTint();
-        }
-    
-        if (!carColorsUnlocked[selectedCarType][box.index]) {
-          const coinSize = 14 * window.widthScale;
-          let coinX = box.x + box.w / 2 - coinSize - 4 * window.widthScale;
-          let textX = coinX + coinSize + 4 * window.widthScale;
-          let y = box.y + box.h;
-        
-          p.image(coinUp, coinX, y - coinSize, coinSize, coinSize);
-          p.fill(255, 215, 0);
-          p.textSize(20 * window.scale);
-          p.textAlign(p.LEFT, p.BOTTOM);
-          p.text(CAR_COLOR_COST, textX, y);
-        }
-    
-        if (box.index === selectedCarIndex) {
-          p.stroke(255, 0, 0);
-          p.strokeWeight(3);
-          p.noFill();
+      if (selectedCarType != "supercar"){
+        carBoxes.forEach(box => {
+          p.stroke(0);
+          p.fill(211);
           p.rect(box.x, box.y, box.w, box.h);
-          p.strokeWeight(1);
-        }
-      });
-
+      
+          let img = window.cars?.[selectedCarType][box.index];
+          if (img) {
+            if (!carColorsUnlocked[selectedCarType][box.index]) {
+              p.tint(100);
+            }
+            p.image(img, box.x, box.y, box.w, box.h);
+            p.noTint();
+          }
+      
+          if (!carColorsUnlocked[selectedCarType][box.index]) {
+            const coinSize = 14 * window.widthScale;
+            let coinX = box.x + box.w / 2 - coinSize - 4 * window.widthScale;
+            let textX = coinX + coinSize + 4 * window.widthScale;
+            let y = box.y + box.h;
+          
+            p.image(coinUp, coinX, y - coinSize, coinSize, coinSize);
+            p.fill(255, 215, 0);
+            p.textSize(20 * window.scale);
+            p.textAlign(p.LEFT, p.BOTTOM);
+            p.text(CAR_COLOR_COST, textX, y);
+          }
+      
+          if (box.index === selectedCarIndex) {
+            p.stroke(255, 0, 0);
+            p.strokeWeight(3);
+            p.noFill();
+            p.rect(box.x, box.y, box.w, box.h);
+            p.strokeWeight(1);
+          }
+        });
+      }
       upgrades.forEach(up => {
         p.stroke(0);
         p.fill(211);
@@ -531,7 +531,9 @@ function GarageSketch(p) {
       p.textAlign(p.LEFT); 
       p.text(names[i], panelX + 10 * window.widthScale, y);
       p.textAlign(p.RIGHT);
-      let v = formatNumber(vals[i]);
+      let v;
+      if(selectedCarType != "supercar")
+        v = formatNumber(vals[i]);
       p.text(v, panelX + 240 * window.widthScale, y);
     }
 
@@ -554,19 +556,21 @@ function GarageSketch(p) {
       for (let box of carTypeBoxes) {
         if (p.mouseX >= box.x && p.mouseX <= box.x + box.w && p.mouseY >= box.y && p.mouseY <= box.y + box.h) {
           // Purchase or Switch
+          console.log("box type: " + box.type)
           if (purchasedCarTypes[box.type]) {
             switchCarType(box.type);
           } else if (CurrencyManager.getTotalCoins() >= CAR_TYPE_PRICES[box.type]) {
             CurrencyManager.spendCoins(CAR_TYPE_PRICES[box.type]);
             purchasedCarTypes[box.type] = true;
             switchCarType(box.type);
+            saveConfiguration();
           } else {
             console.log("Not enough coins for " + box.type);
             return;
           }
   
           selectingCarType = false;
-          setupCarBodySelector(); 
+          if(selectedCarType != "supercar") setupCarBodySelector(); 
           saveConfiguration();
           return;
         }
@@ -634,7 +638,7 @@ function GarageSketch(p) {
   function saveConfiguration() {
     console.log("car index saved: " + selectedCarIndex);
     saveCarUpgrades(selectedCarType);
-  
+    console.log("supercars saved: " + purchasedCarTypes)
     let config = {
       carUpgrades,
       carColorsUnlocked,
@@ -666,7 +670,7 @@ function GarageSketch(p) {
     carColorsUnlocked = {
       normal: [true, false, false, false, false, false, false, false],
       truck:  [true, false, false, false, false, false],
-      supercar: [true, false, false, false]
+      supercar: [true, false]
     };
   
     purchasedCarTypes = {

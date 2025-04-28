@@ -94,18 +94,22 @@ function PlaySketch(p) {
 
     let tempWidth = 64;
     let tempHeight = 64;   // Used for colliders
-    // if(selectedCarType == "normal" || "supercar"){
-    //   car = new Car(p, 475*gridSize, 250*gridSize, stats);  // Puts the car near the dock
-    //   tempWidth = carWidth;
-    //   tempHeight = carHeight;
-    // }
-    // if(selectedCarType == "truck"){
-    //   car = new PlayerTruck(p, 475*gridSize, 250*gridSize, stats);
-    //   tempWidth = truckWidth;
-    //   tempHeight = truckHeight;
-    // }
+    if(selectedCarType == "normal" || "supercar"){
+      car = new Car(p, 475*gridSize, 250*gridSize, stats);  // Puts the car near the dock
+      tempWidth = carWidth;
+      tempHeight = carHeight;
+    } else if(selectedCarType == "truck"){
+      car = new PlayerTruck(p, 475*gridSize, 250*gridSize, stats);
+      tempWidth = truckWidth;
+      tempHeight = truckHeight;
+    } else if(selectedCarType == "supercar"){
+      car = new SuperCar(p, 475*gridSize, 250*gridSize, stats);  // Puts the car near the dock
+      tempWidth = superCarWidth;
+      tempHeight = superCarHeight;
+    }
+
     //car = new Car(p, centerX*32, centerY*32, stats);  // Puts the car downtown
-    car = new Car(p, 475*gridSize, 250*gridSize, stats);  // Puts the car near the dock
+    //car = new Car(p, 475*gridSize, 250*gridSize, stats);  // Puts the car near the dock
     
 
     console.log("car type: " + selectedCarType)
@@ -116,11 +120,12 @@ function PlaySketch(p) {
     car.collider = new Collider(
       car,
       "polygon",
-      { offsetX: -tempWidth/2, offsetY: -tempHeight/2 },
+      { offsetX: -tempHeight/2, offsetY: -tempWidth/2 },
       car.currentImage
     );
     
     physicsEngine.add(car);
+    console.log("after physics added: " + car.healthBar)
     ItemsManager.ItemResetGame();
     
     window.LoadingScreen.hide();

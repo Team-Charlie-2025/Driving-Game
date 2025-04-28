@@ -69,10 +69,10 @@ function loadCars(p) {
   window.cars["truck"].push(p.loadImage("graphics/cars/truckYellow.png"));
 
   // // Load images for the superCar
-  window.cars["supercar"].push(p.loadImage("graphics/cars/orangeStripe.png"));
+  window.cars["supercar"].push(p.loadImage("graphics/cars/superCar.png"));
+  window.cars["supercar"].push(p.loadImage("graphics/cars/superCar.png"));
 
-
-  console.log("Cars loaded:", window.cars);
+  console.log("cars loaded");
 }
 
 function loadEngines(p) {
