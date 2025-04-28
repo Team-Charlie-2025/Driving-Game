@@ -28,8 +28,14 @@ jobs:
         "
 
     - name: run server
-      run: |
-        ssh -T ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} screen -dmS SwiggleServer bash -c "python -m http.server -d ~/${{ secrets.WORK_DIR }} ${{ secrets.HTTP_PORT }}"
+  run: |
+    ssh -T ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} "
+      screen -S SwiggleServer -X quit || true;
+      screen -dmS SwiggleServer bash -c '
+        cd ~/${{ secrets.WORK_DIR }} &&
+        python3 -m http.server ${{ secrets.HTTP_PORT }}
+      '
+    "
 
     - name: cleanup
       run: rm -rf ~/.ssh
