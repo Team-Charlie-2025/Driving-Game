@@ -9,7 +9,6 @@ class Car extends GameObject {
   constructor(p, x, y, stats) {
     super(x, y);
     this.p = p;
-    this.won = false;   // We have not won
     this.speed = 0;
     this.angle = 0;
     this.prevAngle = 0;
@@ -38,6 +37,17 @@ class Car extends GameObject {
     this.maxRPM = 8000;
     this.idleRPM = 1000;
     this.currentRPM = this.idleRPM;
+
+    // Drift physics
+    this.spunOut = false;
+    this.isDrifting = false;
+    this.normalTraction = 0.1;
+    this.driftTraction = 0.3;
+    this.traction = this.normalTraction;
+    this.movementAngle = this.angle;
+    this.driftAccumulator = 0;
+    this.spinOutThreshold = 5.0;
+    this.driftDirection = 0;
 
 
     this.currentImage = window.cars[selectedCarIndex] || null;
@@ -109,7 +119,7 @@ class Car extends GameObject {
       this.maxSpeed = this.baseMaxSpeed * (terrainType === "grass" ? 0.65 : 1);
     }
     if(terrainType === "dock" && ItemsManager.unlockedItems.boat) 
-      this.won = true;    // We won
+      window.won = true;    // We won
     if (p.keyIsDown(getKeyForAction("forward")) && !this.controlDisabled) {
       if (p.keyIsDown(getKeyForAction("boost")) && this.boostMeter > 0) {
         this.isBoosting = true;
@@ -124,7 +134,7 @@ class Car extends GameObject {
       } else {
         this.isBoosting = false;
         if (this.speed > this.maxSpeed) {
-          this.speed -= this.friction*3;
+          //this.speed -= this.friction*3;
         } else {
           this.speed = p.constrain(
             this.speed + this.acceleration * this.gearMultipliers[this.getGear()],
@@ -307,7 +317,7 @@ class Car extends GameObject {
     return this.healthBar;
   }
 }
-
+/*
 class PlayerTruck extends Car {
   constructor(p, x, y, stats) {
     const data = loadPersistentData();
@@ -315,7 +325,6 @@ class PlayerTruck extends Car {
     const selectedCarIndex = data.selectedCar || 0;
     super(p,x,y,stats);
 
-    this.won = false;
     this.attackDamage = 25;
 
     this.friction = 0.03;
@@ -378,7 +387,7 @@ class PlayerTruck extends Car {
       this.maxSpeed = this.baseMaxSpeed * (terrainType === "grass" ? 0.8 : 1);
     }
     if(terrainType === "dock" && ItemsManager.unlockedItems.boat) 
-      this.won = true;    // We won
+      window.won = true;    // We won
     if (p.keyIsDown(getKeyForAction("forward")) && !this.controlDisabled) {
       if (p.keyIsDown(getKeyForAction("boost")) && this.boostMeter > 0) {
         this.isBoosting = true;
@@ -560,7 +569,7 @@ class PlayerTruck extends Car {
     return this.healthBar;
   }
 }
-
+*/
 class Enemy extends Car{
   constructor(p, x, y, target) {
     const stats = {

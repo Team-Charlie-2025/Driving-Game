@@ -92,20 +92,21 @@ function PlaySketch(p) {
     const selectedCarIndex = savedData.selectedCar || 0;
     const selectedCarType = savedData.selectedCarType || "normal";
 
-    let tempWidth;
-    let tempHeight;   // Used for colliders
-    if(selectedCarType == "normal" || "supercar"){
-      car = new Car(p, 475*gridSize, 250*gridSize, stats);  // Puts the car near the dock
-      tempWidth = carWidth;
-      tempHeight = carHeight;
-    }
-    if(selectedCarType == "truck"){
-      car = new PlayerTruck(p, 475*gridSize, 250*gridSize, stats);
-      tempWidth = truckWidth;
-      tempHeight = truckHeight;
-    }
+    let tempWidth = 64;
+    let tempHeight = 64;   // Used for colliders
+    // if(selectedCarType == "normal" || "supercar"){
+    //   car = new Car(p, 475*gridSize, 250*gridSize, stats);  // Puts the car near the dock
+    //   tempWidth = carWidth;
+    //   tempHeight = carHeight;
+    // }
+    // if(selectedCarType == "truck"){
+    //   car = new PlayerTruck(p, 475*gridSize, 250*gridSize, stats);
+    //   tempWidth = truckWidth;
+    //   tempHeight = truckHeight;
+    // }
     //car = new Car(p, centerX*32, centerY*32, stats);  // Puts the car downtown
-
+    car = new Car(p, 475*gridSize, 250*gridSize, stats);  // Puts the car near the dock
+    
 
     console.log("car type: " + selectedCarType)
     if (window.cars && window.cars[selectedCarType][selectedCarIndex]) {
@@ -390,7 +391,7 @@ function PlaySketch(p) {
     }
 
     // ########    GAME WON     ########
-    if(car.won){
+    if(window.won){
       ////////////////////////////////////////////
       if (!window.runCoinsCalculated) {
         // calculate coins, scores
@@ -586,7 +587,7 @@ function PlaySketch(p) {
       }
     }
 
-    if (window.isGameOver || car.won) {
+    if (window.isGameOver || window.won) {
       if (p.keyIsDown(82)) { // 'R' key
         switchSketch(Mode.PLAY);
       }
