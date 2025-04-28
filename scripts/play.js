@@ -79,6 +79,16 @@ function PlaySketch(p) {
     p.startTime = p.millis();
     p.fps = p.frameRate();
     physicsEngine = new PhysicsEngine();
+
+    if(window.difficulty == 1) { // Medium difficulty 
+      window.roadSizes = { tiny: 4, small: 4, normal: 6, big: 6, main: 8 , highway: 10};
+    }else if (window.difficulty == 1.25) { // Hard difficulty 
+      window.roadSizes = { tiny: 3, small: 4, normal: 5, big: 6, main: 7 , highway: 9};  
+    }else if (window.difficulty == 1.5) {   // Extra hard
+      window.roadSizes = { tiny: 2, small: 3, normal: 5, big: 5, main: 6 , highway: 8};
+    } else { // Easy difficulty
+      window.roadSizes = { tiny: 4, small: 5, normal: 6, big: 7, main: 9 , highway: 11};
+    }
     //generateGenMap(p, mapSize, mapSize);
     generateImprovedCityMap(p,500,500); // Has weird gen but usable
     window.driveGrid = buildDrivableGrid(map);  //cache drivable grid
@@ -95,15 +105,15 @@ function PlaySketch(p) {
     let tempWidth = 64;
     let tempHeight = 64;   // Used for colliders
     if(selectedCarType == "normal"){
-      car = new Car(p, 475*gridSize, 250*gridSize, stats);  // Puts the car near the dock
+      car = new Car(p, centerX*32, centerY*32, stats);  // Puts the car near the dock
       tempWidth = carWidth;
       tempHeight = carHeight;
     } else if(selectedCarType == "truck"){
-      car = new PlayerTruck(p, 475*gridSize, 250*gridSize, stats);
+      car = new PlayerTruck(p, centerX*32, centerY*32, stats);
       tempWidth = truckWidth;
       tempHeight = truckHeight;
     } else if(selectedCarType == "supercar"){
-      car = new SuperCar(p, 475*gridSize, 250*gridSize, stats);  // Puts the car near the dock
+      car = new SuperCar(p, centerX*32, centerY*32, stats);  // Puts the car near the dock
       tempWidth = superCarWidth;
       tempHeight = superCarHeight;
     }
