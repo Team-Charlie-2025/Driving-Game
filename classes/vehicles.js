@@ -5,8 +5,8 @@ const carHeight = 64;
 const truckWidth = 96;
 const truckHeight =64;
 
-const superCarWidth = 90;
-const superCarHeight = 53;
+const superCarWidth = 82;
+const superCarHeight = 58;
 class Car extends GameObject {
   constructor(p, x, y, stats) {
     super(x, y);
@@ -183,8 +183,8 @@ class Car extends GameObject {
     }
 
     // Drift physics
-    let tractionPercent = currentSpeed / 18;   // Traction is how well you can grip at speed from 0-20, .3 traction will grip well until 6
     let currentSpeed = this.speed;
+    let tractionPercent = currentSpeed / 18;   // Traction is how well you can grip at speed from 0-20, .3 traction will grip well until 6
     let driftKeyPressed = p.keyIsDown(getKeyForAction("drift"));
     let aboveMax = tractionPercent > .95;
     let lerpAmount = 1;
