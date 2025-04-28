@@ -16,11 +16,13 @@ SECRET_KEY = os.getenv("SECRET_KEY")
 DB_PATH = os.getenv("DB_PATH")
 CORS_ORIGIN = os.getenv("CORS_ORIGIN")
 
-USERNAME_RE = os.getenv("USERNAME_RE")
-PASSWORD_MIN = os.getenv("PASSWORD_MIN")
-PASSWORD_MAX = os.getenv("PASSWORD_MAX")
-SCORE_MIN = os.getenv("SCORE_MIN")
-SCORE_MAX = os.getenv("SCORE_MAX")
+USERNAME_REGEX = os.getenv("USERNAME_REGEX")
+PASSWORD_MIN = int(os.getenv("PASSWORD_MIN"))
+PASSWORD_MAX = int(os.getenv("PASSWORD_MAX"))
+SCORE_MIN = int(os.getenv("SCORE_MIN"))
+SCORE_MAX = int(os.getenv("SCORE_MAX"))
+
+USERNAME_RE = re.compile(USERNAME_REGEX)
 
 app = Flask(__name__)
 app.config["JWT_ALGO"] = "HS256"
@@ -144,10 +146,11 @@ def submit_score():
         score = int(data.get("score", None))
     except (TypeError, ValueError):
         return jsonify({"error": "Score must be an integer"}), 400
+
     if score < SCORE_MIN:
         return jsonify({"error": "Score must be ≥ 0"}), 400
     elif score > SCORE_MAX:
-        return jsonify({"Score too high, likely invalid."})
+        return jsonify({"error": "Score too high, likely invalid."}), 400
 
     db = get_db()
     row = db.execute("SELECT score FROM users WHERE username = ?", (u,)).fetchone()
@@ -155,7 +158,9 @@ def submit_score():
     if row is None:
         return jsonify({"error": "User not found"}), 404
 
-    if score > row["score"]:
+    current_score = row["score"] or 0
+
+    if score > current_score:
         db.execute(
             "UPDATE users SET score = ? WHERE username = ?",
             (score, u),

@@ -292,48 +292,68 @@ function PlaySketch(p) {
 
     // GAME OVER
     if (window.isGameOver) {
-      ////////////////////////////////////////////
       if (!window.runCoinsCalculated) {
-        // calculate coins, scores
         const runCoinReward = CurrencyManager.computeCoinsEarned(window.coinsCollected);
         CurrencyManager.updateTotalCoins(runCoinReward);
-        const elapsedTime = (p.millis() - p.startTime - window.totalPausedTime) / 1000; // Account for paused time
-        const enemyDestroyed = window.enemyDestroyedCount || 0;
-        const finalscore = ScoreManager.computeScore(elapsedTime, enemyDestroyed, window.coinsCollected, window.difficulty);
-        ScoreManager.updateHighScore(finalscore);
-        window.finalScore = finalscore;
 
-        fetch("http://cassini.cs.kent.edu:9411/submit_score", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json"
-          },
-          body: JSON.stringify({
-            username: window.username,  // This must be set when user logs in!
-            score: finalscore
+        const elapsedTime = (p.millis() - p.startTime - window.totalPausedTime) / 1000; 
+        const enemyDestroyed = window.enemyDestroyedCount || 0;
+
+        const finalscore = ScoreManager.computeScore(
+          elapsedTime,
+          enemyDestroyed,
+          window.coinsCollected,
+          window.difficulty
+        );
+
+        ScoreManager.updateHighScore(finalscore);
+        window.finalScore = finalscore
+
+        if (window.accessToken) {
+          fetch(`${BACKEND_URL}/submit_score`, {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+              "Authorization": `Bearer ${window.accessToken}`
+            },
+            body: JSON.stringify({
+              username: window.username && window.username.trim() !== "" ? window.username : "NOLOGIN",
+              score: finalscore
+            })
           })
-        })
-          .then(response => response.json())
-          .then(data => {
-            if (!data.success) {
-              console.error("Score submit error:", data.message);
-            }
-          })
-          .catch(error => {
-            console.error("Error submitting score:", error);
-          });
+            .then(response => response.json())
+            .then(data => {
+              if (data.error) {
+                console.error("Score submit error:", data.error);
+              } else {
+                console.log("Score successfully submitted!");
+                if (typeof loadLeaderboard === "function") {
+                  loadLeaderboard();
+                }
+              }
+            })
+            .catch(error => {
+              console.error("Error submitting score:", error);
+            });
+        } else {
+          console.warn("No access token, skipping score submission.");
+        }
+
         console.log("Game Over: Score sent to server: " + finalscore);
+
         if (window.debug) {
-          console.log("Game Over: Run coins reward calculated: " + runCoinReward);
-          console.log("Game Over: Score calculated: " + computedScore +
+          console.log(
+            "Game Over: Run coins reward calculated: " + runCoinReward +
+            " | Score: " + finalscore +
             " (Elapsed Time: " + elapsedTime +
             ", Enemies Destroyed: " + enemyDestroyed +
             ", Coins Collected: " + window.coinsCollected +
-            ", Difficulty: " + window.difficulty + ")");
+            ", Difficulty: " + window.difficulty + ")"
+          );
         }
+
         window.runCoinsCalculated = true;
       }
-      ////////////////////////////////////////////
 
       drawGameScene();
       p.showGameOverScreen();

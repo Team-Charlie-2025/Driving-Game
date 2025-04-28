@@ -2,6 +2,15 @@
 
 let globalsLoaded = false;
 
+const BACKEND_URL = (function() {
+  const isLocalhost = window.location.hostname === "127.0.0.1" || window.location.hostname === "localhost";
+  if (isLocalhost) {
+    return "http://127.0.0.1:9411";
+  } else {
+    return "http://cassini.cs.kent.edu:9411";
+  }
+})();
+
 function loadGlobals(p) {
   loadCars(p);
   loadEngines(p);
@@ -16,6 +25,7 @@ function loadGlobals(p) {
   window.buildingImg = p.loadImage("assets/building.png");
   window.difficulty = 1.0;
   window.debug = false;
+  window.username = "NOLOGIN";
   globalsLoaded = true;
 }
 
