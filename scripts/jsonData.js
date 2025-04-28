@@ -22,7 +22,7 @@ window.carBaseStats = {
     health: 150,
     boost: 40,
     maxSpeed: 6,
-    acceleration: 0.4,
+    acceleration: 0.7,  // Truck has lower gear ratios so it works
     traction: 0.6,
     dmgRes: 15
   },

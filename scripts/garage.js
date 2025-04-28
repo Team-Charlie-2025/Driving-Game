@@ -88,9 +88,6 @@ function GarageSketch(p) {
   let upgrades = [], carBoxes = [], resetUpgradeButton;
   let debugAddCoinsButton;
 
-  
-
-
 
   p.preload = function () {
     loadMusic(p);
@@ -150,7 +147,7 @@ function GarageSketch(p) {
     setupUpgradeLayout();
     setupItemPurchaseButtons();
     setupCarBodySelector();
-    moreCarsButton = new Button("More Cars", p.width - 150 * window.widthScale, 20 * window.heightScale, () => {
+    moreCarsButton = new Button("More Cars", p.width - 350 * window.widthScale, 75 * window.heightScale, () => {
       selectingCarType = true;
       setupCarTypeSelector();
     });
@@ -363,8 +360,27 @@ function GarageSketch(p) {
       p.fill(211);
       p.rect(box.x, box.y, box.w, box.h);
   
-      // Placeholder image logic (could add real images later)
-      // For now, just a box.
+      let carImage = window.cars?.[box.type]?.[0]; // Get the first image of the car type
+      if (carImage) {
+        const imageSize = box.w * 0.8; // Scale the image to fit inside the box
+        if(box.type == "truck" || "supercar"){
+          p.image(
+            carImage,
+            box.x + (box.w - imageSize) / 2.2, // Center the image horizontally
+            box.y + (box.h - imageSize) / 2, // Center the image vertically
+            imageSize,
+            imageSize
+          );
+        }else{
+          p.image(
+            carImage,
+            box.x + (box.w - imageSize) / 2, // Center the image horizontally
+            box.y + (box.h - imageSize) / 2, // Center the image vertically
+            imageSize,
+            imageSize
+          );
+        }
+      } 
   
       p.fill(0);
       p.textAlign(p.CENTER, p.TOP);
@@ -381,25 +397,6 @@ function GarageSketch(p) {
       }
     });
   }
-  
-  
-  function purchaseCarType(type) {
-    if (purchasedCarTypes[type]) {
-      switchCarType(type);
-      return;
-    }
-  
-    if (CurrencyManager.getTotalCoins() >= CAR_TYPE_COST[type]) {
-      CurrencyManager.spendCoins(CAR_TYPE_COST[type]);
-      purchasedCarTypes[type] = true;
-      switchCarType(type);
-      saveConfiguration();
-      console.log(`Purchased and switched to car type: ${type}`);
-    } else {
-      console.log(`Not enough coins to purchase car type: ${type}`);
-    }
-  }
-  
   
 
   function computeCalcStats() {
@@ -608,6 +605,12 @@ function GarageSketch(p) {
     }
   };
   
+  p.keyPressed = function () {
+    if (p.keyCode === p.ESCAPE) {
+      bgMusic(Mode.GARAGE, p, "stop");
+      switchSketch(Mode.TITLE);
+    }
+  };
 
   p.windowResized = function () {
     p.resizeCanvas(p.windowWidth, p.windowHeight);
@@ -621,7 +624,7 @@ function GarageSketch(p) {
     setupUpgradeLayout();
     setupItemPurchaseButtons();
     setupCarBodySelector();
-    moreCarsButton = new Button("More Cars", p.width - 150 * window.widthScale, 20 * window.heightScale, () => {
+    moreCarsButton = new Button("More Cars", p.width - 375 * window.widthScale, 75 * window.heightScale, () => {
       selectingCarType = true;
       setupCarTypeSelector();
     });

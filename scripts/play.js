@@ -92,8 +92,17 @@ function PlaySketch(p) {
     const selectedCarIndex = savedData.selectedCar || 0;
     const selectedCarType = savedData.selectedCarType || "normal";
 
+    let tempWidth;
+    let tempHeight;   // Used for colliders
     if(selectedCarType == "normal" || "supercar"){
       car = new Car(p, 475*gridSize, 250*gridSize, stats);  // Puts the car near the dock
+      tempWidth = carWidth;
+      tempHeight = carHeight;
+    }
+    if(selectedCarType == "truck"){
+      car = new PlayerTruck(p, 475*gridSize, 250*gridSize, stats);
+      tempWidth = truckWidth;
+      tempHeight = truckHeight;
     }
     //car = new Car(p, centerX*32, centerY*32, stats);  // Puts the car downtown
 
@@ -102,12 +111,11 @@ function PlaySketch(p) {
     if (window.cars && window.cars[selectedCarType][selectedCarIndex]) {
       car.currentImage = window.cars[selectedCarType][selectedCarIndex];
     }
-    
     // Update collider with the correct image
     car.collider = new Collider(
       car,
       "polygon",
-      { offsetX: -32, offsetY: -32 },
+      { offsetX: -tempWidth/2, offsetY: -tempHeight/2 },
       car.currentImage
     );
     
