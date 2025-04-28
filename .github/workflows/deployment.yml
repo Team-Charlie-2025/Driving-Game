@@ -37,6 +37,11 @@ jobs:
         ssh -T ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} "
           screen -dmS SwiggleServer bash -c 'python3 -m http.server ${{ secrets.HTTP_PORT }}'
         "
+    - name: run backend
+      run: |
+        ssh -T ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} "
+          screen -dmS AppServer bash -c 'python3 app.py'
+        "
 
     - name: cleanup
       run: rm -rf ~/.ssh
