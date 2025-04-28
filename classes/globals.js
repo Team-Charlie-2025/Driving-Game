@@ -47,8 +47,7 @@ function loadCars(p) {
   window.cars = {
     normal: [],
     truck: [],
-    sports: [],
-    super: []
+    supercar: [],
   };
 
   // Load images for the "normal" car
@@ -62,8 +61,8 @@ function loadCars(p) {
   window.cars["normal"].push(p.loadImage("graphics/cars/redStripe.png"));
 
   // // Load images for the truck
-  window.cars["truck"].push(p.loadImage("assets/police+truck.png"));
-  window.cars["truck"].push(p.loadImage("assets/police+truck.png"));
+  window.cars["truck"].push(p.loadImage("graphics/car/truckGreen.png"));
+  window.cars["truck"].push(p.loadImage("graphics/cars/truckRed.png"));
   window.cars["truck"].push(p.loadImage("assets/police+truck.png"));
   window.cars["truck"].push(p.loadImage("assets/police+truck.png"));
   window.cars["truck"].push(p.loadImage("assets/police+truck.png"));
@@ -73,11 +72,9 @@ function loadCars(p) {
   // window.cars["truck"].push(p.loadImage("graphics/cars/truckRed.png"));
   // window.cars["truck"].push(p.loadImage("graphics/cars/truckYellow.png"));
 
-  // // Load images for the sports car
+  // // Load images for the superCar
   // window.cars["sports"].push(p.loadImage("graphics/cars/sportsBlue.png"));
-  // window.cars["sports"].push(p.loadImage("graphics/cars/sportsGreen.png"));
-  // window.cars["sports"].push(p.loadImage("graphics/cars/sportsRed.png"));
-  // window.cars["sports"].push(p.loadImage("graphics/cars/sportsYellow.png"));
+
 
   console.log("Cars loaded:", window.cars);
 }

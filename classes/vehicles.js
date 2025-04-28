@@ -1,5 +1,5 @@
 // classes/_vehicles.js
-const carWidth = 64;
+const carWidth = 96;
 const carHeight = 64;
 
 // Full Car Class with Snap Oversteer Drift Physics — Fixed Traction, No Scaling

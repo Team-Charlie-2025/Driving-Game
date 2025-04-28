@@ -53,22 +53,19 @@ function GarageSketch(p) {
   let carUpgrades = {
     normal: { engine: 1, body: 1, transmission: 1, tires: 1 },
     truck: { engine: 1, body: 1, transmission: 1, tires: 1 },
-    sportscar: { engine: 1, body: 1, transmission: 1, tires: 1 },
-    super: { engine: 1, body: 1, transmission: 1, tires: 1 }
+    supercar: { engine: 1, body: 1, transmission: 1, tires: 1 },
   };
 
   let carColorsUnlocked = {
     normal: [true, false, false, false, false, false, false, false],
     truck:  [true, false, false, false, false, false],
-    sportscar: [true, false, false, false],
-    super: [true]
+    supercar: [true],
   };
 
   let purchasedCarTypes = {
     normal: true,
     truck: false,
-    sportscar: false,
-    super: true
+    supercar: false,
   };
 
   let selectingCarType = false;   // Flag for if were picking a different cr
@@ -76,13 +73,13 @@ function GarageSketch(p) {
   let moreCarsButton;     // Something tells me this is wrong but it works
 
   let selectedCarIndex = 0;     // Color index
-  let selectedCarType = CarType.NORMAL;  // (normal, truck, sportscar)
+  let selectedCarType = CarType.NORMAL;  // (normal, truck, supercar)
 
   const CAR_COLOR_COST = 10;
   const CAR_TYPE_PRICES = {
     normal: 0,
     truck: 500,
-    sportscar: 750
+    supercar: 750
   };
 
   let BASE_UPGRADE_PRICE = 25;
@@ -131,6 +128,8 @@ function GarageSketch(p) {
       if (savedConfig?.purchasedCarTypes) {
         purchasedCarTypes = savedConfig.purchasedCarTypes;
       }
+      if (selectedCarType == "sportscar") selectedCarType = "normal"
+      console.log("car type: " + selectedCarType)
       loadCarUpgrades(selectedCarType);
 
       console.log("car index1: " + selectedCarIndex);
@@ -214,7 +213,7 @@ function GarageSketch(p) {
     carTypeBoxes = [];
     const carBoxSize = 150 * window.widthScale; 
     const spacing = 20 * window.widthScale;
-    const types = ['normal', 'truck', 'sportscar'];
+    const types = ['normal', 'truck', 'supercar'];
     const totalWidth = types.length * carBoxSize + (types.length - 1) * spacing;
     const startX = (p.width - totalWidth) / 2;
     const startY = 20 * window.heightScale;
@@ -658,23 +657,23 @@ function GarageSketch(p) {
     carUpgrades = {
       normal: { engine: 1, body: 1, transmission: 1, tires: 1 },
       truck: { engine: 1, body: 1, transmission: 1, tires: 1 },
-      sportscar: { engine: 1, body: 1, transmission: 1, tires: 1 }
+      supercar: { engine: 1, body: 1, transmission: 1, tires: 1 }
     };
   
     carColorsUnlocked = {
       normal: [true, false, false, false, false, false, false, false],
       truck:  [true, false, false, false, false, false],
-      sportscar: [true, false, false, false]
+      supercar: [true, false, false, false]
     };
   
     purchasedCarTypes = {
       normal: true,
       truck: false,
-      sportscar: false
+      supercar: false
     };
   
     selectedCarIndex = 0;     // Color index
-    selectedCarType = CarType.NORMAL;  // (normal, truck, sportscar)
+    selectedCarType = CarType.NORMAL;  // (normal, truck, supercar)
 
     
     ItemsManager.unlockedItems = {

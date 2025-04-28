@@ -32,6 +32,7 @@ function PlaySketch(p) {
   p.preload = function() {
     loadMusic(p);
     loadSoundEffects(p);
+    loadCars(p);
     
     p.buildingImg = p.loadImage("assets/building.png");
     p.enemyImg = p.loadImage("assets/police+car.png");   // Regular cop car image
@@ -87,13 +88,17 @@ function PlaySketch(p) {
     // Load player car
     const savedData = loadPersistentData();
     const stats = savedData.stats;
-    //car = new Car(p, centerX*32, centerY*32, stats);  // Puts the car downtown
-    car = new Car(p, 475*gridSize, 250*gridSize, stats);  // Puts the car near the dock
-
-
     // Set car image from selected car color if it exists
     const selectedCarIndex = savedData.selectedCar || 0;
     const selectedCarType = savedData.selectedCarType || "normal";
+
+    if(selectedCarType == "normal" || "supercar"){
+      car = new Car(p, 475*gridSize, 250*gridSize, stats);  // Puts the car near the dock
+    }
+    //car = new Car(p, centerX*32, centerY*32, stats);  // Puts the car downtown
+
+
+    console.log("car type: " + selectedCarType)
     if (window.cars && window.cars[selectedCarType][selectedCarIndex]) {
       car.currentImage = window.cars[selectedCarType][selectedCarIndex];
     }
