@@ -48,6 +48,8 @@ class Car extends GameObject {
     this.spinOutThreshold = 5.0;
     this.driftDirection = 0;
 
+    
+
 
     // Gear simulation
     this.gearMultipliers = [0.05, 0.07, 0.09, 0.035, 0.008, -0.06];
@@ -181,11 +183,12 @@ class Car extends GameObject {
     }
 
     // Drift physics
+    let tractionPercent = currentSpeed / 18;   // Traction is how well you can grip at speed from 0-20, .3 traction will grip well until 6
     let currentSpeed = this.speed;
     let driftKeyPressed = p.keyIsDown(getKeyForAction("drift"));
-    let aboveMax = currentSpeed > this.maxSpeed*.95;
+    let aboveMax = tractionPercent > .95;
     let lerpAmount = 1;
-    let tractionPercent = currentSpeed /20;   // Traction is how well you can grip at speed from 0-20, .3 traction will grip well until 6
+    
     if (tractionPercent > 1) lerpAmount = 0.001;  // This is a real drift
     //else if (currentSpeed >= this.maxSpeed * 0.98) lerpAmount = 0.005;
     else if (tractionPercent >=  0.95) lerpAmount = 0.0025;
@@ -335,7 +338,7 @@ class PlayerTruck extends Car {
     this.damageResScale = SAVED_STATS.damageRes/8;
     this.friction = 0.03;
     this.reverseSpeed = -3;
-    this.turnSpeed = 0.04;
+    this.turnSpeed = 0.05;
     this.turnFrames = 1;
     let turnFrameDelay =15;
 
@@ -460,12 +463,12 @@ class PlayerTruck extends Car {
     }
 
     // Drift physics
+    let tractionPercent = currentSpeed / 18;   // Traction is how well you can grip at speed from 0-20, .3 traction will grip well until 6
     let currentSpeed = this.speed;
     let driftKeyPressed = p.keyIsDown(getKeyForAction("drift"));
-    let aboveMax = currentSpeed > this.maxSpeed*.95;
+    let aboveMax = tractionPercent > .95;
     let lerpAmount = 1;
     
-    let tractionPercent = currentSpeed /20;   // Traction is how well you can grip at speed from 0-20, .3 traction will grip well until 6
     if (tractionPercent > 1) lerpAmount = 0.001;  // This is a real drift
     //else if (currentSpeed >= this.maxSpeed * 0.98) lerpAmount = 0.005;
     else if (tractionPercent >=  0.95) lerpAmount = 0.0025;
@@ -710,12 +713,12 @@ class SuperCar extends Car {
     }
 
     // Drift physics
+    let tractionPercent = currentSpeed / 18;   // Traction is how well you can grip at speed from 0-20, .3 traction will grip well until 6
     let currentSpeed = this.speed;
     let driftKeyPressed = p.keyIsDown(getKeyForAction("drift"));
-    let aboveMax = currentSpeed > this.maxSpeed*.95;
+    let aboveMax = tractionPercent > .95;
     let lerpAmount = 1;
     
-    let tractionPercent = currentSpeed /18;   // Traction is how well you can grip at speed from 0-20, .3 traction will grip well until 6
     if (tractionPercent > 1) lerpAmount = 0.001;  // This is a real drift
     //else if (currentSpeed >= this.maxSpeed * 0.98) lerpAmount = 0.005;
     else if (tractionPercent >=  0.95) lerpAmount = 0.0025;
