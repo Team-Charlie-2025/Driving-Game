@@ -57,14 +57,14 @@ function SignupSketch(p) {
     let username = usernameInput.value();
     let password = passwordInput.value();
 
-    fetch('http://cassini.cs.kent.edu:9411/signup', {
+    fetch(`${BACKEND_URL}/signup`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ username: username, password: password })
     })
       .then(response => response.json())
       .then(data => {
-        if (data.success) {
+        if (data.access_token) {
           message.html("Signup successful! Redirecting...");
           message.style('color', 'green');
           message.show();
@@ -94,7 +94,7 @@ function SignupSketch(p) {
     ExitIcon.display(p);
     p.fill(255, 255, 255, 200);
     p.noStroke();
-    p.rect(p.width / 2 - (500 *window.widthScale/2), p.height / 2 - (500*window.heightScale/2), (500 *window.widthScale), (500*window.heightScale), 15);
+    p.rect(p.width / 2 - (500 * window.widthScale / 2), p.height / 2 - (500 * window.heightScale / 2), (500 * window.widthScale), (500 * window.heightScale), 15);
 
     p.textSize(100*window.scale);
     p.fill(50);

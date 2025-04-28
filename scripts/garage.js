@@ -252,7 +252,7 @@ function GarageSketch(p) {
   function getPrice(partType){
     if (window.debug) return 0;
     const level = getUpgradeLevel(partType);
-    return Math.floor((BASE_UPGRADE_PRICE * 3 * Math.log(BASE_UPGRADE_PRICE) * (level * level) / 20));
+    return Math.floor((BASE_UPGRADE_PRICE * 3 * Math.log(BASE_UPGRADE_PRICE) * (level * level) / 7.5));
   }
 
   p.draw = function () {

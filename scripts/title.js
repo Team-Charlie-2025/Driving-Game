@@ -12,7 +12,7 @@ function TitleSketch(p) {
   let githubLink;
   let windowHeightScale, windowWidthScale, windowScale;
 
-  p.preload = function() {    
+  p.preload = function () {
     loadMusic(p);
     loadSoundEffects(p);
     bgImage = p.loadImage("graphics/titleScreen/titleBackground2.png"); //trial of a new background (higher def)
@@ -38,6 +38,7 @@ function TitleSketch(p) {
     }
     /*
     debugCheckbox = p.createCheckbox("Debug", window.debug);
+    debugCheckbox.position(10 * window.widthScale, 10 * window.heightScale);
     debugCheckbox.position(50*window.widthScale, 10*window.heightScale);
     debugCheckbox.changed(() => {
       window.debug = debugCheckbox.checked();
@@ -50,6 +51,8 @@ function TitleSketch(p) {
     bgMusic(Mode.TITLE, p, "loop");
     p.windowResized();
     window.LoadingScreen.hide();
+    console.log(`Username is ${window.username}`);
+    console.log(`Stored user is ${storedUser}`);
   };
 
   p.draw = function () {
@@ -64,7 +67,7 @@ function TitleSketch(p) {
       for (let btn of levelButtons) {
         btn.display(p);
       }
-    } 
+    }
     else if (showHelpScreen) { //HELP INFORMATION
       exitHelpButton.display(p);
       p.fill(255, 255, 255, 200);
@@ -104,7 +107,7 @@ function TitleSketch(p) {
           break;
         }
       }
-  
+
       if (ExitIcon.isMouseOver(p)) {
         bgMusic(Mode.TITLE, p, "loop");
         showLevelSelection = false;
@@ -117,7 +120,7 @@ function TitleSketch(p) {
     else if (helpButton.isMouseOver(p)){
       helpButton.callback();
     }
-    else if(!showHelpScreen){
+    else if (!showHelpScreen) {
       for (let btn of buttons) {
         if (btn.isMouseOver(p)) {
           if (btn.label !== "Play") {
@@ -144,7 +147,7 @@ function TitleSketch(p) {
     p.resizeCanvas(p.windowWidth, p.windowHeight);
     window.heightScale = p.windowHeight / 1080;
     window.widthScale = p.windowWidth / 1920;
-    window.scale = (window.widthScale + window.heightScale)/2;
+    window.scale = (window.widthScale + window.heightScale) / 2;
     buttons = [];
     levelButtons = [];
     createHelpButton();
@@ -179,18 +182,26 @@ function TitleSketch(p) {
       new Button("Map Editor", p.width / 1.05, p.height - p.height * 0.05, function () {
         switchSketch(Mode.MAP_EDITOR);
       })
-    );    
-    buttons.push(
-      new Button("Signup", p.width / 18, p.height - p.height * 0.92, function () {
+    );
+    if (!window.accessToken) {
+      buttons.push(new Button("Signup", p.width / 1.05, p.height - p.height * 0.10, () => {
         switchSketch(Mode.SIGNUP);
-      })
-    );
-  
-    buttons.push(
-      new Button("Login", p.width / 18, p.height - p.height * 0.87, function () {
+      }));
+      buttons.push(new Button("Login", p.width / 1.05, p.height - p.height * 0.15, () => {
         switchSketch(Mode.LOGIN);
-      })
-    );
+      }));
+    } else {
+      // if already logged in, show Logout
+      buttons.push(new Button("Logout", p.width / 1.05, p.height - p.height * 0.10, () => {
+        // clear stored credentials
+        localStorage.removeItem("accessToken");
+        localStorage.removeItem("username");
+        window.accessToken = null;
+        window.username = "NOLOGIN";
+        // reload title
+        switchSketch(Mode.TITLE);
+      }, "red"));
+    }
   }
 
   function createLevelButtons() {
@@ -211,7 +222,7 @@ function TitleSketch(p) {
       }, "orange", "medium")
     );
     levelButtons.push(
-      new Button("MEDIUM", p.width / 2, p.height - p.height * 0.40,function () {
+      new Button("MEDIUM", p.width / 2, p.height - p.height * 0.40, function () {
         window.difficulty = 1.0;
         console.log("Difficulty changed to MEDIUM, value " + window.difficulty);
         bgMusic(Mode.TITLE, p, "stop");
