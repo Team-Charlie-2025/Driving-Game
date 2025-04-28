@@ -311,47 +311,31 @@ function PlaySketch(p) {
 
         if (window.accessToken) {
           fetch(`${BACKEND_URL}/submit_score`, {
-            method: "POST",
+            method:  "POST",
             headers: {
-              "Content-Type": "application/json",
+              "Content-Type":  "application/json",
               "Authorization": `Bearer ${window.accessToken}`
             },
-            body: JSON.stringify({
-              username: window.username && window.username.trim() !== "" ? window.username : "NOLOGIN",
-              score: finalscore
-            })
+            body: JSON.stringify({ score: finalscore })
           })
-            .then(response => response.json())
-            .then(data => {
-              if (data.error) {
-                console.error("Score submit error:", data.error);
-              } else {
-                console.log("Score successfully submitted!");
-                if (typeof loadLeaderboard === "function") {
-                  loadLeaderboard();
-                }
+          .then(response => response.json())
+          .then(data => {
+            if (data.error) {
+              console.error("Score submit error:", data.error);
+            } else {
+              console.log("Score successfully submitted!", finalscore);
+              if (typeof loadLeaderboard === "function") {
+                loadLeaderboard();
               }
-            })
-            .catch(error => {
-              console.error("Error submitting score:", error);
-            });
+            }
+          })
+          .catch(err => {
+            console.error("Error submitting score:", err);
+          });
         } else {
           console.warn("No access token, skipping score submission.");
         }
-
-        console.log("Game Over: Score sent to server: " + finalscore);
-
-        if (window.debug) {
-          console.log(
-            "Game Over: Run coins reward calculated: " + runCoinReward +
-            " | Score: " + finalscore +
-            " (Elapsed Time: " + elapsedTime +
-            ", Enemies Destroyed: " + enemyDestroyed +
-            ", Coins Collected: " + window.coinsCollected +
-            ", Difficulty: " + window.difficulty + ")"
-          );
-        }
-
+        console.log("Game Over: Score sent to server:", finalscore);
         window.runCoinsCalculated = true;
       }
 
@@ -489,7 +473,7 @@ function PlaySketch(p) {
     }
 
     // Only handle gameplay inputs when not paused
-    if (!isPaused) {
+    if (!isPaused || !window.isGameOver) {
       if (p.keyCode === getKeyForAction("placebomb")) {
         ItemsManager.placeBomb(p, car, bombs, isPaused);
       }

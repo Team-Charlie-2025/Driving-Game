@@ -10,6 +10,11 @@ const BACKEND_URL = (function () {
     return "http://cassini.cs.kent.edu:9411";
   }
 })();
+const storedToken = localStorage.getItem("accessToken");
+const storedUser = localStorage.getItem("username");
+
+window.accessToken = (storedToken && storedToken !== "undefined") ? storedToken : null;
+window.username = (storedUser && storedUser !== "undefined") ? storedUser : "NOLOGIN";
 
 function loadGlobals(p) {
   loadCars(p);
@@ -25,7 +30,6 @@ function loadGlobals(p) {
   window.buildingImg = p.loadImage("assets/building.png");
   window.difficulty = 1.0;
   window.debug = false;
-  if (!window.username) window.username = "NOLOGIN"
   globalsLoaded = true;
 }
 
