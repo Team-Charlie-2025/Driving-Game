@@ -26,15 +26,16 @@ jobs:
           git fetch origin &&
           git reset --hard origin/${{ secrets.MAIN_BRANCH }}
         "
+    - name: kill previous process (if running)
+      run: |
+        ssh ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} "
+          lsof -iTCP:9420 -sTCP:LISTEN -t | xargs kill || true
+        "
 
     - name: run server
-  run: |
+      run: |
     ssh -T ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} "
-      screen -S SwiggleServer -X quit || true;
-      screen -dmS SwiggleServer bash -c '
-        cd ~/${{ secrets.WORK_DIR }} &&
-        python3 -m http.server ${{ secrets.HTTP_PORT }}
-      '
+      screen -dmS SwiggleServer bash -c 'python3 -m http.server ${{ secrets.HTTP_PORT }}'
     "
 
     - name: cleanup
