@@ -43,6 +43,10 @@ function soundEffect(name, p, action = "stop"){
             if(!window.soundEffects[name].isPlaying())
                 window.soundEffects[name].play();
             break;
+        case "gameWon":
+            if(!window.soundEffects[name].isPlaying())
+                window.soundEffects[name].play();
+            break;
     }
 }
 

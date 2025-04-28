@@ -1,5 +1,6 @@
 function PlaySketch(p) {
   let gameOverSound = true;
+  let gameWonSound = true;
   let car;
   let hud;
   let physicsEngine;
@@ -113,7 +114,7 @@ function PlaySketch(p) {
       tempWidth = truckWidth;
       tempHeight = truckHeight;
     } else if(selectedCarType == "supercar"){
-      car = new SuperCar(p, centerX*32, centerY*32, stats);  // Puts the car near the dock
+      car = new SuperCar(p,475*gridSize, 250*gridSize, stats);  // Puts the car near the dock
       tempWidth = superCarWidth;
       tempHeight = superCarHeight;
     }
@@ -193,13 +194,16 @@ function PlaySketch(p) {
     };
 
     p.showGameWinScreen = function () {
+      //if(gameWonSound) {soundEffect("gameWon", p, "play"); gameWonSound = false;}
+      //soundEffect("gameWon", p, "loop");
       bgMusic(Mode.PLAY, p, "stop");
-
+      bgMusic("gameWon", p, "play");
+      
       // Takes away the boat
-      ItemsManager.unlockedItems.boat = false;
-      const savedData = loadPersistentData()
-      savedData.unlockedItems.boat = false;
-      savePersistentData(savedData);
+      // ItemsManager.unlockedItems.boat = false;
+      // const savedData = loadPersistentData()
+      // savedData.unlockedItems.boat = false;
+      // savePersistentData(savedData);
       
       // We need some peaceful you won sound
       // if(gameOverSound) {soundEffect("gameOver", p, "play"); gameOverSound = false;} 
@@ -215,12 +219,12 @@ function PlaySketch(p) {
       p.text("You Won", p.width / 2, p.height / 3);
 
       p.textSize(30* window.scale);
-      p.text(`Your Final Score: ${window.finalScore || 0}`, p.width / 2, p.height / 2.5 );
+      p.text(`Your Final Score: ${window.finalScore || 0}`, 960 * window.widthScale, 380 * window.heightScale );
 
       p.fill(255);
       p.text()
       p.text("You win... For now", p.width / 2, p.height / 1.5);
-      p.text("Press M for Main Menu", p.width / 2, p.height / 1.2);
+      p.text("Press ESC for Main Menu", p.width / 2, p.height / 1.2);
       p.pop();
   };
   };
@@ -405,7 +409,7 @@ function PlaySketch(p) {
     }
 
     // ########    GAME WON     ########
-    if(window.won){
+    if(window.gameWon){
       ////////////////////////////////////////////
       if (!window.runCoinsCalculated) {
         // calculate coins, scores

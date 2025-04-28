@@ -27,6 +27,7 @@ function loadMusic(p) {
   window.music[Mode.SETTINGS] = p.loadSound("sound/titleTheme.mp3");
   window.music[Mode.LEADERBOARD] = p.loadSound("sound/titleTheme.mp3");
   window.music[Mode.LEVELS] = p.loadSound("sound/titleTheme.mp3");
+  window.music["gameWon"] = p.loadSound("sound/SeaShantay2.mp3");
   for (let key in window.music) {
     window.music[key].setVolume(musicVolume);
 }
@@ -38,7 +39,7 @@ function loadSoundEffects(p) {
   window.soundEffects["carStart"] = p.loadSound("sound/carStart.wav");
   window.soundEffects["pageChange"] = p.loadSound("sound/newPage.wav");
   window.soundEffects["gameOver"] = p.loadSound("sound/GameOver.wav");
-  window.soundEffects["gameWin"] = p.loadSound("sound/SeaShantay2.mp3");
+  window.soundEffects["gameWon"] = p.loadSound("sound/SeaShantay2.mp3");
   for (let key in window.soundEffects) {
     window.soundEffects[key].setVolume(effectsVolume);
 }

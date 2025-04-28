@@ -11,7 +11,8 @@ class Car extends GameObject {
   constructor(p, x, y, stats) {
     super(x, y);
     this.p = p;
-    window.won = false;   // We have not won
+    this.won = false;
+    window.gameWon = this.won;
     this.speed = 0;
     this.angle = 0;
     this.prevAngle = 0;
@@ -28,7 +29,7 @@ class Car extends GameObject {
     this.acceleration = SAVED_STATS.acceleration;
     this.maxSpeed = SAVED_STATS.maxSpeed;
     this.tireTraction = SAVED_STATS.traction;
-    this.damageRes = SAVED_STATS.damageRes/10;  
+    this.damageResScale = SAVED_STATS.damageRes/8;  
     this.friction = 0.02;
     this.reverseSpeed = -4;
     this.turnSpeed = 0.07;
@@ -124,7 +125,7 @@ class Car extends GameObject {
       this.maxSpeed = this.baseMaxSpeed * (terrainType === "grass" ? 0.7 : 1);
     }
     if(terrainType === "dock" && ItemsManager.unlockedItems.boat) 
-      window.won = true;    // We won
+      window.gameWon = true;    // We won
     if (p.keyIsDown(getKeyForAction("forward")) && !this.controlDisabled) {
       if (p.keyIsDown(getKeyForAction("boost")) && this.boostMeter > 0) {
         this.isBoosting = true;
@@ -288,7 +289,7 @@ class Car extends GameObject {
     if (other instanceof Enemy) { //upon ememy collision
       damage = other.attackDamage;
       damage = ItemsManager.shieldDamage(damage);
-      this.healthBar = Math.max(0, this.healthBar - (damage/this.damageRes));
+      this.healthBar = Math.max(0, this.healthBar - (damage/this.damageResScale));
     }
     else if(other instanceof Wrench){
       if (this.healthBar < this.maxHealth) {
@@ -301,12 +302,12 @@ class Car extends GameObject {
     else if(other instanceof Bomb){
       damage = other.attackDamage;
       damage = ItemsManager.shieldDamage(damage);
-      this.healthBar = Math.max(0, this.healthBar - (damage/this.damageRes));
+      this.healthBar = Math.max(0, this.healthBar - (damage/this.damageResScale));
     }
     else if(other instanceof Oil){
       damage = other.attackDamage;
       damage = ItemsManager.shieldDamage(damage);
-      this.healthBar = Math.max(0, this.healthBar - (damage/this.damageRes));
+      this.healthBar = Math.max(0, this.healthBar - (damage/this.damageResScale));
       this.speed = this.speed *0.9;
     }
   }
@@ -314,8 +315,8 @@ class Car extends GameObject {
   buildingCollision(){
     let damage = 5 * window.difficulty * Math.abs((10*this.speed/this.baseMaxSpeed));
     damage = ItemsManager.shieldDamage(damage);
-    console.log("building damage: " + damage + "damag res " + this.damageRes);
-    this.healthBar = Math.max(0, this.healthBar - (damage/this.damageRes));
+    console.log("building damage: " + damage + "damag res " + this.damageResScale);
+    this.healthBar = Math.max(0, this.healthBar - (damage/this.damageResScale));
     this.speed *=-.25;
   }
 
@@ -333,7 +334,7 @@ class PlayerTruck extends Car {
     super(p,x,y,stats);
 
     this.attackDamage = 40;
-    this.damageRes = data.damageRes;
+    this.damageResScale = SAVED_STATS.damageRes/8;
     this.friction = 0.03;
     this.reverseSpeed = -3;
     this.turnSpeed = 0.04;
@@ -394,7 +395,7 @@ class PlayerTruck extends Car {
       this.maxSpeed = this.baseMaxSpeed * (terrainType === "grass" ? 0.8 : 1);
     }
     if(terrainType === "dock" && ItemsManager.unlockedItems.boat) 
-      window.won = true;    // We won
+      window.gameWon = true;    // We won
     if (p.keyIsDown(getKeyForAction("forward")) && !this.controlDisabled) {
       if (p.keyIsDown(getKeyForAction("boost")) && this.boostMeter > 0) {
         this.isBoosting = true;
@@ -541,7 +542,7 @@ class PlayerTruck extends Car {
     if (other instanceof Enemy) { //upon ememy collision
       damage = other.attackDamage;
       damage = ItemsManager.shieldDamage(damage);
-      this.healthBar = Math.max(0, this.healthBar - (damage/this.damageRes));
+      this.healthBar = Math.max(0, this.healthBar - (damage/this.damageResScale));
     }
     else if(other instanceof Wrench){
       if (this.healthBar < this.maxHealth) {
@@ -554,12 +555,12 @@ class PlayerTruck extends Car {
     else if(other instanceof Bomb){
       damage = other.attackDamage;
       damage = ItemsManager.shieldDamage(damage);
-      this.healthBar = Math.max(0, this.healthBar - (damage/this.damageRes));
+      this.healthBar = Math.max(0, this.healthBar - (damage/this.damageResScale));
     }
     else if(other instanceof Oil){
       damage = other.attackDamage;
       damage = ItemsManager.shieldDamage(damage);
-      this.healthBar = Math.max(0, this.healthBar - (damage/this.damageRes));
+      this.healthBar = Math.max(0, this.healthBar - (damage/this.damageResScale));
       this.speed = this.speed *0.9;
     }
   }
@@ -567,7 +568,7 @@ class PlayerTruck extends Car {
   buildingCollision(){
     let damage = 5 * window.difficulty * Math.abs((10*this.speed/this.baseMaxSpeed));
     damage = ItemsManager.shieldDamage(damage);
-    this.healthBar = Math.max(0, this.healthBar - (damage/this.damageRes));
+    this.healthBar = Math.max(0, this.healthBar - (damage/this.damageResScale));
     this.speed *=-.25;
   }
 
@@ -584,7 +585,7 @@ class SuperCar extends Car {
     super(p,x,y,stats);
 
     this.attackDamage = 15;
-    this.damageRes = SAVED_STATS.damageRes;
+    this.damageResScale = SAVED_STATS.damageRes/8;
     this.friction = 0.01;
     this.reverseSpeed = -5;
     this.turnSpeed = 0.07;
@@ -645,8 +646,6 @@ class SuperCar extends Car {
       this.acceleration = this.baseAcceleration * (terrainType === "grass" ? 0.6 : 1);    //Faster on grass
       this.maxSpeed = this.baseMaxSpeed * (terrainType === "grass" ? 0.6 : 1);
     }
-    if(terrainType === "dock" && ItemsManager.unlockedItems.boat) 
-      window.won = true;    // We won
     if (p.keyIsDown(getKeyForAction("forward")) && !this.controlDisabled) {
       if (p.keyIsDown(getKeyForAction("boost")) && this.boostMeter > 0) {
         this.isBoosting = true;
@@ -782,7 +781,10 @@ class SuperCar extends Car {
       this.boostMeter = Math.min(this.boostMax, this.boostMeter + this.boostRegenRate);
     }
     this.updateRPM();
-
+    if(terrainType === "dock" && ItemsManager.unlockedItems.boat) {
+      window.gameWon = true;    // We won
+      this.controlDisabled = true;
+    }
   }
 
 
@@ -793,8 +795,8 @@ class SuperCar extends Car {
     if (other instanceof Enemy) { //upon ememy collision
       damage = other.attackDamage;
       damage = ItemsManager.shieldDamage(damage);
-      console.log("damage: " + damage + "damag res " + this.damageRes);
-      this.healthBar = Math.max(0, this.healthBar - (damage/this.damageRes));
+      console.log("damage: " + damage + "damag res " + this.damageResScale);
+      this.healthBar = Math.max(0, this.healthBar - (damage/this.damageResScale));
     }
     else if(other instanceof Wrench){
       if (this.healthBar < this.maxHealth) {
@@ -807,12 +809,12 @@ class SuperCar extends Car {
     else if(other instanceof Bomb){
       damage = other.attackDamage;
       damage = ItemsManager.shieldDamage(damage);
-      this.healthBar = Math.max(0, this.healthBar - (damage/this.damageRes));
+      this.healthBar = Math.max(0, this.healthBar - (damage/this.damageResScale));
     }
     else if(other instanceof Oil){
       damage = other.attackDamage;
       damage = ItemsManager.shieldDamage(damage);
-      this.healthBar = Math.max(0, this.healthBar - (damage/this.damageRes));
+      this.healthBar = Math.max(0, this.healthBar - (damage/this.damageResScale));
       this.speed = this.speed *0.9;
     }
   }
@@ -820,8 +822,8 @@ class SuperCar extends Car {
   buildingCollision(){
     let damage = 5 * window.difficulty * Math.abs((10*this.speed/this.baseMaxSpeed));
     damage = ItemsManager.shieldDamage(damage);
-    console.log("building damage: " + damage + "damag res " + this.damageRes);
-    this.healthBar = Math.max(0, this.healthBar - (damage/this.damageRes));
+    console.log("building damage: " + damage + "damag res " + this.damageResScale);
+    this.healthBar = Math.max(0, this.healthBar - (damage/this.damageResScale));
     this.speed *=-.25;
   }
 
