@@ -1,12 +1,14 @@
 import sqlite3
 import os
 
-DB_PATH = os.getenv("DB_PATH")
+from dotenv import load_dotenv
+
+DB_PATH = os.getenv("DB_PATH", "game.db")
 
 
 def init_db():
     print("calling init db")
-    conn = sqlite3.connect(DB_PATH)
+    conn = sqlite3.connect(DB_PATH, detect_types=sqlite3.PARSE_DECLTYPES)
     cur = conn.cursor()
 
     cur.execute(
@@ -40,3 +42,8 @@ def init_db():
     print(f"[init_db] deleted {deleted} nefarious user record(s)")
 
     conn.close()
+
+
+if __name__ == "__main__":
+    init_db()
+    print(f"Initialized database at: {DB_PATH}")
