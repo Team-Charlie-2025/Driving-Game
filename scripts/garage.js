@@ -552,7 +552,7 @@ function GarageSketch(p) {
     let centerX = p.width / 2 - 160 * window.widthScale;
     let centerY = p.height / 2 - 100 * window.heightScale;
     if (window.cars?.[selectedCarType][selectedCarIndex]) {
-      if(selectedCarType == "truck" || selectedCarType == "supercar"){
+      if(selectedCarType == "truck" || selectedCarType == "supercar"){  // Draws elongated cars for special cars
         p.image(window.cars[selectedCarType][selectedCarIndex], 
               centerX - (42 * window.widthScale),
               centerY - (100 * window.heightScale),
@@ -626,10 +626,12 @@ function GarageSketch(p) {
     let vals = [stats.health, stats.boost, stats.maxSpeed, stats.acceleration, stats.traction, stats.damageRes];
     for (let i = 0; i < names.length; i++) {    // Draws the numbers
       let y = panelY + 40 * window.heightScale + i * 30 * window.heightScale;
-      
       p.textAlign(p.RIGHT);
       let v;
-      v = formatNumber(vals[i]);
+      if(i>=1 )  // Skips the boost stat
+        v = formatNumber(vals[i+1]);
+      else 
+        v = formatNumber(vals[i]);
       p.text(v, panelX + 230 * window.widthScale, y);
     }
     for (let i = 0; i < names.length; i++) {  // Draws stat names
