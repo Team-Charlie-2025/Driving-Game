@@ -7,6 +7,7 @@ class Car extends GameObject {
   constructor(p, x, y, stats) {
     super(x, y);
     this.p = p;
+    this.won = false;   // We have not won
     this.speed = 0;
     this.angle = 0;
     this.prevAngle = 0;
@@ -41,7 +42,7 @@ class Car extends GameObject {
 
 
     // Gear simulation
-    this.gearMultipliers = [0.05, 0.07, 0.09, 0.04, 0.012, -0.06];
+    this.gearMultipliers = [0.05, 0.07, 0.09, 0.035, 0.008, -0.06];
     this.maxRPM = 8000;
     this.idleRPM = 1000;
     this.currentRPM = this.idleRPM;
@@ -90,10 +91,10 @@ class Car extends GameObject {
   // Sets the gear based on speed
   getGear() { 
     let percent = this.speed / this.maxSpeed;
-    if (percent < 0.15) return 0;
+    if (percent < 0.12) return 0;
     if (percent < 0.40) return 1;
-    if (percent < 0.65) return 2;
-    if (percent < 0.85) return 3;
+    if (percent < 0.70) return 2;
+    if (percent < 0.90) return 3;
     return 4;
   }
 
@@ -115,7 +116,8 @@ class Car extends GameObject {
       this.acceleration = this.baseAcceleration * (terrainType === "grass" ? 0.65 : 1);
       this.maxSpeed = this.baseMaxSpeed * (terrainType === "grass" ? 0.65 : 1);
     }
-
+    if(terrainType === "dock" && ItemsManager.unlockedItems.boat) 
+      this.won = true;    // We won
     if (p.keyIsDown(getKeyForAction("forward")) && !this.controlDisabled) {
       if (p.keyIsDown(getKeyForAction("boost")) && this.boostMeter > 0) {
         this.isBoosting = true;
@@ -179,10 +181,11 @@ class Car extends GameObject {
     
     // Need to incorporate traction along with maxspeed to determine lerp
     if (currentSpeed > this.maxSpeed) lerpAmount = 0.0001;  // This is a real drift
-    else if (currentSpeed >= this.maxSpeed * 0.95) lerpAmount = 0.0005;
-    else if (currentSpeed >= this.maxSpeed * 0.9) lerpAmount = 0.0015;
-    else if (currentSpeed >= this.maxSpeed * 0.85) lerpAmount = 0.0025;
-    else if (currentSpeed < this.maxSpeed * 0.8) lerpAmount = 0.05;
+    //else if (currentSpeed >= this.maxSpeed * 0.98) lerpAmount = 0.0005;
+    //else if (currentSpeed >= this.maxSpeed * 0.95) lerpAmount = 0.0015;
+    else if (currentSpeed >= this.maxSpeed * 0.9) lerpAmount = 0.0025;
+    else if (currentSpeed < this.maxSpeed * 0.85) lerpAmount = 0.05;
+    else if (currentSpeed < this.maxSpeed * 0.75) lerpAmount = .1
     else lerpAmount = 0.85;
 
     if ((aboveMax || driftKeyPressed) && this.turnDelta > 0.05) {
@@ -303,7 +306,7 @@ class Car extends GameObject {
   }
 
   buildingCollision(){
-    let damage = 5 * window.difficulty * (10*this.speed/this.baseMaxSpeed);
+    let damage = 5 * window.difficulty * Math.abs((10*this.speed/this.baseMaxSpeed));
     damage = ItemsManager.shieldDamage(damage);
     this.healthBar = Math.max(0, this.healthBar - damage);
     this.speed *=-.25;
