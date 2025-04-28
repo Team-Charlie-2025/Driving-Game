@@ -21,30 +21,7 @@ function LoginSketch(p) {
       () => switchSketch(Mode.TITLE)
     );
 
-    // Username field
-    usernameInput = p.createInput();
-    usernameInput.attribute("placeholder", "Username");
-    usernameInput.size(200, 20);
-    usernameInput.position(p.width / 2 - 100, p.height / 2 - 30);
-
-    // Password field
-    passwordInput = p.createInput("", "password");
-    passwordInput.attribute("placeholder", "Password");
-    passwordInput.size(200, 20);
-    passwordInput.position(p.width / 2 - 100, p.height / 2);
-
-    // Login button
-    loginButton = p.createButton("Login");
-    loginButton.size(80, 30);
-    loginButton.position(p.width / 2 - 40, p.height / 2 + 50);
-    loginButton.mousePressed(sendLoginData);
-
-    // Feedback message
-    message = p.createP("");
-    message.position(p.width / 2 - 100, p.height / 2 + 90);
-    message.style("color", "green");
-    message.hide();
-
+    createLogin(p);
     window.LoadingScreen.hide();
   };
 
@@ -105,9 +82,9 @@ function LoginSketch(p) {
     );
 
     ExitIcon.display(p);
+    p.textSize(100 * window.scale);
     p.fill(50);
-    p.textSize(100);
-    p.text("Login", p.width / 2, p.height / 2 - 100);
+    p.text("Login", p.width / 2, p.height / 2 - 100* window.heightScale);
   };
 
   p.mousePressed = function () {
@@ -121,11 +98,64 @@ function LoginSketch(p) {
     if (p.keyCode === p.ESCAPE) switchSketch(Mode.TITLE);
   };
 
-  p.windowResized = function () {
+  p.windowResized = function (){
     p.resizeCanvas(p.windowWidth, p.windowHeight);
-    usernameInput.position(p.width / 2 - 100, p.height / 2 - 30);
-    passwordInput.position(p.width / 2 - 100, p.height / 2);
-    loginButton.position(p.width / 2 - 40, p.height / 2 + 50);
-    message.position(p.width / 2 - 100, p.height / 2 + 90);
+    window.heightScale = p.windowHeight / 1080;
+    window.widthScale = p.windowWidth / 1920;
+    window.scale = (window.widthScale + window.heightScale)/2;
+    ExitIcon = new Button("ExitIcon",
+        p.width - p.width * 0.05,
+        p.height - p.height * 0.95,
+        function() {
+          bgMusic(Mode.SETTINGS, p, "stop");
+          switchSketch(Mode.TITLE);
+        });
+      usernameInput.hide();
+      passwordInput.hide();
+      loginButton.hide();
+      message.hide();;
+      createLogin(p);
   };
+  
+    p.mousePressed = function () {
+      if (ExitIcon.isMouseOver(p)) {
+        bgMusic(Mode.TITLE, p, "stop");
+        ExitIcon.callback();
+      }
+    };
+  
+    p.keyPressed = function () {
+      if (p.keyCode === p.ESCAPE) {
+        switchSketch(Mode.TITLE);
+      }
+    };
+    function createLogin(p){
+       // Username input
+       usernameInput = p.createInput();
+       usernameInput.size(200 * window.widthScale, 20 * window.heightScale);
+       usernameInput.style("font-size", (20 * window.widthScale) + "px");
+       usernameInput.position(p.width / 2 - 100* window.widthScale, p.height / 2 - 30* window.heightScale);
+       usernameInput.attribute('placeholder', 'Username');
+ 
+       // Password input
+       passwordInput = p.createInput('', 'password');
+       passwordInput.size(200 * window.widthScale, 20 * window.heightScale);
+       passwordInput.style("font-size", (20 * window.widthScale) + "px");
+       passwordInput.position(p.width / 2 - 100* window.widthScale, p.height / 2);
+       passwordInput.attribute('placeholder', 'Password');
+ 
+       // Login button
+       loginButton = p.createButton('Login');
+       loginButton.size(76* window.widthScale, 30* window.heightScale);
+       loginButton.style("font-family", "PixelFont");
+       loginButton.style("font-size", (25 * window.widthScale) + "px");
+       loginButton.position(p.width / 2 - 38* window.widthScale, p.height / 2 + 40* window.heightScale);
+       loginButton.mousePressed(sendLoginData);
+ 
+       // Message element
+       message = p.createP('');
+       message.position(p.width / 2 - 200* window.widthScale, p.height / 2 + 80* window.heightScale);
+       message.style('color', 'green');
+       message.hide(); // Hide message initially
+    }
 }
