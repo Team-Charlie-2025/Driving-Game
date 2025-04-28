@@ -185,14 +185,14 @@ class Car extends GameObject {
     let driftKeyPressed = p.keyIsDown(getKeyForAction("drift"));
     let aboveMax = currentSpeed > this.maxSpeed*.95;
     let lerpAmount = 1;
-    
+    let tractionPercent = currentSpeed /20;   // Traction is how well you can grip at speed from 0-20, .3 traction will grip well until 6
     // Need to incorporate traction along with maxspeed to determine lerp
-    if (currentSpeed > this.maxSpeed) lerpAmount = 0.001;  // This is a real drift
+    if (tractionPercent > 1) lerpAmount = 0.001;  // This is a real drift
     //else if (currentSpeed >= this.maxSpeed * 0.98) lerpAmount = 0.005;
-    else if (currentSpeed >= this.maxSpeed * 0.95) lerpAmount = 0.0025;
-    else if (currentSpeed >= this.maxSpeed * 0.9) lerpAmount = 0.004;
-    else if (currentSpeed < this.maxSpeed * 0.85) lerpAmount = 0.07;
-    else if (currentSpeed < this.maxSpeed * 0.75) lerpAmount = .1
+    else if (tractionPercent >=  0.95) lerpAmount = 0.0025;
+    else if (tractionPercent >=  0.9) lerpAmount = 0.004;
+    else if (tractionPercent < 0.85) lerpAmount = 0.07;
+    else if (tractionPercent < 0.75) lerpAmount = .1
     else lerpAmount = 0.85;
 
     if ((aboveMax || driftKeyPressed) && this.turnDelta > 0.05) {
