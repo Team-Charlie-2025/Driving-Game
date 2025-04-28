@@ -224,40 +224,52 @@ function GarageSketch(p) {
   
 
   function setupItemPurchaseButtons() {
-    const itemTypes = ['wrench','bomb', 'oil', 'shield', 'boat'];
+    const itemTypes = ['wrench', 'bomb', 'oil', 'shield', 'boat'];
     const spacing = p.height * 0.13;
     const boxWidth = p.width * 0.05;
     const boxHeight = p.height * 0.08;
     const x = p.width * 0.04;
     const startY = p.height * 0.3;
-    
+  
     itemTypes.forEach((item, index) => {
       const y = startY + index * spacing;
       const label = item.charAt(0).toUpperCase() + item.slice(1);
       const level = ItemsManager.unlockedItems[item] || 0;
       const isUnlocked = level > 0;
       const isMaxed = level >= 5;
-      
+  
       const box = { x, y, w: boxWidth, h: boxHeight };
       const buttonY = y - p.height * 0.017;
-      
+  
       let btnLabel;
       let btnCallback;
-    
-      if (!isUnlocked) {
-        btnLabel = window.debug ? 0 : ITEM_PRICES[item];
-        btnCallback = () => purchaseItem(item);
-      } else if (isMaxed) {
-        btnLabel = "MAX";
-        btnCallback = () => {};
+  
+      if (item === 'boat') {
+        // Special logic for the boat
+        if (isUnlocked) {
+          btnLabel = "OWNED";
+          btnCallback = () => {}; // No action needed
+        } else {
+          btnLabel = ITEM_PRICES[item];
+          btnCallback = () => purchaseItem(item);
+        }
       } else {
-        btnLabel = getItemUpgradePrice(item, level + 1);
-        btnCallback = () => purchaseItemUpgrade(item);
+        // Logic for other items
+        if (!isUnlocked) {
+          btnLabel = window.debug ? 0 : ITEM_PRICES[item];
+          btnCallback = () => purchaseItem(item);
+        } else if (isMaxed) {
+          btnLabel = "MAX";
+          btnCallback = () => {};
+        } else {
+          btnLabel = getItemUpgradePrice(item, level + 1);
+          btnCallback = () => purchaseItemUpgrade(item);
+        }
       }
-    
+  
       const btn = new UpgradeButton(btnLabel, x + boxWidth / 2, buttonY, btnCallback, "item", boxWidth * 0.95, boxHeight * 0.4);
       upgrades.push({ type: item, label, box, button: btn });
-    });  
+    });
   }
 
   function purchaseItem(itemType) {
@@ -578,13 +590,20 @@ function GarageSketch(p) {
       p.textSize(Math.round(30 * window.scale));
       p.textAlign(p.CENTER, p.CENTER);
       p.text(up.label, up.box.x + up.box.w / 2, up.box.y + up.box.h / 2 - 10);
+    
       const lvl = ItemsManager.unlockedItems[up.type];
-      if (lvl && typeof lvl === "number") {
+      if (up.type === "boat") {
+        // Special logic for the boat
+        if (lvl) {
+          p.text("OWNED", up.box.x + up.box.w / 2, up.box.y + up.box.h / 2 + 15);
+        } 
+      } else if (lvl && typeof lvl === "number") {
+        // Logic for other consumables
         p.text("Lvl " + lvl, up.box.x + up.box.w / 2, up.box.y + up.box.h / 2 + 15);
       }
+    
       up.button.display(p);
     });
-
     let stats = computeCalcStats();
     let panelX = p.width - 440 * window.widthScale;
     let panelY = (p.height - 200 * window.heightScale) / 2;
@@ -759,7 +778,7 @@ function GarageSketch(p) {
     window.scale = (window.heightScale + window.widthScale) / 2;
     
     ExitIcon = new Button("ExitIcon", p.width - 45 * window.widthScale, 45 * window.heightScale, () => switchSketch(Mode.TITLE));
-    if (window.debug) debugAddCoinsButton = new UpgradeButton("Coins", 80 * window.widthScale, p.height - 80 * window.heightScale, debugAddCoins, "gray");
+    if (!window.debug) debugAddCoinsButton = new UpgradeButton("Coins", 80 * window.widthScale, p.height - 80 * window.heightScale, debugAddCoins, "gray");
     
     setupUpgradeLayout();
     setupItemPurchaseButtons();
