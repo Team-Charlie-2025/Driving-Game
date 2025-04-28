@@ -183,8 +183,8 @@ class Car extends GameObject {
     }
 
     // Drift physics
-    let currentSpeed = this.speed;
     let tractionPercent = currentSpeed / 18;   // Traction is how well you can grip at speed from 0-20, .3 traction will grip well until 6
+    let currentSpeed = this.speed;
     let driftKeyPressed = p.keyIsDown(getKeyForAction("drift"));
     let aboveMax = tractionPercent > .95;
     let lerpAmount = 1;
