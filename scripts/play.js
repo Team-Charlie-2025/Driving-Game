@@ -90,12 +90,7 @@ function PlaySketch(p) {
       window.roadSizes = { tiny: 2, small: 3, normal: 5, big: 5, main: 6 , highway: 8};
     } else { // Easy difficulty
       window.roadSizes = { tiny: 4, small: 5, normal: 6, big: 7, main: 9 , highway: 11};
-    }
-    //generateGenMap(p, mapSize, mapSize);
-    //generateDFSMap(p, mapSize, mapSize); // Why is this just so much better 
-    //generateDFSChunkedMap(p,mapSize, mapSize); // Too cluttered downtown
-    //generateSmartChunkedMap(p, mapSize, mapSize);
-    //generateRefactoredDFSMap(p, mapSize, mapSize); // Weird gaps
+    }   
     generateImprovedCityMap(p, 500, 500); // Has weird gen but usable
     window.driveGrid = buildDrivableGrid(map);  //cache drivable grid
     window.runCoinsCalculated = false;
