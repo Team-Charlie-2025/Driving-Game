@@ -29,7 +29,7 @@ function loadGlobals(p) {
   window.scale = (window.heightScale + window.widthScale) / 2;
   window.buildingImg = p.loadImage("assets/building.png");
   window.difficulty = 1.0;
-  window.debug = false;
+  window.debug = true;
   globalsLoaded = true;
 }
 
@@ -41,6 +41,7 @@ function loadMusic(p) {
   window.music[Mode.SETTINGS] = p.loadSound("sound/titleTheme.mp3");
   window.music[Mode.LEADERBOARD] = p.loadSound("sound/titleTheme.mp3");
   window.music[Mode.LEVELS] = p.loadSound("sound/titleTheme.mp3");
+  window.music["gameWon"] = p.loadSound("sound/SeaShantay2.mp3");
   for (let key in window.music) {
     window.music[key].setVolume(musicVolume);
   }
@@ -52,22 +53,40 @@ function loadSoundEffects(p) {
   window.soundEffects["carStart"] = p.loadSound("sound/carStart.wav");
   window.soundEffects["pageChange"] = p.loadSound("sound/newPage.wav");
   window.soundEffects["gameOver"] = p.loadSound("sound/GameOver.wav");
+  window.soundEffects["gameWon"] = p.loadSound("sound/SeaShantay2.mp3");
   for (let key in window.soundEffects) {
     window.soundEffects[key].setVolume(effectsVolume);
   }
 }
 
 function loadCars(p) {
-  window.cars = [];
+  window.cars = {
+    normal: [],
+    truck: [],
+    supercar: [],
+  };
 
-  window.cars.push(p.loadImage("graphics/cars/blueStripe.png"));
-  window.cars.push(p.loadImage("graphics/cars/greenStripe.png"));
-  window.cars.push(p.loadImage("graphics/cars/lightblueStripe.png"));
-  window.cars.push(p.loadImage("graphics/cars/lightgreenStripe.png"));
-  window.cars.push(p.loadImage("graphics/cars/lightpurpleStripe.png"));
-  window.cars.push(p.loadImage("graphics/cars/orangeStripe.png"));
-  window.cars.push(p.loadImage("graphics/cars/purpleStripe.png"));
-  window.cars.push(p.loadImage("graphics/cars/redStripe.png"));
+  // Load images for the "normal" car
+  window.cars["normal"].push(p.loadImage("graphics/cars/blueStripe.png"));
+  window.cars["normal"].push(p.loadImage("graphics/cars/greenStripe.png"));
+  window.cars["normal"].push(p.loadImage("graphics/cars/lightblueStripe.png"));
+  window.cars["normal"].push(p.loadImage("graphics/cars/lightgreenStripe.png"));
+  window.cars["normal"].push(p.loadImage("graphics/cars/lightpurpleStripe.png"));
+  window.cars["normal"].push(p.loadImage("graphics/cars/orangeStripe.png"));
+  window.cars["normal"].push(p.loadImage("graphics/cars/purpleStripe.png"));
+  window.cars["normal"].push(p.loadImage("graphics/cars/redStripe.png"));
+
+  // // Load images for the truck
+  window.cars["truck"].push(p.loadImage("graphics/cars/truckBlue.png"));
+  window.cars["truck"].push(p.loadImage("graphics/cars/truckRed.png"));
+  window.cars["truck"].push(p.loadImage("graphics/cars/truckMaroon.png"));
+  window.cars["truck"].push(p.loadImage("graphics/cars/truckGreen.png"));
+  window.cars["truck"].push(p.loadImage("graphics/cars/truckBlack.png"));
+  window.cars["truck"].push(p.loadImage("graphics/cars/truckYellow.png"));
+
+  // // Load images for the superCar
+  window.cars["supercar"].push(p.loadImage("graphics/cars/superCar.png"));
+  window.cars["supercar"].push(p.loadImage("graphics/cars/superCar.png"));
 
   //console.log("cars loaded");
 }
