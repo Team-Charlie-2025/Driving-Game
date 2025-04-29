@@ -3,7 +3,7 @@
 const gridSize = 32;
 let mapSize = 500;
 let centerX, centerY; // Downtown, center of city
-window.roadSizes = { tiny: 4, small: 5, normal: 6, big: 7, main: 9 , highway: 11};
+let roadSizes = { tiny: 4, small: 5, normal: 6, big: 7, main: 9 , highway: 11};
 
 // These are more like outer bounds, and i need to change building generation to be better for buildings
 let buildingSizes = { smallHouse: 2, largeHouse: 4, shop: 8, shopWidth: 3,
@@ -60,23 +60,23 @@ function generateGenMap(p, rows=500, cols=500) {
     }
   }
 
-  drawRectRoad(p,12,1,12+window.roadSizes.big,420);
-  drawAngledRoad(p,20,15,420,42,window.roadSizes.big);
-  drawBezierRoad(p,50,18,70,50,18,50,window.roadSizes.normal);
-  drawAngledRoad(p,40,47,120,119,window.roadSizes.normal);
-  drawRectRoad(p,119,22,119+window.roadSizes.big,252);
+  drawRectRoad(p,12,1,12+roadSizes.big,420);
+  drawAngledRoad(p,20,15,420,42,roadSizes.big);
+  drawBezierRoad(p,50,18,70,50,18,50,roadSizes.normal);
+  drawAngledRoad(p,40,47,120,119,roadSizes.normal);
+  drawRectRoad(p,119,22,119+roadSizes.big,252);
   drawLake(p,1,1,11,20)
   drawLake(p,42,27,49,38)
   drawLake(p,103,31,117,52);
   let blockSize = 50;
   for(let i=1; i<5; ++i){
-    drawRectRoad(p,119+(i*blockSize),5,119+window.roadSizes.normal+(i*blockSize),252);   // Vertical roads
-    drawRectRoad(p,119,22+(i*blockSize),380,22+window.roadSizes.normal+(i*blockSize));    // Horizontal Roads
+    drawRectRoad(p,119+(i*blockSize),5,119+roadSizes.normal+(i*blockSize),252);   // Vertical roads
+    drawRectRoad(p,119,22+(i*blockSize),380,22+roadSizes.normal+(i*blockSize));    // Horizontal Roads
   }
 
-  drawBezierRoad(p,15,160,150,225,15,260,window.roadSizes.normal);
-  drawAngledRoad(p,61,245,75,400,window.roadSizes.normal);
-  drawAngledRoad(p,86,218,119,226,window.roadSizes.normal);
+  drawBezierRoad(p,15,160,150,225,15,260,roadSizes.normal);
+  drawAngledRoad(p,61,245,75,400,roadSizes.normal);
+  drawAngledRoad(p,86,218,119,226,roadSizes.normal);
   //drawBezierRoad(10,10,30,30,40,5,6);
 
   //drawRectBuilding(27,25,47,39);
@@ -85,7 +85,7 @@ function generateGenMap(p, rows=500, cols=500) {
   fillBigBuildings(p,1,200,130,400);
   fillShopsDynamically(p,1,1,100,180);
   fillBuildingsDynamically(p,120,1,400,250);
-  drawBezierRoad(p,20,105,80,100,75,75,window.roadSizes.normal)
+  drawBezierRoad(p,20,105,80,100,75,75,roadSizes.normal)
 }
 
 
@@ -172,16 +172,16 @@ function generateImprovedCityMap(p, rows, cols) {
   const visited = Array.from({ length: rows }, () => Array(cols).fill(false));
   centerX = Math.floor(cols / 2);
   centerY = Math.floor(rows / 2);
-  drawAngledRoad(p, centerX, 0, centerX, rows - 1, window.roadSizes.main);
-  drawAngledRoad(p, 0, centerY, cols - 1, centerY, window.roadSizes.main);
+  drawAngledRoad(p, centerX, 0, centerX, rows - 1, roadSizes.main);
+  drawAngledRoad(p, 0, centerY, cols - 1, centerY, roadSizes.main);
   markRoadVisited(centerX, 0, centerX, rows - 1, visited);
   markRoadVisited(0, centerY, cols - 1, centerY, visited);
   launchGridFromMainRoad(p, visited, 60, 300, cols, rows);
 
   const residentialEnds = [];
 
-  generateAngledGrid(p, zoneMap, "downtown", horizontalSpacing, verticalSpacing, alleyOffset, window.roadSizes.normal, visited);
-  generateAngledGrid(p, zoneMap, "residential", horizontalSpacing, verticalSpacing, alleyOffset, window.roadSizes.small, visited, 0.25, residentialEnds, chunkSize);
+  generateAngledGrid(p, zoneMap, "downtown", horizontalSpacing, verticalSpacing, alleyOffset, roadSizes.normal, visited);
+  generateAngledGrid(p, zoneMap, "residential", horizontalSpacing, verticalSpacing, alleyOffset, roadSizes.small, visited, 0.25, residentialEnds, chunkSize);
 
   for (const pt of residentialEnds) {
     const forks = 1 + Math.floor(Math.random() * 3);
@@ -246,7 +246,7 @@ function generateAngledGrid(p, zoneMap, zoneName, hSpacing, vSpacing, alleyOffse
       if (Math.random() < alleyChance) {
         const ax = gx + (Math.random() > 0.5 ? -alleyOffset : alleyOffset);
         const ay = gy + (Math.random() > 0.5 ? -alleyOffset : alleyOffset);
-        drawAngledRoad(p, gx, gy, ax, ay, window.roadSizes.tiny);
+        drawAngledRoad(p, gx, gy, ax, ay, roadSizes.tiny);
         markRoadVisited(gx, gy, ax, ay, visited);
       }
     }
@@ -287,9 +287,9 @@ function generateCountryTree(p, x, y, visited, depth, maxDepth) {
     if (Math.random() < curveChance) {
       const cx = Math.floor((x + nx) / 2) + (Math.random() * windiness * 20 - windiness * 10);
       const cy = Math.floor((y + ny) / 2) + (Math.random() * windiness * 20 - windiness * 10);
-      drawBezierRoad(p, x, y, cx, cy, nx, ny, window.roadSizes.normal);
+      drawBezierRoad(p, x, y, cx, cy, nx, ny, roadSizes.normal);
     } else {
-      drawAngledRoad(p, x, y, nx, ny, window.roadSizes.normal);
+      drawAngledRoad(p, x, y, nx, ny, roadSizes.normal);
     }
 
     markRoadVisited(x, y, nx, ny, visited);
@@ -311,7 +311,7 @@ function generateCountryTree(p, x, y, visited, depth, maxDepth) {
 function launchGridFromMainRoad(p, visited, spacing, range, cols, rows) {
   const mainX = Math.floor(cols / 2);
   const mainY = Math.floor(rows / 2);
-  const offset = window.roadSizes.main;
+  const offset = roadSizes.main;
 
   // Horizontal main road — vertical branches
   for (let x = mainX - range; x <= mainX + range; x += spacing) {
@@ -358,9 +358,9 @@ function launchInitialBranch(p, x, y, visited) {
     if (curve) {
       const cx = Math.floor((x + nx) / 2) + (Math.random() > 0.5 ? 10 : -10);
       const cy = Math.floor((y + ny) / 2) + (Math.random() > 0.5 ? 10 : -10);
-      drawBezierRoad(p, x, y, cx, cy, nx, ny, window.roadSizes.normal);
+      drawBezierRoad(p, x, y, cx, cy, nx, ny, roadSizes.normal);
     } else {
-      drawAngledRoad(p, x, y, nx, ny, window.roadSizes.normal);
+      drawAngledRoad(p, x, y, nx, ny, roadSizes.normal);
     }
 
     markRoadVisited(x, y, nx, ny, visited);

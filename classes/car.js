@@ -13,7 +13,6 @@ class Car extends GameObject {
     const data = loadPersistentData();
     const SAVED_STATS = data.stats;
     const selectedCarIndex = data.selectedCar || 0;
-    const selectedCarType = data.selectedCarType || "normal";
 
     this.baseAcceleration = SAVED_STATS.acceleration;
     this.baseMaxSpeed = SAVED_STATS.maxSpeed;
@@ -22,7 +21,7 @@ class Car extends GameObject {
     this.friction = 0.05;
     this.reverseSpeed = -4;
 
-    this.currentImage = window.cars["normal"][selectedCarIndex] || null;
+    this.currentImage = window.cars[selectedCarIndex] || null;
     this.removeFromWorld = false;
 
     if (this.currentImage) {
