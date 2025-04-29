@@ -29,7 +29,7 @@ function loadGlobals(p) {
   window.scale = (window.heightScale + window.widthScale) / 2;
   window.buildingImg = p.loadImage("assets/building.png");
   window.difficulty = 1.0;
-  window.debug = true;
+  window.debug = false;
   globalsLoaded = true;
 }
 
