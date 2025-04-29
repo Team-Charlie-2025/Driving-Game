@@ -202,10 +202,10 @@ function PlaySketch(p) {
       bgMusic("gameWon", p, "play");
       
       // Takes away the boat
-      // ItemsManager.unlockedItems.boat = false;
-      // const savedData = loadPersistentData()
-      // savedData.unlockedItems.boat = false;
-      // savePersistentData(savedData);
+      ItemsManager.unlockedItems.boat = false;
+      const savedData = loadPersistentData()
+      savedData.unlockedItems.boat = false;
+      savePersistentData(savedData);
       
       // We need some peaceful you won sound
       // if(gameOverSound) {soundEffect("gameOver", p, "play"); gameOverSound = false;} 
