@@ -554,7 +554,7 @@ class PlayerTruck extends Car {
     if (other instanceof Enemy) { //upon ememy collision
       damage = other.attackDamage;
       damage = ItemsManager.shieldDamage(damage);
-      this.healthBar = Math.max(0, this.healthBar - (damage/this.damageResScale*window.difficulty));
+      this.healthBar = Math.max(0, this.healthBar - (damage/(this.damageResScale)*window.difficulty));
     }
     else if(other instanceof Wrench){
       if (this.healthBar < this.maxHealth) {

@@ -40,7 +40,7 @@ const ITEM_PRICES = {
   bomb: 500,
   oil: 750,
   shield: 1000,
-  boat: 99999
+  boat: 25000
 };
 
 function GarageSketch(p) {
@@ -78,8 +78,8 @@ function GarageSketch(p) {
   const CAR_COLOR_COST = 10;
   const CAR_TYPE_PRICES = {
     normal: 0,
-    truck: 5000,
-    supercar: 15000
+    truck: 3000,
+    supercar: 10000
   };
 
   let BASE_UPGRADE_PRICE = 25;

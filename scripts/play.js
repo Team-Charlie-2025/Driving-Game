@@ -202,7 +202,7 @@ function PlaySketch(p) {
       bgMusic("gameWon", p, "play");
       
       // Takes away the boat
-      ItemsManager.unlockedItems.boat = false;
+      // ItemsManager.unlockedItems.boat = false;   // This breaks the game win screen
       const savedData = loadPersistentData()
       savedData.unlockedItems.boat = false;
       savePersistentData(savedData);
