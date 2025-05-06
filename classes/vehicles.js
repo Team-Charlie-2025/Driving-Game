@@ -29,7 +29,8 @@ class Car extends GameObject {
     this.acceleration = SAVED_STATS.acceleration;
     this.maxSpeed = SAVED_STATS.maxSpeed;
     this.tireTraction = SAVED_STATS.traction;
-    this.damageResScale = SAVED_STATS.damageRes/8;  
+    //this.damageResScale = SAVED_STATS.damageRes/8;  
+    this.damageResScale = 1;
     this.friction = 0.02;
     this.reverseSpeed = -4;
     this.turnSpeed = 0.07;
@@ -335,7 +336,8 @@ class PlayerTruck extends Car {
     super(p,x,y,stats);
 
     this.attackDamage = Math.round(25*(1+(10/data.upgradeBodyLevel)));  // Only car that gets more damage based off body level
-    this.damageResScale = SAVED_STATS.damageRes/8;
+    //this.damageResScale = SAVED_STATS.damageRes/8;
+    this.damageResScale = 1.5 ;
     this.friction = 0.03;
     this.reverseSpeed = -3;
     this.turnSpeed = 0.05;
@@ -597,7 +599,8 @@ class SuperCar extends Car {
     super(p,x,y,stats);
 
     this.attackDamage = 15;
-    this.damageResScale = SAVED_STATS.damageRes/8;
+    //this.damageResScale = SAVED_STATS.damageRes/8;
+    this.damageResScale = .8;
     this.friction = 0.01;
     this.reverseSpeed = -5;
     this.turnSpeed = 0.07;
@@ -835,6 +838,7 @@ class SuperCar extends Car {
     let damage = 5 * window.difficulty * Math.abs((10*this.speed/this.baseMaxSpeed));
     damage = ItemsManager.shieldDamage(damage);
     console.log("building damage: " + damage + "damag res " + this.damageResScale);
+    //this.healthBar = Math.max(0, this.healthBar - (damage/this.damageResScale));
     this.healthBar = Math.max(0, this.healthBar - (damage/this.damageResScale));
     this.speed *=-.25;
   }
