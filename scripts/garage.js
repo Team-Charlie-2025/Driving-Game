@@ -890,7 +890,6 @@ function GarageSketch(p) {
   }
   function getItemUpgradePrice(itemType, level) {
     if (window.debug) return 0;
-    if(itemType = "boat") return 0;
     const basePrice = ITEM_PRICES[itemType] || 1000;
     return Math.floor(basePrice * level * 0.6);
   }
