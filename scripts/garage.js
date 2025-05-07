@@ -725,6 +725,11 @@ function GarageSketch(p) {
           return;
         }
       }
+      if (ExitIcon.isMouseOver(p)) {
+        bgMusic(Mode.GARAGE, p, "stop");
+        ExitIcon.callback();
+        return;
+      }
       return;
     }
   
