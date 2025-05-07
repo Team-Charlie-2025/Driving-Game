@@ -18,7 +18,7 @@ function drawMap(p, center, zoomFactor) {
   let distanceFromEdge =25;   // How far you have to be from the edge for the color to flip
   let bgColor;
   if (carX > (mapSize-distanceFromEdge) * gridSize) {
-      bgColor = p.color(0,0,255); // Blue for the right side
+      bgColor = p.color(100, 193, 232); // Blue for the right side
   } else if (carX < distanceFromEdge * gridSize || carY < distanceFromEdge *gridSize || carY >> (mapSize-distanceFromEdge) * gridSize) { 
     bgColor = p.color(0); // Black for Top, left and bottom
   } else {
