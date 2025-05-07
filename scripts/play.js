@@ -201,12 +201,6 @@ function PlaySketch(p) {
       bgMusic(Mode.PLAY, p, "stop");
       bgMusic("gameWon", p, "play");
       
-      // Takes away the boat
-      // ItemsManager.unlockedItems.boat = false;   // This breaks the game win screen
-      const savedData = loadPersistentData()
-      savedData.unlockedItems.boat = false;
-      savePersistentData(savedData);
-      
       // We need some peaceful you won sound
       // if(gameOverSound) {soundEffect("gameOver", p, "play"); gameOverSound = false;} 
       p.textFont(window.PixelFont);
@@ -606,6 +600,7 @@ function PlaySketch(p) {
       if (isPaused) {
         togglePause(); // Unpause if paused
       } else {
+        
         bgMusic(Mode.PLAY, p, "stop");
         clearInterval(window.enemySpawnInterval);
         switchSketch(Mode.TITLE);
@@ -613,6 +608,13 @@ function PlaySketch(p) {
     }
 
     if (window.isGameOver || window.won) {
+      if(window.won){
+        // Takes away the boat
+        ItemsManager.unlockedItems.boat = false;
+        const savedData = loadPersistentData()
+        savedData.unlockedItems.boat = false;
+        savePersistentData(savedData);
+      }
       if (p.keyIsDown(82)) { // 'R' key
         switchSketch(Mode.PLAY);
       }

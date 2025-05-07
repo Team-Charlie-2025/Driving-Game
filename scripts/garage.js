@@ -272,17 +272,11 @@ function GarageSketch(p) {
   }
 
   function purchaseItem(itemType) {
-    console.log("tryna buy an item");
-    if (ItemsManager.unlockedItems[itemType] == "boat") { //If weve bought a boat we skip this function
-      console.log(itemType + " already unlocked.");
-      return;
-    } 
-
+    console.log("purchase item")
     const price = window.debug ? 0 : ITEM_PRICES[itemType];
     if (CurrencyManager.getTotalCoins() >= price) {
       CurrencyManager.spendCoins(price);
       ItemsManager.unlockItem(itemType);
-      ItemsManager.
   
       upgrades.forEach(up => {
         if (up.type === itemType) {
@@ -345,7 +339,7 @@ function GarageSketch(p) {
 
   function purchaseCarColor(index) {
 
-    console.log("index bought: " + selectedCarIndex);
+    //console.log("index bought: " + selectedCarIndex);
     if (carColorsUnlocked[selectedCarType][index]) {
       // Already own color, just select it
       selectedCarIndex = index;
@@ -869,6 +863,11 @@ function GarageSketch(p) {
     console.log("Upgrades and item purchases reset.");
   }  
   function purchaseItemUpgrade(itemType) {
+    console.log("Purchase " + itemType);
+    if (itemType == "boat") { //If we've bought a boat we skip this function
+      console.log(itemType + " already unlocked.");
+      return;
+    } 
     let level = ItemsManager.unlockedItems[itemType];
     if (level >= 5) return;
 
@@ -891,6 +890,7 @@ function GarageSketch(p) {
   }
   function getItemUpgradePrice(itemType, level) {
     if (window.debug) return 0;
+    if(itemType = "boat") return 0;
     const basePrice = ITEM_PRICES[itemType] || 1000;
     return Math.floor(basePrice * level * 0.6);
   }
